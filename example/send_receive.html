@@ -1,0 +1,82 @@
+<!--
+Copyright (C) 2016-2019  Davidson Francis <davidsondfgl@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
+-->
+<html>
+<head>
+	<script>
+	/* WebSocket. */
+	var ws;
+
+	/* Establish connection. */
+	function doConnect(addr)
+	{
+		/* Message to be sent. */
+		var msg;
+
+		/* Do connection. */
+		ws = new WebSocket("ws://" + addr + ":8080");
+
+		/* Register events. */
+		ws.onopen = function()
+		{
+			document.getElementById("taLog").value += ("Connection opened\n");
+		};
+
+		/* Deals with messages. */
+		ws.onmessage = function (evt) 
+		{	
+			document.getElementById("taLog").value += ("Recv: " + evt.data + "\n");
+		};
+
+		ws.onclose = function()
+		{
+			document.getElementById("taLog").value += ("Connection closed\n");
+		};
+	}
+
+	document.addEventListener("DOMContentLoaded", function(event)
+	{
+			document.getElementById("btConn").onclick = function()
+			{
+				var txt = document.getElementById("txtServer").value;
+				doConnect(txt);
+			};
+		
+			document.getElementById("btMsg").onclick = function()
+			{
+				var txt = document.getElementById("txtMsg").value;
+				var log = document.getElementById("taLog").value;
+
+				ws.send(txt);
+				document.getElementById("taLog").value += ("Send: " + txt + "\n");
+			};
+	});
+	</script>
+</head>
+<body>
+	
+	<div id="header">
+		<h1 align="left">wsServer</h1>
+		Server: <input type="text" id="txtServer" value="127.0.0.1">
+		<input type="button" id="btConn" name="btConn" value="Connect!"><br /><br />
+
+		Message: <input type="text" id="txtMsg" value="">
+		<input type="button" id="btMsg" name="btMsg" value="Send"><br /><br />
+
+		<textarea rows="4" cols="50" id="taLog" name="taLog"></textarea>
+	</div>
+</body>
+</html>
