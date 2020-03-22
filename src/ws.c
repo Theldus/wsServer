@@ -329,7 +329,7 @@ int ws_socket(struct ws_events *evs, int port)
 	printf("Waiting for incoming connections...\n");
 
 	len = sizeof(struct sockaddr_in);
-	memset(client_socks, 0, sizeof(client_socks));
+	memset(client_socks, -1, sizeof(client_socks));
 	/* Initialize global mutex. */
 	pthread_mutex_init(&mutex, NULL);
 	/* Accept connections. */
