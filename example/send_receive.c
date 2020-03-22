@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <ws.h>
 
@@ -42,9 +43,8 @@ void onmessage(int fd, unsigned char *msg)
 	cli = ws_getaddress(fd);
 	printf("I receive a message: %s, from: %s/%d\n", msg, cli, fd);
 
-	ws_sendframe(fd, "I receive:");
-	ws_sendframe(fd, (char *)msg);
-	
+	ws_sendframe(fd, (char *)msg, true);
+
 	free(cli);
 	free(msg);
 }

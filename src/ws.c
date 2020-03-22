@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -27,6 +28,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 /* Registered events. */
 struct ws_events events;
+
+/* Client socks. */
+int client_socks[MAX_CLIENTS];
+
+/* Number of connected clients. */
+unsigned int client_count = 0;
+
+/* Global mutex. */
+static pthread_mutex_t mutex;
 
 /**
  * Gets the IP address relative to a
@@ -52,10 +62,11 @@ char* ws_getaddress(int fd)
 /**
  * Creates and send an WebSocket frame
  * with some text message.
- * @param fd  Target to be send.
- * @param msg Message to be send.
+ * @param fd        Target to be send.
+ * @param msg       Message to be send.
+ * @param broadcast Enable/disable broadcast.
  */
-int ws_sendframe(int fd, char *msg)
+int ws_sendframe(int fd, char *msg, bool broadcast)
 {
 	unsigned char *response;  /* Response data.  */
 	unsigned char frame[10];  /* Frame.          */
@@ -63,6 +74,7 @@ int ws_sendframe(int fd, char *msg)
 	uint64_t length;          /* Message length. */
 	int idx_response;      /* Index response. */
 	int output;               /* Bytes sent.     */
+	int sock;
 
 	/* Text data. */
 	length   = strlen( (const char *) msg);
@@ -117,6 +129,15 @@ int ws_sendframe(int fd, char *msg)
 
 	response[idx_response] = '\0';
 	output = write(fd, response, idx_response);
+	if (broadcast)
+	{
+		for (int i = 0; i < client_count; i++)
+		{
+			sock = client_socks[i];
+			if ((sock > -1) && (sock != fd))
+				output += write(sock, response, idx_response);
+		}
+	}
 	free(response);
 	return (output);
 }
@@ -245,6 +266,17 @@ static void* ws_establishconnection(void *vsock)
 	}
 
 closed:
+	/* Removes client socket from socks list. */
+    pthread_mutex_lock(&mutex);
+    for (int i = 0; i < client_count; i++)
+    {
+        if (client_socks[i] == sock)
+		{
+            client_socks[i] = -1;
+			break;
+		}
+    }
+    pthread_mutex_unlock(&mutex);
 	close(sock);
 
 	return vsock;
@@ -297,7 +329,9 @@ int ws_socket(struct ws_events *evs, int port)
 	printf("Waiting for incoming connections...\n");
 
 	len = sizeof(struct sockaddr_in);
-	
+	memset(client_socks, -1, sizeof(client_socks));
+	/* Initialize global mutex. */
+	pthread_mutex_init(&mutex, NULL);
 	/* Accept connections. */
 	while (1)
 	{
@@ -305,14 +339,19 @@ int ws_socket(struct ws_events *evs, int port)
 		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t*)&len);
 		if (new_sock < 0)
 		{
-			perror("Error on accepting conections..");
+			perror("Error on accepting connections..");
 			exit(-1);
 		}
-
-		pthread_t client_thread;
+		/* Adds client socket to socks list. */
+        pthread_mutex_lock(&mutex);
+        client_socks[client_count++] = new_sock;
+        pthread_mutex_unlock(&mutex);
+        pthread_t client_thread;
 		if ( pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) new_sock) < 0)
 			perror("Could not create the client thread!");
 
 		pthread_detach(client_thread);
 	}
+	/* Finalize global mutex. */
+	pthread_mutex_destroy(&mutex);
 }
