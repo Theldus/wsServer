@@ -16,15 +16,16 @@
 CC=gcc
 AR=ar
 INCLUDE  = $(CURDIR)/include
+SRC      = $(CURDIR)/src
 CFLAGS   =  -Wall -Werror
 CFLAGS  +=  -I $(INCLUDE) -std=c99
 ARFLAGS  =  cru
 LIB      =  libws.a
 
-C_SRC = $(wildcard base64/*.c)    \
-		$(wildcard handshake/*.c) \
-		$(wildcard sha1/*.c)      \
-		$(wildcard *.c)
+C_SRC = $(wildcard $(SRC)/base64/*.c)    \
+		$(wildcard $(SRC)/handshake/*.c) \
+		$(wildcard $(SRC)/sha1/*.c)      \
+		$(wildcard $(SRC)/*.c)
 
 OBJ = $(C_SRC:.c=.o)
 
@@ -35,8 +36,8 @@ all: $(OBJ)
 	$(CC) $< $(CFLAGS) -c -o $@
 
 clean:
-	@rm -f base64/*.o
-	@rm -f handshake/*.o
-	@rm -f sha1/*.o
-	@rm -f *.o
+	@rm -f $(SRC)/base64/*.o
+	@rm -f $(SRC)/handshake/*.o
+	@rm -f $(SRC)/sha1/*.o
+	@rm -f $(SRC)/*.o
 	@rm -f $(LIB)

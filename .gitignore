@@ -16,3 +16,4 @@
 #Ignore object files and the library.
 *.o
 *.a
+send_receive
