@@ -74,6 +74,7 @@ int ws_sendframe(int fd, char *msg, bool broadcast)
 	uint64_t length;          /* Message length. */
 	int idx_response;      /* Index response. */
 	int output;               /* Bytes sent.     */
+	int sock;
 
 	/* Text data. */
 	length   = strlen( (const char *) msg);
@@ -130,10 +131,10 @@ int ws_sendframe(int fd, char *msg, bool broadcast)
 	output = write(fd, response, idx_response);
 	if (broadcast)
 	{
-		for (unsigned int i = 0; i < MAX_CLIENTS; i++)
+		for (int i = 0; i < client_count; i++)
 		{
-			int sock = client_socks[i];
-			if (sock != 0 && sock != fd)
+			sock = client_socks[i];
+			if ((sock > -1) && (sock != fd))
 				output += write(sock, response, idx_response);
 		}
 	}
@@ -266,13 +267,16 @@ static void* ws_establishconnection(void *vsock)
 
 closed:
 	/* Removes client socket from socks list. */
-	pthread_mutex_lock(&mutex);
-	for (unsigned int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if (client_socks[i] == sock)
-			client_socks[i] = 0;
-	}
-	pthread_mutex_unlock(&mutex);
+    pthread_mutex_lock(&mutex);
+    for (int i = 0; i < client_count; i++)
+    {
+        if (client_socks[i] == sock)
+		{
+            client_socks[i] = -1;
+			break;
+		}
+    }
+    pthread_mutex_unlock(&mutex);
 	close(sock);
 
 	return vsock;
@@ -339,10 +343,10 @@ int ws_socket(struct ws_events *evs, int port)
 			exit(-1);
 		}
 		/* Adds client socket to socks list. */
-	    pthread_mutex_lock(&mutex);
-	    client_socks[client_count++] = new_sock;
-	    pthread_mutex_unlock(&mutex);
-		pthread_t client_thread;
+        pthread_mutex_lock(&mutex);
+        client_socks[client_count++] = new_sock;
+        pthread_mutex_unlock(&mutex);
+        pthread_t client_thread;
 		if ( pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) new_sock) < 0)
 			perror("Could not create the client thread!");
 

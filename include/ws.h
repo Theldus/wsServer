@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 #define MESSAGE_LENGTH 2048
 #define MAX_CLIENTS    8
-#define BROADCAST      1
 
 #define WS_KEY_LEN     24
 #define WS_MS_LEN      36
