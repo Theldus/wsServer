@@ -17,8 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 #ifndef WS_H
 #define WS_H
 
+#include <stdbool.h>
+
 #define MESSAGE_LENGTH 2048
 #define MAX_CLIENTS    8
+#define BROADCAST      1
 
 #define WS_KEY_LEN     24
 #define WS_MS_LEN      36
@@ -60,7 +63,7 @@ extern int getHSaccept(char *wsKey, unsigned char **dest);
 extern int getHSresponse(char *hsrequest, char **hsresponse);
 
 extern char* ws_getaddress(int fd);
-extern int   ws_sendframe(int fd, char *msg);
+extern int   ws_sendframe(int fd, char *msg, bool broadcast);
 extern int   ws_socket(struct ws_events *evs, int port);
 
 #endif /* WS_H */
