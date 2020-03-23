@@ -38,6 +38,13 @@ unsigned int client_count = 0;
 /* Global mutex. */
 static pthread_mutex_t mutex;
 
+#define panic(s)	\
+do					\
+{					\
+	perror(s);		\
+	exit(-1);		\
+} while (0);
+
 /**
  * Gets the IP address relative to a
  * file descriptor opened by the server.
@@ -311,11 +318,11 @@ int ws_socket(struct ws_events *evs, int port)
 	/* Create socket. */
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
-	    perror("Could not create socket");
+	    panic("Could not create socket");
 
 	/* Reuse previous address. */
 	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int)) < 0)
-    	perror("setsockopt(SO_REUSEADDR) failed");
+    	panic("setsockopt(SO_REUSEADDR) failed");
 
 	/* Prepare the sockaddr_in structure. */
 	server.sin_family = AF_INET;
@@ -324,7 +331,7 @@ int ws_socket(struct ws_events *evs, int port)
 
 	/* Bind. */
 	if( bind(sock, (struct sockaddr *)&server, sizeof(server)) < 0 )
-		perror("Bind failed");
+		panic("Bind failed");
 
 	/* Listen. */
 	listen(sock, MAX_CLIENTS);
@@ -342,17 +349,15 @@ int ws_socket(struct ws_events *evs, int port)
 		/* Accept. */
 		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t*)&len);
 		if (new_sock < 0)
-		{
-			perror("Error on accepting connections..");
-			exit(-1);
-		}
+			panic("Error on accepting connections..");
+
 		/* Adds client socket to socks list. */
         pthread_mutex_lock(&mutex);
         client_socks[client_count++] = new_sock;
         pthread_mutex_unlock(&mutex);
         pthread_t client_thread;
 		if ( pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) new_sock) < 0)
-			perror("Could not create the client thread!");
+			panic("Could not create the client thread!");
 
 		pthread_detach(client_thread);
 	}
