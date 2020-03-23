@@ -141,12 +141,14 @@ int ws_sendframe(int fd, const char *msg, bool broadcast)
 	output = write(fd, response, idx_response);
 	if (broadcast)
 	{
-		for (i = 0; i < MAX_CLIENTS; i++)
-		{
-			sock = client_socks[i];
-			if ((sock > -1) && (sock != fd))
-				output += write(sock, response, idx_response);
-		}
+		pthread_mutex_lock(&mutex);
+			for (i = 0; i < MAX_CLIENTS; i++)
+			{
+				sock = client_socks[i];
+				if ((sock > -1) && (sock != fd))
+					output += write(sock, response, idx_response);
+			}
+		pthread_mutex_unlock(&mutex);
 	}
 
 	free(response);
@@ -369,7 +371,7 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 			panic("Error on accepting connections..");
 
 		/* Adds client socket to socks list. */
-        pthread_mutex_lock(&mutex);
+		pthread_mutex_lock(&mutex);
 		    for (i = 0; i < MAX_CLIENTS; i++)
 		    {
 				if (client_socks[i] == -1)
@@ -378,7 +380,7 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 					break;
 				}
 			}
-        pthread_mutex_unlock(&mutex);
+		pthread_mutex_unlock(&mutex);
 
 		if (pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) new_sock) < 0)
 			panic("Could not create the client thread!");
