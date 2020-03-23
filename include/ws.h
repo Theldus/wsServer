@@ -17,53 +17,53 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 #ifndef WS_H
 #define WS_H
 
-#include <stdbool.h>
-#include <stdint.h>
+	#include <stdbool.h>
+	#include <stdint.h>
 
-#define MESSAGE_LENGTH 2048
-#define MAX_CLIENTS    8
+	#define MESSAGE_LENGTH 2048
+	#define MAX_CLIENTS    8
 
-#define WS_KEY_LEN     24
-#define WS_MS_LEN      36
-#define WS_KEYMS_LEN   (WS_KEY_LEN + WS_MS_LEN)
-#define MAGIC_STRING   "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+	#define WS_KEY_LEN     24
+	#define WS_MS_LEN      36
+	#define WS_KEYMS_LEN   (WS_KEY_LEN + WS_MS_LEN)
+	#define MAGIC_STRING   "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
-#define WS_HS_REQ      "Sec-WebSocket-Key"
+	#define WS_HS_REQ      "Sec-WebSocket-Key"
 
-#define WS_HS_ACCLEN   130
-#define WS_HS_ACCEPT                   \
-"HTTP/1.1 101 Switching Protocols\r\n" \
-"Upgrade: websocket\r\n"               \
-"Connection: Upgrade\r\n"              \
-"Sec-WebSocket-Accept: "               \
+	#define WS_HS_ACCLEN   130
+	#define WS_HS_ACCEPT                   \
+	"HTTP/1.1 101 Switching Protocols\r\n" \
+	"Upgrade: websocket\r\n"               \
+	"Connection: Upgrade\r\n"              \
+	"Sec-WebSocket-Accept: "               \
 
-/* Frame definitions. */
-#define WS_FIN    128
+	/* Frame definitions. */
+	#define WS_FIN    128
 
-/* Frame types. */
-#define WS_FR_OP_TXT  1
-#define WS_FR_OP_CLSE 8
+	/* Frame types. */
+	#define WS_FR_OP_TXT  1
+	#define WS_FR_OP_CLSE 8
 
-#define WS_FR_OP_UNSUPPORTED 0xF
+	#define WS_FR_OP_UNSUPPORTED 0xF
 
-/* Events. */
-struct ws_events
-{
-	/* void onopen(int fd); */
-	void (*onopen)(int);
-	
-	/* void onclose(int fd); */
-	void (*onclose)(int);
+	/* Events. */
+	struct ws_events
+	{
+		/* void onopen(int fd); */
+		void (*onopen)(int);
 
-	/* void onmessage(int fd, unsigned char *message); */
-	void (*onmessage)(int, const unsigned char *);
-};
+		/* void onclose(int fd); */
+		void (*onclose)(int);
 
-extern int getHSaccept(char *wsKey, unsigned char **dest);
-extern int getHSresponse(char *hsrequest, char **hsresponse);
+		/* void onmessage(int fd, unsigned char *message); */
+		void (*onmessage)(int, const unsigned char *);
+	};
 
-extern char* ws_getaddress(int fd);
-extern int   ws_sendframe(int fd, const char *msg, bool broadcast);
-extern int   ws_socket(struct ws_events *evs, uint16_t port);
+	extern int getHSaccept(char *wsKey, unsigned char **dest);
+	extern int getHSresponse(char *hsrequest, char **hsresponse);
+
+	extern char* ws_getaddress(int fd);
+	extern int   ws_sendframe(int fd, const char *msg, bool broadcast);
+	extern int   ws_socket(struct ws_events *evs, uint16_t port);
 
 #endif /* WS_H */

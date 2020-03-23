@@ -35,40 +35,45 @@ int client_socks[MAX_CLIENTS];
 /* Global mutex. */
 static pthread_mutex_t mutex;
 
-#define panic(s)	\
-do					\
-{					\
-	perror(s);		\
-	exit(-1);		\
+#define panic(s)     \
+do                   \
+{                    \
+	perror(s);       \
+	exit(-1);        \
 } while (0);
 
 /**
  * Gets the IP address relative to a
  * file descriptor opened by the server.
+ *
  * @param fd File descriptor target.
+ *
  * @return Pointer the ip address.
  */
 char* ws_getaddress(int fd)
 {
 	struct sockaddr_in addr;
-    socklen_t addr_size;
-    char *client;
+	socklen_t addr_size;
+	char *client;
 
-    addr_size = sizeof(struct sockaddr_in);
-    if ( getpeername(fd, (struct sockaddr *)&addr, &addr_size) < 0 )
-    	return NULL;
+	addr_size = sizeof(struct sockaddr_in);
+	if (getpeername(fd, (struct sockaddr *)&addr, &addr_size) < 0)
+		return NULL;
 
-    client = malloc(sizeof(char) * 20);
-    strcpy(client, inet_ntoa(addr.sin_addr));
-    return (client);
+	client = malloc(sizeof(char) * 20);
+	strcpy(client, inet_ntoa(addr.sin_addr));
+	return (client);
 }
 
 /**
  * Creates and send an WebSocket frame
  * with some text message.
+ *
  * @param fd        Target to be send.
  * @param msg       Message to be send.
  * @param broadcast Enable/disable broadcast.
+ *
+ * @return Returns the number of bytes written.
  */
 int ws_sendframe(int fd, const char *msg, bool broadcast)
 {
@@ -76,9 +81,10 @@ int ws_sendframe(int fd, const char *msg, bool broadcast)
 	unsigned char frame[10];  /* Frame.          */
 	uint8_t idx_first_rData;  /* Index data.     */
 	uint64_t length;          /* Message length. */
-	int idx_response;      /* Index response. */
+	int idx_response;         /* Index response. */
 	int output;               /* Bytes sent.     */
-	int sock;
+	int sock;                 /* File Descript.  */
+	int i;                    /* Loop index.     */
 
 	/* Text data. */
 	length   = strlen( (const char *) msg);
@@ -118,14 +124,14 @@ int ws_sendframe(int fd, const char *msg, bool broadcast)
 	/* Add frame bytes. */
 	idx_response = 0;
 	response = malloc( sizeof(unsigned char) * (idx_first_rData + length + 1) );
-	for (int i = 0; i < idx_first_rData; i++)
+	for (i = 0; i < idx_first_rData; i++)
 	{
 		response[i] = frame[i];
 		idx_response++;
 	}
 
 	/* Add data bytes. */
-	for (int i = 0; i < length; i++)
+	for (i = 0; i < length; i++)
 	{
 		response[idx_response] = msg[i];
 		idx_response++;
@@ -135,22 +141,27 @@ int ws_sendframe(int fd, const char *msg, bool broadcast)
 	output = write(fd, response, idx_response);
 	if (broadcast)
 	{
-		for (int i = 0; i < MAX_CLIENTS; i++)
+		for (i = 0; i < MAX_CLIENTS; i++)
 		{
 			sock = client_socks[i];
 			if ((sock > -1) && (sock != fd))
 				output += write(sock, response, idx_response);
 		}
 	}
+
 	free(response);
 	return (output);
 }
 
 /**
  * Receives a text frame, parse and decodes it.
+ *
  * @param frame  WebSocket frame to be parsed.
  * @param length Frame length.
  * @param type   Frame type.
+ *
+ * @return Returns a dynamic null-terminated string that contains
+ * a pointer to the received frame.
  */
 static unsigned char* ws_receiveframe(unsigned char *frame, size_t length, int *type)
 {
@@ -164,7 +175,7 @@ static unsigned char* ws_receiveframe(unsigned char *frame, size_t length, int *
 	int     i,j;            /* Loop indexes.           */
 
 	msg = NULL;
-	
+
 	/* Checks the frame type and parse the frame. */
 	if (frame[0] == (WS_FIN | WS_FR_OP_TXT) )
 	{
@@ -196,23 +207,26 @@ static unsigned char* ws_receiveframe(unsigned char *frame, size_t length, int *
 	/* Close frame. */
 	else if (frame[0] == (WS_FIN | WS_FR_OP_CLSE) )
 		*type = WS_FR_OP_CLSE;
-	
+
 	/* Not supported frame yet. */
 	else
 		*type = frame[0] & 0x0F;
 
-	return msg;
+	return (msg);
 }
 
 /**
  * Establishes to connection with the client and trigger
  * events when occurs one.
+ *
  * @param vsock Client file descriptor.
+ *
+ * @return Return value is ignored.
  * @note This will be run on a different thread.
  */
 static void* ws_establishconnection(void *vsock)
 {
-	int sock;
+	int sock;                           /* File descriptor.               */
 	size_t n;                           /* Number of bytes sent/received. */
 	unsigned char frm[MESSAGE_LENGTH];  /* Frame.                         */
 	unsigned char *msg;                 /* Message.                       */
@@ -225,7 +239,7 @@ static void* ws_establishconnection(void *vsock)
 	sock = (int)(intptr_t)vsock;
 
 	/* Receives message until get some error. */
-	while( (n = read(sock, frm, sizeof(unsigned char) * MESSAGE_LENGTH)) > 0 )
+	while ((n = read(sock, frm, sizeof(unsigned char) * MESSAGE_LENGTH)) > 0)
 	{
 		/* If not handshaked yet. */
 		if (!handshaked)
@@ -276,25 +290,28 @@ static void* ws_establishconnection(void *vsock)
 
 closed:
 	/* Removes client socket from socks list. */
-    pthread_mutex_lock(&mutex);
+	pthread_mutex_lock(&mutex);
 		for (i = 0; i < MAX_CLIENTS; i++)
 		{
-		    if (client_socks[i] == sock)
+			if (client_socks[i] == sock)
 			{
-		        client_socks[i] = -1;
+				client_socks[i] = -1;
 				break;
 			}
 		}
-    pthread_mutex_unlock(&mutex);
+	pthread_mutex_unlock(&mutex);
 	close(sock);
 
-	return vsock;
+	return (vsock);
 }
 
 /**
  * Main loop for the server,
+ *
  * @param evs  Events structure.
  * @param port Server port.
+ *
+ * @return This function never returns.
  */
 int ws_socket(struct ws_events *evs, uint16_t port)
 {
@@ -316,11 +333,11 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	/* Create socket. */
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
-	    panic("Could not create socket");
+		panic("Could not create socket");
 
 	/* Reuse previous address. */
 	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int)) < 0)
-    	panic("setsockopt(SO_REUSEADDR) failed");
+		panic("setsockopt(SO_REUSEADDR) failed");
 
 	/* Prepare the sockaddr_in structure. */
 	server.sin_family = AF_INET;
@@ -328,7 +345,7 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	server.sin_port = htons(port);
 
 	/* Bind. */
-	if( bind(sock, (struct sockaddr *)&server, sizeof(server)) < 0 )
+	if (bind(sock, (struct sockaddr *)&server, sizeof(server)) < 0)
 		panic("Bind failed");
 
 	/* Listen. */
@@ -363,11 +380,13 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 			}
         pthread_mutex_unlock(&mutex);
 
-		if ( pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) new_sock) < 0)
+		if (pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) new_sock) < 0)
 			panic("Could not create the client thread!");
 
 		pthread_detach(client_thread);
 	}
+
 	/* Finalize global mutex. */
 	pthread_mutex_destroy(&mutex);
+	return (0);
 }
