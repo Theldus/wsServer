@@ -32,9 +32,6 @@ struct ws_events events;
 /* Client socks. */
 int client_socks[MAX_CLIENTS];
 
-/* Number of connected clients. */
-unsigned int client_count = 0;
-
 /* Global mutex. */
 static pthread_mutex_t mutex;
 
@@ -138,7 +135,7 @@ int ws_sendframe(int fd, const char *msg, bool broadcast)
 	output = write(fd, response, idx_response);
 	if (broadcast)
 	{
-		for (int i = 0; i < client_count; i++)
+		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			sock = client_socks[i];
 			if ((sock > -1) && (sock != fd))
@@ -222,6 +219,7 @@ static void* ws_establishconnection(void *vsock)
 	char *response;                     /* Response frame.                */
 	int  handshaked;                    /* Handshake state.               */
 	int  type;                          /* Frame type.                    */
+	int  i;                             /* Loop index.                    */
 
 	handshaked = 0;
 	sock = (int)(intptr_t)vsock;
@@ -279,14 +277,14 @@ static void* ws_establishconnection(void *vsock)
 closed:
 	/* Removes client socket from socks list. */
     pthread_mutex_lock(&mutex);
-    for (int i = 0; i < client_count; i++)
-    {
-        if (client_socks[i] == sock)
+		for (i = 0; i < MAX_CLIENTS; i++)
 		{
-            client_socks[i] = -1;
-			break;
+		    if (client_socks[i] == sock)
+			{
+		        client_socks[i] = -1;
+				break;
+			}
 		}
-    }
     pthread_mutex_unlock(&mutex);
 	close(sock);
 
@@ -305,6 +303,8 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	struct sockaddr_in server; /* Server.                */
 	struct sockaddr_in client; /* Client.                */
 	int len;                   /* Length of sockaddr.    */
+	pthread_t client_thread;   /* Client thread.         */
+	int i;                     /* Loop index.            */
 
 	/* Copy events. */
 	memcpy(&events, evs, sizeof(struct ws_events));
@@ -335,8 +335,10 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 
 	len = sizeof(struct sockaddr_in);
 	memset(client_socks, -1, sizeof(client_socks));
+
 	/* Initialize global mutex. */
 	pthread_mutex_init(&mutex, NULL);
+
 	/* Accept connections. */
 	while (1)
 	{
@@ -347,9 +349,16 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 
 		/* Adds client socket to socks list. */
         pthread_mutex_lock(&mutex);
-        client_socks[client_count++] = new_sock;
+		    for (i = 0; i < MAX_CLIENTS; i++)
+		    {
+				if (client_socks[i] == -1)
+				{
+					client_socks[i] = new_sock;
+					break;
+				}
+			}
         pthread_mutex_unlock(&mutex);
-        pthread_t client_thread;
+
 		if ( pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) new_sock) < 0)
 			panic("Could not create the client thread!");
 
