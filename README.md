@@ -23,7 +23,7 @@ void onopen(int fd);
 void onclose(int fd);
 
 /* Client sent a text message. */
-void onmessage(int fd, unsigned char *msg);
+void onmessage(int fd, const unsigned char *msg);
 
 /* fd is the File Descriptor returned by accepted connection. */
 ```
@@ -68,19 +68,18 @@ void onclose(int fd)
  * @param msg Message content.
  * @note For binary files, you can use base64, ;-).
  */
-void onmessage(int fd, unsigned char *msg)
+void onmessage(int fd, const unsigned char *msg)
 {
 	char *cli;
 	cli = ws_getaddress(fd);
 	printf("I receive a message: %s, from: %s/%d\n", msg, cli, fd);
 
 	sleep(2);
-	ws_sendframe(fd, "hellow");
+	ws_sendframe(fd, "hellow", false);
 	sleep(2);
-	ws_sendframe(fd, "wassup brow");
+	ws_sendframe(fd, "wassup brow", false);
 	
 	free(cli);
-	free(msg);
 }
 
 int main()
