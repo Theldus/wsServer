@@ -306,6 +306,10 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	pthread_t client_thread;   /* Client thread.         */
 	int i;                     /* Loop index.            */
 
+	/* Checks if the event list is a valid pointer. */
+	if (evs == NULL)
+		panic("Invalid event list!");
+
 	/* Copy events. */
 	memcpy(&events, evs, sizeof(struct ws_events));
 
