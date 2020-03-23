@@ -55,14 +55,14 @@ struct ws_events
 	void (*onclose)(int);
 
 	/* void onmessage(int fd, unsigned char *message); */
-	void (*onmessage)(int, unsigned char *);
+	void (*onmessage)(int, const unsigned char *);
 };
 
 extern int getHSaccept(char *wsKey, unsigned char **dest);
 extern int getHSresponse(char *hsrequest, char **hsresponse);
 
 extern char* ws_getaddress(int fd);
-extern int   ws_sendframe(int fd, char *msg, bool broadcast);
+extern int   ws_sendframe(int fd, const char *msg, bool broadcast);
 extern int   ws_socket(struct ws_events *evs, int port);
 
 #endif /* WS_H */

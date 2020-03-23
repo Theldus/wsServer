@@ -66,7 +66,7 @@ char* ws_getaddress(int fd)
  * @param msg       Message to be send.
  * @param broadcast Enable/disable broadcast.
  */
-int ws_sendframe(int fd, char *msg, bool broadcast)
+int ws_sendframe(int fd, const char *msg, bool broadcast)
 {
 	unsigned char *response;  /* Response data.  */
 	unsigned char frame[10];  /* Frame.          */
@@ -257,9 +257,13 @@ static void* ws_establishconnection(void *vsock)
 
 		/* Trigger events. */
 		if (type == WS_FR_OP_TXT)
+		{
 			events.onmessage(sock, msg);
+			free(msg);
+		}
 		else if (type == WS_FR_OP_CLSE)
 		{
+			free(msg);
 			events.onclose(sock);
 			goto closed;
 		}

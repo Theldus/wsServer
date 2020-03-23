@@ -37,16 +37,13 @@ void onclose(int fd)
 	free(cli);
 }
 
-void onmessage(int fd, unsigned char *msg)
+void onmessage(int fd, const unsigned char *msg)
 {
 	char *cli;
 	cli = ws_getaddress(fd);
 	printf("I receive a message: %s, from: %s/%d\n", msg, cli, fd);
-
 	ws_sendframe(fd, (char *)msg, true);
-
 	free(cli);
-	free(msg);
 }
 
 int main()
