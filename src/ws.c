@@ -298,19 +298,13 @@ closed:
  * @param evs  Events structure.
  * @param port Server port.
  */
-int ws_socket(struct ws_events *evs, int port)
+int ws_socket(struct ws_events *evs, uint16_t port)
 {
 	int sock;                  /* Current socket.        */
 	int new_sock;              /* New opened connection. */
 	struct sockaddr_in server; /* Server.                */
 	struct sockaddr_in client; /* Client.                */
 	int len;                   /* Length of sockaddr.    */
-
-	if (evs == NULL || port <= 0 || port >  65535)
-	{
-		printf("An error has ocurred, please review your events or the\n"
-			"desired port!");
-	}
 
 	/* Copy events. */
 	memcpy(&events, evs, sizeof(struct ws_events));
