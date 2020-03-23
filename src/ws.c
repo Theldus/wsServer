@@ -38,6 +38,13 @@ unsigned int client_count = 0;
 /* Global mutex. */
 static pthread_mutex_t mutex;
 
+#define panic(s)	\
+do					\
+{					\
+	perror(s);		\
+	exit(-1);		\
+} while (0);
+
 /**
  * Gets the IP address relative to a
  * file descriptor opened by the server.
@@ -66,7 +73,7 @@ char* ws_getaddress(int fd)
  * @param msg       Message to be send.
  * @param broadcast Enable/disable broadcast.
  */
-int ws_sendframe(int fd, char *msg, bool broadcast)
+int ws_sendframe(int fd, const char *msg, bool broadcast)
 {
 	unsigned char *response;  /* Response data.  */
 	unsigned char frame[10];  /* Frame.          */
@@ -257,9 +264,13 @@ static void* ws_establishconnection(void *vsock)
 
 		/* Trigger events. */
 		if (type == WS_FR_OP_TXT)
+		{
 			events.onmessage(sock, msg);
+			free(msg);
+		}
 		else if (type == WS_FR_OP_CLSE)
 		{
+			free(msg);
 			events.onclose(sock);
 			goto closed;
 		}
@@ -287,7 +298,7 @@ closed:
  * @param evs  Events structure.
  * @param port Server port.
  */
-int ws_socket(struct ws_events *evs, int port)
+int ws_socket(struct ws_events *evs, uint16_t port)
 {
 	int sock;                  /* Current socket.        */
 	int new_sock;              /* New opened connection. */
@@ -295,23 +306,17 @@ int ws_socket(struct ws_events *evs, int port)
 	struct sockaddr_in client; /* Client.                */
 	int len;                   /* Length of sockaddr.    */
 
-	if (evs == NULL || port <= 0 || port >  65535)
-	{
-		printf("An error has ocurred, please review your events or the\n"
-			"desired port!");
-	}
-
 	/* Copy events. */
 	memcpy(&events, evs, sizeof(struct ws_events));
 
 	/* Create socket. */
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
-	    perror("Could not create socket");
+	    panic("Could not create socket");
 
 	/* Reuse previous address. */
 	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int)) < 0)
-    	perror("setsockopt(SO_REUSEADDR) failed");
+    	panic("setsockopt(SO_REUSEADDR) failed");
 
 	/* Prepare the sockaddr_in structure. */
 	server.sin_family = AF_INET;
@@ -320,7 +325,7 @@ int ws_socket(struct ws_events *evs, int port)
 
 	/* Bind. */
 	if( bind(sock, (struct sockaddr *)&server, sizeof(server)) < 0 )
-		perror("Bind failed");
+		panic("Bind failed");
 
 	/* Listen. */
 	listen(sock, MAX_CLIENTS);
@@ -338,17 +343,15 @@ int ws_socket(struct ws_events *evs, int port)
 		/* Accept. */
 		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t*)&len);
 		if (new_sock < 0)
-		{
-			perror("Error on accepting connections..");
-			exit(-1);
-		}
+			panic("Error on accepting connections..");
+
 		/* Adds client socket to socks list. */
         pthread_mutex_lock(&mutex);
         client_socks[client_count++] = new_sock;
         pthread_mutex_unlock(&mutex);
         pthread_t client_thread;
 		if ( pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) new_sock) < 0)
-			perror("Could not create the client thread!");
+			panic("Could not create the client thread!");
 
 		pthread_detach(client_thread);
 	}
