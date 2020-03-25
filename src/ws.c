@@ -223,7 +223,9 @@ static unsigned char* ws_receiveframe(unsigned char *frame, size_t length, int *
  *
  * @param vsock Client file descriptor.
  *
- * @return Return value is ignored.
+ * @return Returns vsock if success and a negative
+ * number otherwise.
+ *
  * @note This will be run on a different thread.
  */
 static void* ws_establishconnection(void *vsock)
@@ -248,8 +250,9 @@ static void* ws_establishconnection(void *vsock)
 		if (!handshaked)
 		{
 			ret = getHSresponse( (char *) frm, &response);
-			if (ret == -1)
+			if (ret < 0)
 				goto closed;
+
 			handshaked = 1;
 #ifdef VERBOSE_MODE
 			printf("Handshaked, response: \n"

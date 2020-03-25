@@ -25,14 +25,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 /**
  * Gets the field Sec-WebSocket-Accept on response, by
  * an previously informed key.
+ *
  * @param wsKey Sec-WebSocket-Key
  * @param dest source to be stored the value.
+ *
+ * @return Returns 0 if success and a negative number
+ * otherwise.
  */
 int getHSaccept(char *wsKey, unsigned char **dest)
 {
 	SHA1Context ctx;
+
 	if (!wsKey)
-		return -1;
+		return (-1);
+
 	char *str = malloc( sizeof(char) * (WS_KEY_LEN + WS_MS_LEN + 1) );
 	unsigned char hash[SHA1HashSize];
 
@@ -52,8 +58,12 @@ int getHSaccept(char *wsKey, unsigned char **dest)
 /**
  * Gets the complete response to accomplish a succesfully
  * handshake.
+ *
  * @param hsrequest  Client request.
  * @param hsresponse Server response.
+ *
+ * @return Returns 0 if success and a negative number
+ * otherwise.
  */
 int getHSresponse(char *hsrequest, char **hsresponse)
 {
@@ -70,7 +80,7 @@ int getHSresponse(char *hsrequest, char **hsresponse)
 	
 	ret = getHSaccept(s, &accept);
 	if (ret < 0)
-		return ret;
+		return (ret);
 
 	*hsresponse = malloc(sizeof(char) * WS_HS_ACCLEN);
 	strcpy(*hsresponse, WS_HS_ACCEPT);
