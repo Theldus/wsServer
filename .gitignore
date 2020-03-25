@@ -17,3 +17,4 @@
 *.o
 *.a
 send_receive
+build/
