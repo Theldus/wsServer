@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 		var msg;
 
 		/* Do connection. */
-		ws = new WebSocket("ws://" + addr + ":8080");
+		ws = new WebSocket(addr);
 
 		/* Register events. */
 		ws.onopen = function()
@@ -70,7 +70,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 	
 	<div id="header">
 		<h1 align="left">wsServer</h1>
-		Server: <input type="text" id="txtServer" value="127.0.0.1">
+		Server: <input type="text" id="txtServer" value="ws://127.0.0.1:8080">
 		<input type="button" id="btConn" name="btConn" value="Connect!"><br /><br />
 
 		Message: <input type="text" id="txtMsg" value="">
