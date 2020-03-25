@@ -236,6 +236,7 @@ static void* ws_establishconnection(void *vsock)
 	int  handshaked;                    /* Handshake state.               */
 	int  type;                          /* Frame type.                    */
 	int  i;                             /* Loop index.                    */
+	int  ret;
 
 	handshaked = 0;
 	sock = (int)(intptr_t)vsock;
@@ -246,7 +247,9 @@ static void* ws_establishconnection(void *vsock)
 		/* If not handshaked yet. */
 		if (!handshaked)
 		{
-			getHSresponse( (char *) frm, &response);
+			ret = getHSresponse( (char *) frm, &response);
+			if (ret == -1)
+				goto closed;
 			handshaked = 1;
 #ifdef VERBOSE_MODE
 			printf("Handshaked, response: \n"
