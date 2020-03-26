@@ -33,7 +33,7 @@ struct ws_events events;
 int client_socks[MAX_CLIENTS];
 
 /* Global mutex. */
-static pthread_mutex_t mutex;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define panic(s)     \
 do                   \
@@ -365,9 +365,6 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	len = sizeof(struct sockaddr_in);
 	memset(client_socks, -1, sizeof(client_socks));
 
-	/* Initialize global mutex. */
-	pthread_mutex_init(&mutex, NULL);
-
 	/* Accept connections. */
 	while (1)
 	{
@@ -393,8 +390,5 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 
 		pthread_detach(client_thread);
 	}
-
-	/* Finalize global mutex. */
-	pthread_mutex_destroy(&mutex);
 	return (0);
 }
