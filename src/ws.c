@@ -16,24 +16,48 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <pthread.h>
 
 #include <ws.h>
 
+extern int getHSaccept(char *wsKey, unsigned char **dest);
+extern int getHSresponse(char *hsrequest, char **hsresponse);
+
 /* Registered events. */
-struct ws_events events;
+static struct ws_param events;
 
 /* Client socks. */
-int client_socks[MAX_CLIENTS];
+static int client_socks[MAX_CLIENTS];
 
 /* Global mutex. */
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+/* Main thread in async mode */
+static pthread_t main_thread_async;
+
+/* Message queue in async mode */
+struct msg_queue
+{
+	pthread_mutex_t lock;
+	struct message{
+		size_t size;
+		char*  data;
+		int fd;
+		bool broadcast;
+	}	messages[MAX_QUEUE_LEN];
+	int wr;
+	int rd;
+};
+
+static struct msg_queue msg_queue_async;
 
 #define panic(s)     \
 do                   \
@@ -231,7 +255,7 @@ static unsigned char* ws_receiveframe(unsigned char *frame, size_t length, int *
 static void* ws_establishconnection(void *vsock)
 {
 	int sock;                           /* File descriptor.               */
-	size_t n;                           /* Number of bytes sent/received. */
+	ssize_t n;                           /* Number of bytes sent/received. */
 	unsigned char frm[MESSAGE_LENGTH];  /* Frame.                         */
 	unsigned char *msg;                 /* Message.                       */
 	char *response;                     /* Response frame.                */
@@ -244,55 +268,92 @@ static void* ws_establishconnection(void *vsock)
 	sock = (int)(intptr_t)vsock;
 
 	/* Receives message until get some error. */
-	while ((n = read(sock, frm, sizeof(unsigned char) * MESSAGE_LENGTH)) > 0)
+	while (n = read(sock, frm, sizeof(unsigned char) * MESSAGE_LENGTH), n > 0 || (n == -1 && errno == EAGAIN))
 	{
-		/* If not handshaked yet. */
-		if (!handshaked)
+		if(n > 0)
 		{
-			ret = getHSresponse( (char *) frm, &response);
-			if (ret < 0)
-				goto closed;
+			/* If not handshaked yet. */
+			if (!handshaked)
+			{
+				ret = getHSresponse( (char *) frm, &response);
+				if (ret < 0)
+					goto closed;
 
-			handshaked = 1;
+				handshaked = 1;
 #ifdef VERBOSE_MODE
-			printf("Handshaked, response: \n"
-				"------------------------------------\n"
-				"%s"
-				"------------------------------------\n"
-				,response);
+				printf("Handshaked, response: \n"
+					"------------------------------------\n"
+					"%s"
+					"------------------------------------\n"
+					,response);
 #endif
-			n = write(sock, response, strlen(response));
-			events.onopen(sock);
-			free(response);
+				n = write(sock, response, strlen(response));
+				events.onopen(sock);
+				free(response);
+			}
+
+			/* Decode/check type of frame. */
+			msg = ws_receiveframe(frm, n, &type);
+			if (msg == NULL)
+			{
+#ifdef VERBOSE_MODE
+				printf("Non text frame received from %d", sock);
+				if (type == WS_FR_OP_CLSE)
+					printf(": close frame!\n");
+				else
+				{
+					printf(", type: %x\n", type);
+					continue;
+				}
+#endif
+			}
+
+			/* Trigger events. */
+			if (type == WS_FR_OP_TXT)
+			{
+				events.onmessage(sock, msg);
+				free(msg);
+			}
+			else if (type == WS_FR_OP_CLSE)
+			{
+				free(msg);
+				events.onclose(sock);
+				goto closed;
+			}
 		}
 
-		/* Decode/check type of frame. */
-		msg = ws_receiveframe(frm, n, &type);
-		if (msg == NULL)
+		if (handshaked)
 		{
-#ifdef VERBOSE_MODE
-			printf("Non text frame received from %d", sock);
-			if (type == WS_FR_OP_CLSE)
-				printf(": close frame!\n");
-			else
+			/* Read message queue */
+			pthread_mutex_lock(&msg_queue_async.lock);
+
+			if(msg_queue_async.rd == msg_queue_async.wr)
 			{
-				printf(", type: %x\n", type);
+				pthread_mutex_unlock(&msg_queue_async.lock);
 				continue;
 			}
-#endif
-		}
 
-		/* Trigger events. */
-		if (type == WS_FR_OP_TXT)
-		{
-			events.onmessage(sock, msg);
-			free(msg);
-		}
-		else if (type == WS_FR_OP_CLSE)
-		{
-			free(msg);
-			events.onclose(sock);
-			goto closed;
+			if(msg_queue_async.messages[msg_queue_async.rd].fd == sock || msg_queue_async.messages[msg_queue_async.rd].broadcast)
+			{
+				bool broadcast = msg_queue_async.messages[msg_queue_async.rd].broadcast;
+				char* data = malloc(msg_queue_async.messages[msg_queue_async.rd].size);
+
+				memcpy(data, msg_queue_async.messages[msg_queue_async.rd].data, msg_queue_async.messages[msg_queue_async.rd].size);
+
+				free(msg_queue_async.messages[msg_queue_async.rd].data);
+
+				msg_queue_async.rd = (msg_queue_async.rd + 1) % MAX_QUEUE_LEN;
+
+				pthread_mutex_unlock(&msg_queue_async.lock);
+
+				ws_sendframe(sock, data, broadcast);
+
+				free(data);
+			}
+			else
+			{
+				pthread_mutex_unlock(&msg_queue_async.lock);
+			}
 		}
 	}
 
@@ -314,14 +375,59 @@ closed:
 }
 
 /**
+ * Put a WebSocket frame in the send queue.
+ *
+ * @param fd        Target to be send.
+ * @param msg       Message to be send.
+ * @param broadcast Enable/disable broadcast.
+ * @param overwrite Overwrite old message if queue full.
+ *
+ * @return true if success, false if fail.
+ */
+bool ws_sendframe_async(int fd, const char *msg, bool broadcast, bool overwrite)
+{
+	/* Write message queue */
+	pthread_mutex_lock(&msg_queue_async.lock);
+
+	/* Check if queue is full */
+	if(((msg_queue_async.wr + 1) % MAX_QUEUE_LEN) == msg_queue_async.rd)
+	{
+		if(overwrite)
+		{
+			msg_queue_async.rd = (msg_queue_async.rd + 1) % MAX_QUEUE_LEN;
+		}
+		else
+		{
+			pthread_mutex_unlock(&msg_queue_async.lock);
+			return false;
+		}
+	}
+
+	size_t len = strlen(msg);
+
+	char* data = malloc(len);
+
+	memcpy(data, msg, len);
+
+	msg_queue_async.messages[msg_queue_async.wr].size = len;
+	msg_queue_async.messages[msg_queue_async.wr].data = data;
+	msg_queue_async.messages[msg_queue_async.wr].fd = fd;
+	msg_queue_async.messages[msg_queue_async.wr].broadcast = broadcast;
+
+	msg_queue_async.wr = (msg_queue_async.wr + 1) % MAX_QUEUE_LEN;
+
+	pthread_mutex_unlock(&msg_queue_async.lock);
+	return true;
+}
+
+/**
  * Main loop for the server,
  *
- * @param evs  Events structure.
- * @param port Server port.
+ * @param param  Parameters structure.
  *
  * @return This function never returns.
  */
-int ws_socket(struct ws_events *evs, uint16_t port)
+void ws_socket(struct ws_param *param)
 {
 	int sock;                  /* Current socket.        */
 	int new_sock;              /* New opened connection. */
@@ -332,11 +438,11 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	int i;                     /* Loop index.            */
 
 	/* Checks if the event list is a valid pointer. */
-	if (evs == NULL)
-		panic("Invalid event list!");
+	if (param == NULL)
+		panic("Invalid parameters!");
 
 	/* Copy events. */
-	memcpy(&events, evs, sizeof(struct ws_events));
+	memcpy(&events, param, sizeof(struct ws_param));
 
 	/* Create socket. */
 	sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -350,7 +456,7 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	/* Prepare the sockaddr_in structure. */
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons(port);
+	server.sin_port = htons(param->port);
 
 	/* Bind. */
 	if (bind(sock, (struct sockaddr *)&server, sizeof(server)) < 0)
@@ -373,6 +479,10 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 		if (new_sock < 0)
 			panic("Error on accepting connections..");
 
+		/* Non-blocking mode */
+		int flags = fcntl(new_sock, F_GETFL, 0);
+		fcntl(new_sock, F_SETFL, flags | O_NONBLOCK);
+
 		/* Adds client socket to socks list. */
 		pthread_mutex_lock(&mutex);
 		    for (i = 0; i < MAX_CLIENTS; i++)
@@ -390,5 +500,24 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 
 		pthread_detach(client_thread);
 	}
-	return (0);
+}
+
+/**
+ * Run loop for the server in background.
+ *
+ * @param param  Parameters structure.
+ *
+ */
+void ws_socket_async(struct ws_param *param)
+{
+	/* Create message queue */
+	pthread_mutex_init(&msg_queue_async.lock, NULL);
+	msg_queue_async.wr = 0;
+	msg_queue_async.rd = 0;
+
+	/* Create main thread */
+	if (pthread_create(&main_thread_async, NULL, (void*(*)(void*))ws_socket, (void*)param) < 0)
+			panic("Could not create main thread!");
+
+		pthread_detach(main_thread_async);
 }

@@ -47,7 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 	#define WS_FR_OP_UNSUPPORTED 0xF
 
 	/* Events. */
-	struct ws_events
+	struct ws_param
 	{
 		/* void onopen(int fd); */
 		void (*onopen)(int);
@@ -57,13 +57,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 		/* void onmessage(int fd, unsigned char *message); */
 		void (*onmessage)(int, const unsigned char *);
+
+		/* Listening port */
+		uint16_t port;
 	};
 
-	extern int getHSaccept(char *wsKey, unsigned char **dest);
-	extern int getHSresponse(char *hsrequest, char **hsresponse);
+	/* message queue definitions. */
+	#define MAX_QUEUE_LEN    8
 
-	extern char* ws_getaddress(int fd);
-	extern int   ws_sendframe(int fd, const char *msg, bool broadcast);
-	extern int   ws_socket(struct ws_events *evs, uint16_t port);
+	char* ws_getaddress(int fd);
+	int   ws_sendframe(int fd, const char *msg, bool broadcast);
+	void  ws_socket(struct ws_param *param);
+	bool  ws_sendframe_async(int fd, const char *msg, bool broadcast, bool overwrite);
+	void  ws_socket_async(struct ws_param *param);
 
 #endif /* WS_H */
