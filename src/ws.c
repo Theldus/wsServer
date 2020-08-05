@@ -403,7 +403,7 @@ bool ws_sendframe_async(int fd, const char *msg, bool broadcast, bool overwrite)
 		}
 	}
 
-	size_t len = strlen(msg);
+	size_t len = strlen(msg) + 1;
 
 	char* data = malloc(len);
 
@@ -519,5 +519,5 @@ void ws_socket_async(struct ws_param *param)
 	if (pthread_create(&main_thread_async, NULL, (void*(*)(void*))ws_socket, (void*)param) < 0)
 			panic("Could not create main thread!");
 
-		pthread_detach(main_thread_async);
+	pthread_detach(main_thread_async);
 }
