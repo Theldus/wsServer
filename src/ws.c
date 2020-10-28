@@ -71,11 +71,12 @@ char* ws_getaddress(int fd)
  *
  * @param fd        Target to be send.
  * @param msg       Message to be send.
+ * @param size......Binary message size (set it <0 for text message)
  * @param broadcast Enable/disable broadcast.
  *
  * @return Returns the number of bytes written.
  */
-int ws_sendframe(int fd, const char *msg, bool broadcast)
+int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
 {
 	unsigned char *response;  /* Response data.  */
 	unsigned char frame[10];  /* Frame.          */
@@ -86,9 +87,18 @@ int ws_sendframe(int fd, const char *msg, bool broadcast)
 	int sock;                 /* File Descript.  */
 	int i;                    /* Loop index.     */
 
-	/* Text data. */
-	length   = strlen( (const char *) msg);
-	frame[0] = (WS_FIN | WS_FR_OP_TXT);
+	if(size < 0)
+	{
+		/* Text data. */
+		length = strlen( (const char *) msg);
+		frame[0] = (WS_FIN | WS_FR_OP_TXT);
+	}
+	else
+	{
+		/* Binary data. */
+		length = size;
+		frame[0] = (WS_FIN | WS_FR_OP_BIN);
+	}
 
 	/* Split the size between octects. */
 	if (length <= 125)
@@ -375,8 +385,8 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 
 		/* Adds client socket to socks list. */
 		pthread_mutex_lock(&mutex);
-		    for (i = 0; i < MAX_CLIENTS; i++)
-		    {
+			for (i = 0; i < MAX_CLIENTS; i++)
+			{
 				if (client_socks[i] == -1)
 				{
 					client_socks[i] = new_sock;

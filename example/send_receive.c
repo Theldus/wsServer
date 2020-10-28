@@ -42,7 +42,7 @@ void onmessage(int fd, const unsigned char *msg)
 	char *cli;
 	cli = ws_getaddress(fd);
 	printf("I receive a message: %s, from: %s/%d\n", msg, cli, fd);
-	ws_sendframe(fd, (char *)msg, true);
+	ws_sendframe(fd, (char *)msg, -1, true);
 	free(cli);
 }
 

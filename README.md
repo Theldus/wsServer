@@ -93,9 +93,9 @@ void onmessage(int fd, const unsigned char *msg)
     printf("I receive a message: %s, from: %s/%d\n", msg, cli, fd);
 
     sleep(2);
-    ws_sendframe(fd, "hellow", false);
+    ws_sendframe(fd, "hellow", -1, false);
     sleep(2);
-    ws_sendframe(fd, "wassup brow", false);
+    ws_sendframe(fd, "wassup brow", -1, false);
 
     free(cli);
 }
