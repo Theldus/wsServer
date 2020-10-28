@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 	#define MESSAGE_LENGTH 2048
 	#define MAX_CLIENTS    8
+	#define MAX_PORTS      16
 
 	#define WS_KEY_LEN     24
 	#define WS_MS_LEN      36
