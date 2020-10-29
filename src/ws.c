@@ -162,22 +162,16 @@ int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
 	output = write(fd, response, idx_response);
 	if (broadcast)
 	{
-		cur_port_index = - 1;
-		for (i = 0; i < MAX_CLIENTS; i++)
-		{
-			sock = client_socks[i].client_sock;
-			if( sock == fd )
-			{
-				cur_port_index = client_socks[i].port_index;
-				break;
-			}
-		}
-
 		pthread_mutex_lock(&mutex);
+			cur_port_index = - 1;
+			for (i = 0; i < MAX_CLIENTS; i++)
+				if (client_socks[i].client_sock == fd)
+					cur_port_index = client_socks[i].port_index, i = MAX_CLIENTS;
+
 			for (i = 0; i < MAX_CLIENTS; i++)
 			{
 				sock = client_socks[i].client_sock;
-				if ((sock > -1) && (sock != fd) && ( client_socks[i].port_index == cur_port_index ) )
+				if ((sock > -1) && (sock != fd) &&(client_socks[i].port_index == cur_port_index))
 					output += write(sock, response, idx_response);
 			}
 		pthread_mutex_unlock(&mutex);
