@@ -93,7 +93,7 @@ int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
 	uint8_t idx_first_rData;  /* Index data.     */
 	uint64_t length;          /* Message length. */
 	int idx_response;         /* Index response. */
-	int output;               /* Bytes sent.     */
+	ssize_t output;           /* Bytes sent.     */
 	int sock;                 /* File Descript.  */
 	int i;                    /* Loop index.     */
 	int cur_port_index;       /* Current port index */
@@ -178,7 +178,7 @@ int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
 	}
 
 	free(response);
-	return (output);
+	return ((int)output);
 }
 
 /**
@@ -257,7 +257,7 @@ static unsigned char* ws_receiveframe(unsigned char *frame, size_t length, int *
 static void* ws_establishconnection(void *vsock)
 {
 	int sock;                           /* File descriptor.               */
-	size_t n;                           /* Number of bytes sent/received. */
+	ssize_t n;                          /* Number of bytes sent/received. */
 	unsigned char frm[MESSAGE_LENGTH];  /* Frame.                         */
 	unsigned char *msg;                 /* Message.                       */
 	char *response;                     /* Response frame.                */
