@@ -271,7 +271,6 @@ static void* ws_establishconnection(void *vsock)
 	handshaked = 0;
 
 	connection_index = (int)(intptr_t)vsock;
-
 	sock = client_socks[connection_index].client_sock;
 	p_index = client_socks[connection_index].port_index;
 
@@ -342,8 +341,8 @@ closed:
 			}
 		}
 	pthread_mutex_unlock(&mutex);
-	close(sock);
 
+	close(sock);
 	return (vsock);
 }
 
@@ -372,16 +371,13 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 		panic("Invalid event list!");
 
 	pthread_mutex_lock(&mutex);
-
-	if(port_index >= MAX_PORTS)
-	{
-		pthread_mutex_unlock(&mutex);
-		panic("too much websocket ports opened !");
-	}
-
-	p_index = port_index;
-	port_index++;
-
+		if (port_index >= MAX_PORTS)
+		{
+			pthread_mutex_unlock(&mutex);
+			panic("too much websocket ports opened !");
+		}
+		p_index = port_index;
+		port_index++;
 	pthread_mutex_unlock(&mutex);
 
 	/* Copy events. */
@@ -435,7 +431,6 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 					break;
 				}
 			}
-
 		pthread_mutex_unlock(&mutex);
 
 		if (pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) connection_index) < 0)
