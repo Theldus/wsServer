@@ -205,7 +205,7 @@ static unsigned char* ws_receiveframe(unsigned char *frame, size_t length, int *
 	msg = NULL;
 
 	/* Checks the frame type and parse the frame. */
-	if (frame[0] == (WS_FIN | WS_FR_OP_TXT) )
+	if (frame[0] == (WS_FIN | WS_FR_OP_TXT | WS_FR_OP_BIN) )
 	{
 		*type = WS_FR_OP_TXT;
 		idx_first_mask = 2;
