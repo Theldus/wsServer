@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 	#define MESSAGE_LENGTH 2048
 	#define MAX_CLIENTS    8
+	#define MAX_PORTS      16
 
 	#define WS_KEY_LEN     24
 	#define WS_MS_LEN      36
@@ -42,6 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 	/* Frame types. */
 	#define WS_FR_OP_TXT  1
+	#define WS_FR_OP_BIN  2
 	#define WS_FR_OP_CLSE 8
 
 	#define WS_FR_OP_UNSUPPORTED 0xF
@@ -63,7 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 	extern int getHSresponse(char *hsrequest, char **hsresponse);
 
 	extern char* ws_getaddress(int fd);
-	extern int   ws_sendframe(int fd, const char *msg, bool broadcast);
+	extern int   ws_sendframe(int fd, const char *msg, int size, bool broadcast);
 	extern int   ws_socket(struct ws_events *evs, uint16_t port);
 
 #endif /* WS_H */
