@@ -26,27 +26,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include <ws.h>
 
-typedef struct _ws_port
+/* Opened ports. */
+int port_index;
+struct ws_port
 {
 	int port_number;
 	struct ws_events events;
-
 	int sock;
-}ws_port;
-
-typedef struct _ws_connection
-{
-	int client_sock;
-
-	int port_index;
-}ws_connection;
+} ports[MAX_PORTS];
 
 /* Client socks. */
-ws_connection client_socks[MAX_CLIENTS];
-
-/* opened ports */
-int port_index = 0;
-ws_port ports[MAX_PORTS];
+struct ws_connection
+{
+	int client_sock;
+	int port_index;
+} client_socks[MAX_CLIENTS];
 
 /* Global mutex. */
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
