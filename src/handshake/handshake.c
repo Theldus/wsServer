@@ -39,6 +39,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  * @return Returns 0 if success and a negative number
  * otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 int get_handshake_accept(char *wsKey, unsigned char **dest)
 {
@@ -72,6 +75,9 @@ int get_handshake_accept(char *wsKey, unsigned char **dest)
  *
  * @return Returns 0 if success and a negative number
  * otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 int get_handshake_response(char *hsrequest, char **hsresponse)
 {
