@@ -23,7 +23,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 #include <stdlib.h>
 
 /**
- * Gets the field Sec-WebSocket-Accept on response, by
+ * @dir src/handshake
+ * @brief Handshake routines directory
+ *
+ * @file handshake.c
+ * @brief Handshake routines.
+ */
+
+/**
+ * @brief Gets the field Sec-WebSocket-Accept on response, by
  * an previously informed key.
  *
  * @param wsKey Sec-WebSocket-Key
@@ -32,7 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
  * @return Returns 0 if success and a negative number
  * otherwise.
  */
-int getHSaccept(char *wsKey, unsigned char **dest)
+int get_handshake_accept(char *wsKey, unsigned char **dest)
 {
 	SHA1Context ctx;
 
@@ -56,7 +64,7 @@ int getHSaccept(char *wsKey, unsigned char **dest)
 }
 
 /**
- * Gets the complete response to accomplish a succesfully
+ * @brief Gets the complete response to accomplish a succesfully
  * handshake.
  *
  * @param hsrequest  Client request.
@@ -65,7 +73,7 @@ int getHSaccept(char *wsKey, unsigned char **dest)
  * @return Returns 0 if success and a negative number
  * otherwise.
  */
-int getHSresponse(char *hsrequest, char **hsresponse)
+int get_handshake_response(char *hsrequest, char **hsresponse)
 {
 	char *s;
 	unsigned char *accept;
@@ -78,7 +86,7 @@ int getHSresponse(char *hsrequest, char **hsresponse)
 	s = strtok(s,    " ");
 	s = strtok(NULL, " ");
 	
-	ret = getHSaccept(s, &accept);
+	ret = get_handshake_accept(s, &accept);
 	if (ret < 0)
 		return (ret);
 

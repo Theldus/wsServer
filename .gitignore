@@ -18,3 +18,5 @@
 *.a
 send_receive
 build/
+doc/doxygen/html
+doc/doxygen/xml

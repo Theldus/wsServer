@@ -26,25 +26,62 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 #include <ws.h>
 
-/* Opened ports. */
+/**
+ * @dir src/
+ * @brief wsServer source code
+ *
+ * @file ws.c
+ * @brief wsServer main routines.
+ */
+
+/**
+ * @brief Opened ports.
+ */
 int port_index;
+
+/**
+ * @brief Port entry in @ref ws_port structure.
+ *
+ * This defines the port number and events for a single
+ * call to @ref ws_socket. This allows that multiples threads
+ * can call @ref ws_socket, configuring different ports and
+ * events for each call.
+ */
 struct ws_port
 {
-	int port_number;
-	struct ws_events events;
-	int sock;
-} ports[MAX_PORTS];
+	int port_number;         /**< Port number.      */
+	struct ws_events events; /**< Websocket events. */
+};
 
-/* Client socks. */
+/**
+ * @brief Ports list.
+ */
+struct ws_port ports[MAX_PORTS];
+
+/**
+ * @brief Client socks.
+ */
 struct ws_connection
 {
-	int client_sock;
-	int port_index;
-} client_socks[MAX_CLIENTS];
+	int client_sock; /**< Client socket FD.        */
+	int port_index;  /**< Index in the port list.  */
+};
 
-/* Global mutex. */
+/**
+ * @brief Clients list.
+ */
+struct ws_connection client_socks[MAX_CLIENTS];
+
+/**
+ * @brief Global mutex.
+ */
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/**
+ * @brief Issues an error message and aborts the program.
+ *
+ * @param s Error message.
+ */
 #define panic(s)     \
 do                   \
 {                    \
@@ -53,8 +90,8 @@ do                   \
 } while (0);
 
 /**
- * Gets the IP address relative to a
- * file descriptor opened by the server.
+ * @brief Gets the IP address relative to a file descriptor opened
+ * by the server.
  *
  * @param fd File descriptor target.
  *
@@ -76,8 +113,7 @@ char* ws_getaddress(int fd)
 }
 
 /**
- * Creates and send an WebSocket frame
- * with some text message.
+ * @brief Creates and send an WebSocket frame with some text message.
  *
  * @param fd        Target to be send.
  * @param msg       Message to be send.
@@ -85,6 +121,9 @@ char* ws_getaddress(int fd)
  * @param broadcast Enable/disable broadcast.
  *
  * @return Returns the number of bytes written.
+ *
+ * @note If @p size is -1, it is assumed that a text frame is being sent,
+ * otherwise, a binary frame. In the later case, the @p size is used.
  */
 int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
 {
@@ -182,14 +221,17 @@ int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
 }
 
 /**
- * Receives a text frame, parse and decodes it.
+ * @brief Receives a text frame, parse and decodes it.
  *
  * @param frame  WebSocket frame to be parsed.
  * @param length Frame length.
- * @param type   Frame type.
+ * @param type   Frame type pointer.
  *
  * @return Returns a dynamic null-terminated string that contains
  * a pointer to the received frame.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static unsigned char* ws_receiveframe(unsigned char *frame, size_t length, int *type)
 {
@@ -244,15 +286,18 @@ static unsigned char* ws_receiveframe(unsigned char *frame, size_t length, int *
 }
 
 /**
- * Establishes to connection with the client and trigger
+ * @brief Establishes to connection with the client and trigger
  * events when occurs one.
  *
- * @param vsock Client file descriptor.
+ * @param vsock Client connection index.
  *
- * @return Returns vsock if success and a negative
+ * @return Returns @p vsock if success and a negative
  * number otherwise.
  *
  * @note This will be run on a different thread.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static void* ws_establishconnection(void *vsock)
 {
@@ -280,7 +325,7 @@ static void* ws_establishconnection(void *vsock)
 		/* If not handshaked yet. */
 		if (!handshaked)
 		{
-			ret = getHSresponse( (char *) frm, &response);
+			ret = get_handshake_response( (char *) frm, &response);
 			if (ret < 0)
 				goto closed;
 
@@ -347,12 +392,17 @@ closed:
 }
 
 /**
- * Main loop for the server,
+ * @brief Main loop for the server.
  *
  * @param evs  Events structure.
  * @param port Server port.
  *
  * @return This function never returns.
+ *
+ * @note Note that this function can be called multiples times,
+ * from multiples different threads (depending on the @ref MAX_PORTS)
+ * value. Each call _should_ have a different port and can have
+ * differents events configured.
  */
 int ws_socket(struct ws_events *evs, uint16_t port)
 {

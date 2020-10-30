@@ -16,18 +16,17 @@
 CC=gcc
 WSDIR    = $(CURDIR)/../
 INCLUDE  = -I $(WSDIR)/include
-CFLAGS   =  -Wall -Werror
+CFLAGS   =  -Wall -Werror -g
 CFLAGS  +=  $(INCLUDE) -std=c99 -pthread
 LIB      =  $(WSDIR)/libws.a
 
-all: libws send_receive
+# Examples
+all: send_receive
 
-libws:
-	cd $(WSDIR) && $(MAKE) all
-
+# Send receive
 send_receive:
 	$(CC) $(CFLAGS) $(LDFLAGS) *.c -o send_receive $(LIB)
 
+# Clean
 clean:
 	@rm -f send_receive
-	cd $(WSDIR) && $(MAKE) clean

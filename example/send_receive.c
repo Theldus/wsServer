@@ -21,6 +21,21 @@
 #include <unistd.h>
 #include <ws.h>
 
+/**
+ * @dir example/
+ * @brief wsServer examples folder
+ *
+ * @file send_receive.c
+ * @brief Simple send/receiver example.
+ */
+
+/**
+ * @brief Called when a client connects to the server.
+ *
+ * @param fd File Descriptor belonging to the client. The @p fd parameter
+ * is used in order to send messages and retrieve informations
+ * about the client.
+ */
 void onopen(int fd)
 {
 	char *cli;
@@ -29,6 +44,13 @@ void onopen(int fd)
 	free(cli);
 }
 
+/**
+ * @brief Called when a client disconnects to the server.
+ *
+ * @param fd File Descriptor belonging to the client. The @p fd parameter
+ * is used in order to send messages and retrieve informations
+ * about the client.
+ */
 void onclose(int fd)
 {
 	char *cli;
@@ -37,6 +59,16 @@ void onclose(int fd)
 	free(cli);
 }
 
+/**
+ * @brief Called when a client connects to the server.
+ *
+ * @param fd File Descriptor belonging to the client. The @p fd parameter
+ * is used in order to send messages and retrieve informations
+ * about the client.
+ *
+ * @param msg Received message, this message can be a text or binary
+ * message.
+ */
 void onmessage(int fd, const unsigned char *msg)
 {
 	char *cli;
@@ -46,13 +78,19 @@ void onmessage(int fd, const unsigned char *msg)
 	free(cli);
 }
 
-int main()
+/**
+ * @brief Main routine.
+ *
+ * @note After invoking @ref ws_socket, this routine never returns,
+ * unless if invoked from a different thread.
+ */
+int main(void)
 {
 	struct ws_events evs;
 	evs.onopen    = &onopen;
 	evs.onclose   = &onclose;
 	evs.onmessage = &onmessage;
-	ws_socket(&evs, 8080);
+	ws_socket(&evs, 8080); /* Never returns. */
 
-	return 0;
+	return (0);
 }

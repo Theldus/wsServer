@@ -93,9 +93,9 @@ void onmessage(int fd, const unsigned char *msg)
     printf("I receive a message: %s, from: %s/%d\n", msg, cli, fd);
 
     sleep(2);
-    ws_sendframe(fd, "hellow", -1, false);
+    ws_sendframe(fd, "hello", -1, false);
     sleep(2);
-    ws_sendframe(fd, "wassup brow", -1, false);
+    ws_sendframe(fd, "world", -1, false);
 
     free(cli);
 }
@@ -115,8 +115,7 @@ int main()
 }
 ```
 
-to build the example (assuming you already built the library), you just have to do
-something like `gcc file.c -I include/ -o file -pthread libws.a`
+to build the example above, just invoke: `make examples`.
 
 ## SSL/TLS Support
 wsServer does not currently support encryption. However, it is possible to use it in conjunction
