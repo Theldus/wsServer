@@ -422,7 +422,9 @@ static void* ws_establishconnection(void *vsock)
 	int  i;                             /* Loop index.                    */
 	int  connection_index;              /* Client connect. index.         */
 	int  p_index;                       /* Port list index.               */
+	int  close_frame;                   /* Close frame flag.              */
 
+	close_frame  = 0;
 	msg_idx      = 0;
 	total_length = 0;
 	handshaked   = 0;
@@ -485,6 +487,7 @@ static void* ws_establishconnection(void *vsock)
 			}
 			else if (type == WS_FR_OP_CLSE)
 			{
+				close_frame = 1;
 				free(msg);
 				ports[p_index].events.onclose(sock);
 				goto closed;
@@ -495,6 +498,14 @@ next_frame:;
 	}
 
 closed:
+	/*
+	 * If we do not receive a close frame, we still need to
+	 * call the close event, as the server is expected to
+	 * always know when the client disconnects.
+	 */
+	if (!close_frame)
+		ports[p_index].events.onclose(sock);
+
 	/* Removes client socket from socks list. */
 	pthread_mutex_lock(&mutex);
 		for (i = 0; i < MAX_CLIENTS; i++)
