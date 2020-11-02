@@ -1,5 +1,5 @@
 <!--
-Copyright (C) 2016-2019  Davidson Francis <davidsondfgl@gmail.com>
+Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,8 +36,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 		};
 
 		/* Deals with messages. */
-		ws.onmessage = function (evt) 
-		{	
+		ws.onmessage = function (evt)
+		{
 			document.getElementById("taLog").value += ("Recv: " + evt.data + "\n");
 		};
 
@@ -54,7 +54,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 				var txt = document.getElementById("txtServer").value;
 				doConnect(txt);
 			};
-		
+
 			document.getElementById("btMsg").onclick = function()
 			{
 				var txt = document.getElementById("txtMsg").value;
@@ -67,7 +67,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 	</script>
 </head>
 <body>
-	
+
 	<div id="header">
 		<h1 align="left">wsServer</h1>
 		Server: <input type="text" id="txtServer" value="ws://127.0.0.1:8080">
