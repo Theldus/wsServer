@@ -13,12 +13,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-CC=gcc
-AR=ar
+CC       ?= gcc
+AR        = ar
 INCLUDE   = $(CURDIR)/include
 SRC       = $(CURDIR)/src
-CFLAGS    =  -Wall -Werror -g
-CFLAGS   +=  -I $(INCLUDE) -std=c99
+CFLAGS    =  -Wall -Wextra -O2
+CFLAGS   +=  -I $(INCLUDE) -std=c99 -pedantic
 ARFLAGS   =  cru
 LIB       =  libws.a
 MCSS_DIR ?= /usr/bin/

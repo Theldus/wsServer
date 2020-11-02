@@ -13,11 +13,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-CC=gcc
+CC      ?= gcc
 WSDIR    = $(CURDIR)/../
 INCLUDE  = -I $(WSDIR)/include
-CFLAGS   =  -Wall -Werror -g
-CFLAGS  +=  $(INCLUDE) -std=c99 -pthread
+CFLAGS   =  -Wall -Wextra -O2
+CFLAGS  +=  $(INCLUDE) -std=c99 -pthread -pedantic
 LIB      =  $(WSDIR)/libws.a
 
 # Examples

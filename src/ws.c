@@ -536,6 +536,8 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	int connection_index;
 	int p_index;
 
+	connection_index = 0;
+
 	/* Checks if the event list is a valid pointer. */
 	if (evs == NULL)
 		panic("Invalid event list!");
