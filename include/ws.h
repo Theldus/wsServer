@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 	 * @brief Max clients connected simultaneously.
 	 */
 	#define MAX_CLIENTS    8
-	
+
 	/**
 	 * @brief Max number of `ws_server` instances running
 	 * at the same time.
@@ -78,12 +78,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 	 * @brief Alias for 'Sec-WebSocket-Key'.
 	 */
 	#define WS_HS_REQ      "Sec-WebSocket-Key"
-	
+
 	/**
 	 * @brief Handshake accept message length.
 	 */
 	#define WS_HS_ACCLEN   130
-	
+
 	/**
 	 * @brief Handshake accept message.
 	 */
@@ -102,29 +102,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 	 * @brief Frame FIN.
 	 */
 	#define WS_FIN      128
-	
+
 	/**
 	 * @brief Text frame.
 	 */
 	#define WS_FR_OP_TXT  1
-	
+
 	/**
 	 * @brief Binary frame.
 	 */
 	#define WS_FR_OP_BIN  2
-	
+
 	/**
 	 * @brief Close frame.
 	 */
 	#define WS_FR_OP_CLSE 8
-	
+
 	/**
 	 * @brief Unsupported frame.
 	 */
 	#define WS_FR_OP_UNSUPPORTED 0xF
 	/**@}*/
 
-	
+	/**
+	 * @name Handshake constants.
+	 */
+	/**@{*/
+	/**
+	 * @brief Debug
+	 */
+#ifdef VERBOSE_MODE
+	#define DEBUG(...)\
+		fprintf(stderr, __VA_ARGS__)
+#else
+	#define DEBUG(...)
+#endif
+	/**@}*/
+
 	/**
 	 * @brief events Web Socket events types.
 	 */
