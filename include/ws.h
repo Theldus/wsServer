@@ -104,6 +104,16 @@
 	#define WS_FIN      128
 
 	/**
+	 * @brief Frame FIN shift
+	 */
+	#define WS_FIN_SHIFT  7
+
+	/**
+	 * @brief Continuation frame.
+	 */
+	#define WS_FR_OP_CONT 0
+
+	/**
 	 * @brief Text frame.
 	 */
 	#define WS_FR_OP_TXT  1
