@@ -73,6 +73,41 @@ struct ws_connection
 struct ws_connection client_socks[MAX_CLIENTS];
 
 /**
+ * @brief WebSocket frame data
+ */
+struct ws_frame_data
+{
+	/**
+	 * @brief Frame read.
+	 */
+	unsigned char frm[MESSAGE_LENGTH];
+	/**
+	 * @brief Processed message at the moment.
+	 */
+	unsigned char *msg;
+	/**
+	 * @brief Current byte position.
+	 */
+	size_t cur_pos;
+	/**
+	 * @brief Amount of read bytes.
+	 */
+	size_t amt_read;
+	/**
+	 * @brief Frame type, like text or binary.
+	 */
+	int frame_type;
+	/**
+	 * @brief Error flag, set when a read was not possible.
+	 */
+	int error;
+	/**
+	 * @brief Client socket file descriptor.
+	 */
+	int sock;
+};
+
+/**
  * @brief Global mutex.
  */
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -221,55 +256,119 @@ int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
 }
 
 /**
- * @brief Receives a text frame, parse and decodes it.
+ * @brief Do the handshake process.
  *
- * @param frm             WebSocket pointer to frame to be parsed.
- * @param length          Frame length pointer.
- * @param rem_frame_bytes Remaining frame bytes to be processed.
- * @param type            Frame type pointer.
- * @param masks           Masks array.
- * @param msg_idx         Message index pointer, used when the message
- *                        broken down to multiples reads.
- * @param total_length    Frame's total length pointer.
- * @param partial_msg     Partial unmasked message.
- * @param is_fin          Is FIN frame flag.
+ * @param wfd Websocket Frame Data.
+ * @param p_index Client port index.
  *
- * @return Returns a dynamic null-terminated string that contains
- * a pointer to the received frame.
- *
- * @attention This is part of the internal API and is documented just
- * for completeness.
+ * @return Returns 0 if success, a negative number otherwise.
  */
-static unsigned char* ws_receiveframe
-(
-	unsigned char **frm,
-	size_t *length,
-	size_t *rem_frame_bytes,
-	int *type,
-	uint8_t *masks,
-	size_t *msg_idx,
-	size_t *total_length,
-	unsigned char *partial_msg,
-	int *is_fin)
+static int do_handshake(struct ws_frame_data *wfd, int p_index)
 {
-	unsigned char *frame;     /* Frame pointer.          */
-	unsigned char *msg;       /* Decoded message.        */
-	uint8_t mask;             /* Payload is masked?      */
-	uint8_t opcode;           /* Frame opcode.           */
-	uint8_t flength;          /* Raw length.             */
-	uint8_t idx_first_mask;   /* Index masking key.      */
-	uint8_t idx_first_data;   /* Index data.             */
-	size_t  data_length;      /* Data read length.       */
-	size_t  i, j;             /* Loop indexes.           */
+	char *response; /* Handshake response message. */
+	ssize_t n;      /* Read/Write bytes.           */
 
-	frame = *frm;
-	msg = partial_msg;
+	/* Read the very first client message. */
+	if ((n = read(wfd->sock, wfd->frm, sizeof(wfd->frm))) < 0)
+		return (-1);
 
-	/* If a new frame or not. */
-	if (*total_length == 0)
+	/* Get response. */
+	if (get_handshake_response(wfd->frm, &response) < 0)
 	{
-		*is_fin = frame[0] >> WS_FIN_SHIFT;
-		opcode  = frame[0] & 0xF;
+		DEBUG("Cannot get handshake response, request was: %s\n", wfd->frm);
+		return (-1);
+	}
+
+	/* Valid request. */
+	DEBUG("Handshaked, response: \n"
+		"------------------------------------\n"
+		"%s"
+		"------------------------------------\n"
+		,response);
+
+	/* Send handshake. */
+	if (write(wfd->sock, response, strlen(response)) < 0)
+	{
+		DEBUG("As error has ocurred while handshaking!\n");
+		return (-1);
+	}
+
+	/* Trigger events and clean up buffers. */
+	ports[p_index].events.onopen(wfd->sock);
+	free(response);
+	return (0);
+}
+
+/**
+ * @brief Read a chunk of bytes and return the next byte
+ * belonging to the frame.
+ *
+ * @param wfd Websocket Frame Data.
+ *
+ * @return Returns the byte read, or -1 if error.
+ */
+static inline int next_byte(struct ws_frame_data *wfd)
+{
+	ssize_t n;
+
+	/* If empty or full. */
+	if (wfd->cur_pos == 0 || wfd->cur_pos == wfd->amt_read)
+	{
+		if ((n = read(wfd->sock, wfd->frm, sizeof(wfd->frm))) < 0)
+		{
+			wfd->error = 1;
+			DEBUG("An error has ocorred while trying to read next byte\n");
+			return (-1);
+		}
+		wfd->amt_read = (size_t)n;
+		wfd->cur_pos  = 0;
+	}
+	return (wfd->frm[wfd->cur_pos++]);
+}
+
+/**
+ * @brief Reads the next frame, whether if a TXT/BIN/CLOSE
+ * of arbitrary size.
+ *
+ * @param wfd Websocket Frame Data.
+ *
+ * @return Returns 0 if success, a negative number otherwise.
+ */
+static int next_frame(struct ws_frame_data *wfd)
+{
+	size_t frame_length; /* Frame length.       */
+	unsigned char *msg;  /* Message.            */
+	uint8_t masks[4];    /* Masks array.        */
+	size_t msg_idx;      /* Current msg index.  */
+	uint8_t opcode;      /* Frame opcode.       */
+	char cur_byte;       /* Current frame byte. */
+	uint8_t mask;        /* Mask.               */
+	int is_fin;          /* Is FIN frame flag.  */
+	size_t i;            /* Loop index.         */
+
+	msg     = NULL;
+	is_fin  = 0;
+	msg_idx = 0;
+
+	/* Read until find a FIN or a unsupported frame. */
+	do
+	{
+		/*
+		 * Obs: next_byte() can return error if not possible to read the
+		 * next frame byte, in this case, we return an error.
+		 *
+		 * However, please note that this check is only made here and in
+		 * the subsequent next_bytes() calls this also may occur too.
+		 * wsServer is assuming that the client only create right
+		 * frames and we will do not have disconnections while reading
+		 * the frame but just when waiting for a frame.
+		 */
+		cur_byte = next_byte(wfd);
+		if (cur_byte == -1)
+			return (-1);
+
+		is_fin = cur_byte >> WS_FIN_SHIFT;
+		opcode = cur_byte & 0xF;
 
 		if (opcode == WS_FR_OP_TXT ||
 			opcode == WS_FR_OP_BIN ||
@@ -277,53 +376,33 @@ static unsigned char* ws_receiveframe
 		{
 			/* Only change frame type if not a CONT frame. */
 			if (opcode != WS_FR_OP_CONT)
-				*type = opcode;
+				wfd->frame_type = opcode;
 
-			idx_first_mask   = 2;
-			mask             = frame[1];
-			flength          = mask & 0x7F;
-			*total_length    = flength;
+			mask           = next_byte(wfd);
+			frame_length   = mask & 0x7F;
 
 			/* Decode masks and length for 16-bit messages. */
-			if (flength == 126)
-			{
-				idx_first_mask = 4;
-				*total_length = (((size_t)frame[2]) << 8) | frame[3];
-			}
+			if (frame_length == 126)
+				frame_length = (((size_t)next_byte(wfd)) << 8) | next_byte(wfd);
 
 			/* 64-bit messages. */
-			else if (flength == 127)
+			else if (frame_length == 127)
 			{
-				idx_first_mask = 10;
-				*total_length = (((size_t)frame[2]) << 56) |
-					(((size_t)frame[3]) << 48) |
-					(((size_t)frame[4]) << 40) |
-					(((size_t)frame[5]) << 32) |
-					(((size_t)frame[6]) << 24) |
-					(((size_t)frame[7]) << 16) |
-					(((size_t)frame[8]) <<  8) |
-					(((size_t)frame[9]));
+				frame_length = (((size_t)next_byte(wfd)) << 56) | /* frame[2]. */
+					(((size_t)next_byte(wfd)) << 48) |   /* frame[3]. */
+					(((size_t)next_byte(wfd)) << 40) |
+					(((size_t)next_byte(wfd)) << 32) |
+					(((size_t)next_byte(wfd)) << 24) |
+					(((size_t)next_byte(wfd)) << 16) |
+					(((size_t)next_byte(wfd)) <<  8) |
+					(((size_t)next_byte(wfd)));          /* frame[9]. */
 			}
 
-			*rem_frame_bytes = *total_length;
-			idx_first_data = idx_first_mask + 4;
-
-			/*
-			 * Maximum amount of bytes readable in this
-			 * frame.
-			 *
-			 * Obs: The parameter @p frame can contain a parcial,
-			 * complete or even multiples frames, so we need to
-			 * read only one frame per time.
-			 */
-			data_length = *length - idx_first_data;
-			if (*total_length <= data_length)
-				data_length = *total_length;
-
-			masks[0] = frame[idx_first_mask+0];
-			masks[1] = frame[idx_first_mask+1];
-			masks[2] = frame[idx_first_mask+2];
-			masks[3] = frame[idx_first_mask+3];
+			/* Read masks. */
+			masks[0] = next_byte(wfd);
+			masks[1] = next_byte(wfd);
+			masks[2] = next_byte(wfd);
+			masks[3] = next_byte(wfd);
 
 			/*
 			 * Allocate memory.
@@ -335,109 +414,33 @@ static unsigned char* ws_receiveframe
 			 * increment the size by 1 to accomodate the line ending \0.
 			 */
 			msg = realloc(msg, sizeof(unsigned char) *
-				(*msg_idx + *total_length + (*is_fin)));
+				(msg_idx + frame_length + is_fin));
 
 			/* Copy to the proper location. */
-			i = idx_first_data;
-			for (j = 0; j < data_length; i++, j++, (*msg_idx)++)
-				msg[*msg_idx] = frame[i] ^ masks[j % 4];
+			for (i = 0; i < frame_length; i++, msg_idx++)
+				msg[msg_idx] = next_byte(wfd) ^ masks[i % 4];
 
-			/*
-			 * Decrease and move the frame pointer by the amount of
-			 * bytes read.
-			 *
-			 * Obs: In order to skip the entire frame, we need to also
-			 * skip the header here.
-			 */
-			*length -= (idx_first_data + data_length);
-			*frm += (idx_first_data + data_length);
-			*rem_frame_bytes -= data_length;
-
-			/*
-			 * We have two cases here:
-			 * 1) When we were able to read to entire frame:
-			 *
-			 *    In this case, we just reset the total_length and
-			 *    we are ready for the next non-FIN frame.
-			 *
-			 * 2) When 1) occurs _and_ we're inside a FIN frame:
-			 *
-			 *    In this case, since we are at a FIN frame, we
-			 *    reset everything and get ready to call the
-			 *    on_message event.
-			 */
-			if (data_length == *total_length)
-			{
-				*total_length = 0;
-				if (*is_fin)
-				{
-					msg[*msg_idx] = '\0';
-					*msg_idx = 0;
-				}
-			}
+			/* If we're inside a FIN frame, lets... */
+			if (is_fin)
+				msg[msg_idx] = '\0';
 		}
 
-		/* Close frame. */
-		else if (frame[0] == (WS_FIN | WS_FR_OP_CLSE) )
-			*type = WS_FR_OP_CLSE;
-
-		/* Not supported frame yet. */
+		/* Anything else (close frame or unsupported). */
 		else
-			*type = frame[0] & 0x0F;
-	}
+			wfd->frame_type = opcode;
 
-	/*
-	 * Continuing a frame.
-	 *
-	 * Note that this is not the same think as frames with
-	 * the continuation frame opcode, but just a continuation
-	 * of a single FIN frame that was not possible to be read
-	 * with a single call ro read().
-	 */
-	else
+	} while (!is_fin && !wfd->error);
+
+	/* Check for error. */
+	if (wfd->error)
 	{
-		msg = partial_msg;
-
-		/*
-		 * We may have another frame, if there are few bytes
-		 * remaining.
-		 */
-		data_length = *rem_frame_bytes;
-		if (data_length > *length)
-			data_length = *length;
-
-		/*
-		 * We're continuing a previous frame, let us use
-		 * the same mask and start from the previous position.
-		 */
-		j = *total_length - *rem_frame_bytes;
-		for (i = 0; i < data_length; i++, j++, (*msg_idx)++)
-			msg[*msg_idx] = frame[i] ^ masks[j % 4];
-
-		/*
-		 * Decrease and move the frame pointer by the amount of
-		 * bytes read.
-		 *
-		 * Obs: Skip just the data because we do not have the
-		 * frame header here.
-		 */
-		*length -= data_length;
-		*frm += data_length;
-		*rem_frame_bytes -= data_length;
-
-		/* Check if we reach the final. */
-		if (*rem_frame_bytes == 0)
-		{
-			*total_length = 0;
-			if (*is_fin)
-			{
-				msg[*msg_idx] = '\0';
-				*msg_idx = 0;
-			}
-		}
+		free(msg);
+		wfd->msg = NULL;
+		return (-1);
 	}
 
-	return (msg);
+	wfd->msg = msg;
+	return (0);
 }
 
 /**
@@ -456,100 +459,59 @@ static unsigned char* ws_receiveframe
  */
 static void* ws_establishconnection(void *vsock)
 {
-	int sock;                           /* File descriptor.               */
-	ssize_t n;                          /* Number of bytes sent/received. */
-	size_t rem_bytes;                   /* Number of remaining bytes.     */
-	size_t rem_frame_bytes;             /* Remaining frame bytes.         */
-	unsigned char frm[MESSAGE_LENGTH];  /* Frame.                         */
-	unsigned char *msg;                 /* Message.                       */
-	unsigned char *framep;              /* Frame pointer.                 */
-	uint8_t masks[4];                   /* Last masks array.              */
-	size_t  msg_idx;                    /* Last message index.            */
-	size_t total_length;                /* Total message size (bytes).    */
-	char *response;                     /* Response frame.                */
-	int  handshaked;                    /* Handshake state.               */
-	int  type;                          /* Frame type.                    */
-	int  i;                             /* Loop index.                    */
-	int  connection_index;              /* Client connect. index.         */
-	int  p_index;                       /* Port list index.               */
-	int  close_frame;                   /* Close frame flag.              */
-	int  is_fin;                        /* Last frame is a FIN frame.     */
-
-	msg = NULL;
-	rem_frame_bytes = 0;
-	close_frame  = 0;
-	msg_idx      = 0;
-	total_length = 0;
-	handshaked   = 0;
-	is_fin       = 0;
+	struct ws_frame_data wfd; /* WebSocket frame data.   */
+	int connection_index;     /* Client connect. index.  */
+	int close_frame;          /* Close frame flag.       */
+	int p_index;              /* Port list index.        */
+	int sock;                 /* File descriptor.        */
+	int i;                    /* Loop index.             */
 
 	connection_index = (int)(intptr_t)vsock;
 	sock = client_socks[connection_index].client_sock;
 	p_index = client_socks[connection_index].port_index;
 
-	/* Receives message until get some error. */
-	while ((n = read(sock, frm, sizeof(unsigned char) * MESSAGE_LENGTH)) > 0)
+	/* Prepare frame data. */
+	memset(&wfd, 0, sizeof(wfd));
+	wfd.sock = sock;
+
+	/* Do handshake. */
+	if (do_handshake(&wfd, p_index) < 0)
+		goto closed;
+
+	/* Read next frame until client disconnects or an error occur. */
+	while (next_frame(&wfd) >= 0)
 	{
-		/* If not handshaked yet. */
-		if (!handshaked)
+		/* Frame without data payload. */
+		if (wfd.msg == NULL)
 		{
-			if (get_handshake_response((char*)frm, &response) < 0)
-				goto closed;
-
-			handshaked = 1;
-
-			DEBUG("Handshaked, response: \n"
-				"------------------------------------\n"
-				"%s"
-				"------------------------------------\n"
-				,response);
-
-			n = write(sock, response, strlen(response));
-			ports[p_index].events.onopen(sock);
-			free(response);
+			DEBUG("Non text frame received from %d", sock);
+			if (wfd.frame_type == WS_FR_OP_CLSE)
+				DEBUG(": close frame!\n");
+			else
+			{
+				DEBUG(", type: %x\n", wfd.frame_type);
+				continue;
+			}
 		}
 
-		/*
-		 * Decode/check type of frame while there are remaining
-		 * bytes (i.e: multiples frames inside a single read()) (n)
-		 * left.
-		 */
-		framep = frm;
-		rem_bytes = n;
-		do
+		/* Text/binary event. */
+		if (   (wfd.frame_type == WS_FR_OP_TXT
+			||  wfd.frame_type == WS_FR_OP_BIN)
+			&& !wfd.error )
 		{
-			msg = ws_receiveframe(&framep, &rem_bytes, &rem_frame_bytes, &type,
-				masks, &msg_idx, &total_length, msg, &is_fin);
+			ports[p_index].events.onmessage(sock, wfd.msg);
+			free(wfd.msg);
+			wfd.msg = NULL;
+		}
 
-			if (msg == NULL)
-			{
-				DEBUG("Non text frame received from %d", sock);
-				if (type == WS_FR_OP_CLSE)
-					DEBUG(": close frame!\n");
-				else
-				{
-					DEBUG(", type: %x\n", type);
-					goto next_frame;
-				}
-			}
-
-			/* Trigger events. */
-			if (type == WS_FR_OP_TXT && !msg_idx)
-			{
-				ports[p_index].events.onmessage(sock, msg);
-				free(msg);
-				msg = NULL;
-			}
-			else if (type == WS_FR_OP_CLSE)
-			{
-				close_frame = 1;
-				free(msg);
-				ports[p_index].events.onclose(sock);
-				goto closed;
-			}
-
-		} while(rem_bytes);
-next_frame:;
+		/* Close event. */
+		else if (wfd.frame_type == WS_FR_OP_CLSE && !wfd.error)
+		{
+			close_frame = 1;
+			free(wfd.msg);
+			ports[p_index].events.onclose(sock);
+			break;
+		}
 	}
 
 closed:
