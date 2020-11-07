@@ -98,6 +98,10 @@ struct ws_frame_data
 	 */
 	int frame_type;
 	/**
+	 * @brief Frame size.
+	 */
+	size_t frame_size;
+	/**
 	 * @brief Error flag, set when a read was not possible.
 	 */
 	int error;
@@ -329,6 +333,31 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 }
 
 /**
+ * @brief Send a pong frame in response to a ping frame.
+ *
+ * Accordingly to the RFC, a pong frame must have the same
+ * data payload as the ping frame, so we just send a
+ * ordinary frame with PONG opcode.
+ *
+ * @param wfd Websocket frame data.
+ *
+ * @return Returns 0 if success and a negative number
+ * otherwise.
+ */
+static int do_pong(struct ws_frame_data *wfd)
+{
+	if (ws_sendframe(wfd->sock, (const char*)wfd->msg, wfd->frame_size,
+		false, WS_FR_OP_PONG) < 0)
+	{
+		DEBUG("An error has ocurred while ponging!\n");
+		free(wfd->msg);
+		return (-1);
+	}
+	free(wfd->msg);
+	return (0);
+}
+
+/**
  * @brief Read a chunk of bytes and return the next byte
  * belonging to the frame.
  *
@@ -343,7 +372,7 @@ static inline int next_byte(struct ws_frame_data *wfd)
 	/* If empty or full. */
 	if (wfd->cur_pos == 0 || wfd->cur_pos == wfd->amt_read)
 	{
-		if ((n = read(wfd->sock, wfd->frm, sizeof(wfd->frm))) < 0)
+		if ((n = read(wfd->sock, wfd->frm, sizeof(wfd->frm))) <= 0)
 		{
 			wfd->error = 1;
 			DEBUG("An error has ocorred while trying to read next byte\n");
@@ -372,12 +401,13 @@ static int next_frame(struct ws_frame_data *wfd)
 	uint8_t opcode;      /* Frame opcode.       */
 	char cur_byte;       /* Current frame byte. */
 	uint8_t mask;        /* Mask.               */
-	int is_fin;          /* Is FIN frame flag.  */
-	size_t i;            /* Loop index.         */
+	uint8_t is_fin;      /* Is FIN frame flag.  */
+	size_t  i;           /* Loop index.         */
 
-	msg     = NULL;
-	is_fin  = 0;
-	msg_idx = 0;
+	msg             = NULL;
+	is_fin          = 0;
+	msg_idx         = 0;
+	wfd->frame_size = 0;
 
 	/* Read until find a FIN or a unsupported frame. */
 	do
@@ -396,12 +426,13 @@ static int next_frame(struct ws_frame_data *wfd)
 		if (cur_byte == -1)
 			return (-1);
 
-		is_fin = cur_byte >> WS_FIN_SHIFT;
-		opcode = cur_byte & 0xF;
+		is_fin = (cur_byte & 0xFF) >> WS_FIN_SHIFT;
+		opcode = (cur_byte & 0xF);
 
 		if (opcode == WS_FR_OP_TXT ||
 			opcode == WS_FR_OP_BIN ||
-			opcode == WS_FR_OP_CONT)
+			opcode == WS_FR_OP_CONT ||
+			opcode == WS_FR_OP_PING)
 		{
 			/* Only change frame type if not a CONT frame. */
 			if (opcode != WS_FR_OP_CONT)
@@ -426,6 +457,8 @@ static int next_frame(struct ws_frame_data *wfd)
 					(((size_t)next_byte(wfd)) <<  8) |
 					(((size_t)next_byte(wfd)));          /* frame[9]. */
 			}
+
+			wfd->frame_size += frame_length;
 
 			/* Read masks. */
 			masks[0] = next_byte(wfd);
@@ -495,6 +528,7 @@ static void* ws_establishconnection(void *vsock)
 	int sock;                 /* File descriptor.        */
 	int i;                    /* Loop index.             */
 
+	close_frame = 0;
 	connection_index = (int)(intptr_t)vsock;
 	sock = client_socks[connection_index].client_sock;
 	p_index = client_socks[connection_index].port_index;
@@ -541,6 +575,11 @@ static void* ws_establishconnection(void *vsock)
 			ports[p_index].events.onclose(sock);
 			break;
 		}
+
+		/* Ping. */
+		else if (wfd.frame_type == WS_FR_OP_PING && !wfd.error)
+			if (do_pong(&wfd) < 0)
+				break;
 	}
 
 closed:

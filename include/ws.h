@@ -129,6 +129,16 @@
 	#define WS_FR_OP_CLSE 8
 
 	/**
+	 * @brief Ping frame.
+	 */
+	#define WS_FR_OP_PING 0x9
+
+	/**
+	 * @brief Pong frame.
+	 */
+	#define WS_FR_OP_PONG 0xA
+
+	/**
 	 * @brief Unsupported frame.
 	 */
 	#define WS_FR_OP_UNSUPPORTED 0xF
