@@ -23,6 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <stddef.h>
 
 #include <ws.h>
 
@@ -299,11 +300,22 @@ int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast)
 static int do_handshake(struct ws_frame_data *wfd, int p_index)
 {
 	char *response; /* Handshake response message. */
+	char *p;        /* Last request line pointer.  */
 	ssize_t n;      /* Read/Write bytes.           */
 
 	/* Read the very first client message. */
 	if ((n = read(wfd->sock, wfd->frm, sizeof(wfd->frm))) < 0)
 		return (-1);
+
+	/* Advance our pointers before the first next_byte(). */
+	p = strstr((const char*)wfd->frm, "\r\n\r\n");
+	if (p == NULL)
+	{
+		DEBUG("An empty line with \\r\\n was expected!\n");
+		return (-1);
+	}
+	wfd->amt_read = n;
+	wfd->cur_pos = (size_t)((ptrdiff_t)(p - (char*)wfd->frm)) + 4;
 
 	/* Get response. */
 	if (get_handshake_response((char*)wfd->frm, &response) < 0)
