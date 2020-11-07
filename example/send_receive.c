@@ -62,18 +62,21 @@ void onclose(int fd)
 /**
  * @brief Called when a client connects to the server.
  *
- * @param fd File Descriptor belonging to the client. The @p fd parameter
- * is used in order to send messages and retrieve informations
- * about the client.
+ * @param fd File Descriptor belonging to the client. The
+ * @p fd parameter is used in order to send messages and
+ * retrieve informations about the client.
  *
- * @param msg Received message, this message can be a text or binary
- * message.
+ * @param msg Received message, this message can be a text
+ * or binary message.
+ *
+ * @param size Message size (in bytes).
  */
-void onmessage(int fd, const unsigned char *msg)
+void onmessage(int fd, const unsigned char *msg, size_t size)
 {
 	char *cli;
 	cli = ws_getaddress(fd);
-	printf("I receive a message: %s, from: %s/%d\n", msg, cli, fd);
+	printf("I receive a message: %s (size: %zu), from: %s/%d\n", msg,
+		size, cli, fd);
 	ws_sendframe_txt(fd, (char *)msg, true);
 	free(cli);
 }

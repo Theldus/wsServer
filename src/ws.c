@@ -574,7 +574,7 @@ static void* ws_establishconnection(void *vsock)
 			||  wfd.frame_type == WS_FR_OP_BIN)
 			&& !wfd.error )
 		{
-			ports[p_index].events.onmessage(sock, wfd.msg);
+			ports[p_index].events.onmessage(sock, wfd.msg, wfd.frame_size);
 			free(wfd.msg);
 			wfd.msg = NULL;
 		}

@@ -178,7 +178,7 @@
 		 * @brief On message event, called when a client sends a text
 		 * or binary message.
 		 */
-		void (*onmessage)(int, const unsigned char *);
+		void (*onmessage)(int, const unsigned char *, size_t);
 	};
 
 	/* Forward declarations. */

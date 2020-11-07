@@ -37,7 +37,7 @@ void onopen(int fd);
 void onclose(int fd);
 
 /* Client sent a text message. */
-void onmessage(int fd, const unsigned char *msg);
+void onmessage(int fd, const unsigned char *msg, size_t size);
 
 /* fd is the File Descriptor returned by accepted connection. */
 ```
@@ -82,15 +82,16 @@ void onclose(int fd)
 
 /**
  * @brief Message events goes here.
- * @param fd Client file descriptor.
- * @param msg Message content.
- * @note For binary files, you can use base64, ;-).
+ * @param fd   Client file descriptor.
+ * @param msg  Message content.
+ * @param size Message size.
  */
-void onmessage(int fd, const unsigned char *msg)
+void onmessage(int fd, const unsigned char *msg, size_t size)
 {
     char *cli;
     cli = ws_getaddress(fd);
-    printf("I receive a message: %s, from: %s/%d\n", msg, cli, fd);
+    printf("I receive a message: %s (%zu), from: %s/%d\n", msg,
+        size, cli, fd);
 
     sleep(2);
     ws_sendframe_txt(fd, "hello", false);
