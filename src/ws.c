@@ -582,7 +582,6 @@ static void* ws_establishconnection(void *vsock)
 				break;
 	}
 
-closed:
 	/*
 	 * If we do not receive a close frame, we still need to
 	 * call the close event, as the server is expected to
@@ -591,6 +590,7 @@ closed:
 	if (!close_frame)
 		ports[p_index].events.onclose(sock);
 
+closed:
 	/* Removes client socket from socks list. */
 	pthread_mutex_lock(&mutex);
 		for (i = 0; i < MAX_CLIENTS; i++)
