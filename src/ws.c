@@ -148,19 +148,25 @@ char* ws_getaddress(int fd)
 }
 
 /**
- * @brief Creates and send an WebSocket frame with some text message.
+ * @brief Creates and send an WebSocket frame with some payload data.
+ *
+ * This routine is intended to be used to create a websocket frame for
+ * a given type e sending to the client. For higher level routines,
+ * please check @ref ws_sendframe_txt and @ref ws_sendframe_bin.
  *
  * @param fd        Target to be send.
  * @param msg       Message to be send.
  * @param size      Binary message size (set it <0 for text message)
  * @param broadcast Enable/disable broadcast.
+ * @param type      Frame type.
  *
  * @return Returns the number of bytes written.
  *
  * @note If @p size is -1, it is assumed that a text frame is being sent,
  * otherwise, a binary frame. In the later case, the @p size is used.
  */
-int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
+int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast,
+	int type)
 {
 	unsigned char *response;  /* Response data.  */
 	unsigned char frame[10];  /* Frame.          */
@@ -172,18 +178,12 @@ int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
 	uint64_t i;               /* Loop index.     */
 	int cur_port_index;       /* Current port index */
 
-	if(size < 0)
-	{
-		/* Text data. */
-		length = strlen( (const char *) msg);
-		frame[0] = (WS_FIN | WS_FR_OP_TXT);
-	}
-	else
-	{
-		/* Binary data. */
-		length = size;
-		frame[0] = (WS_FIN | WS_FR_OP_BIN);
-	}
+	frame[0] = (WS_FIN | type);
+	length = size;
+
+	/* Guess the size if not informed, perhaps a TXT frame. */
+	if (size < 0)
+		length = strlen((const char *)msg);
 
 	/* Split the size between octects. */
 	if (length <= 125)
@@ -256,6 +256,35 @@ int ws_sendframe(int fd, const char *msg, int size, bool broadcast)
 }
 
 /**
+ * @brief Sends a WebSocket text frame.
+ *
+ * @param fd         Target to be send.
+ * @param msg        Text message to be send.
+ * @param broadcast  Enable/disable broadcast (0-disable/anything-enable).
+ *
+ * @return Returns the number of bytes written.
+ */
+int ws_sendframe_txt(int fd, const char *msg, bool broadcast)
+{
+	return ws_sendframe(fd, msg, -1, broadcast, WS_FR_OP_TXT);
+}
+
+/**
+ * @brief Sends a WebSocket text frame.
+ *
+ * @param fd         Target to be send.
+ * @param msg        Binary message to be send.
+ * @param size       Message size (in bytes).
+ * @param broadcast  Enable/disable broadcast (0-disable/anything-enable).
+ *
+ * @return Returns the number of bytes written.
+ */
+int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast)
+{
+	return ws_sendframe(fd, msg, size, broadcast, WS_FR_OP_BIN);
+}
+
+/**
  * @brief Do the handshake process.
  *
  * @param wfd Websocket Frame Data.
@@ -273,7 +302,7 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 		return (-1);
 
 	/* Get response. */
-	if (get_handshake_response(wfd->frm, &response) < 0)
+	if (get_handshake_response((char*)wfd->frm, &response) < 0)
 	{
 		DEBUG("Cannot get handshake response, request was: %s\n", wfd->frm);
 		return (-1);
