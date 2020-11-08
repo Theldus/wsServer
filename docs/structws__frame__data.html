@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>example/send_receive.c file | wsServer | a very tiny WebSocket server library written in C</title>
+  <title>ws_frame_data struct | wsServer | a very tiny WebSocket server library written in C</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i%7CSource+Code+Pro:400,400i,600" />
   <link rel="stylesheet" href="m-dark+documentation.compiled.css" />
   <link rel="icon" href="favicon-dark.png" type="image/png" />
@@ -47,113 +47,57 @@
     <div class="m-row">
       <div class="m-col-l-10 m-push-l-1">
         <h1>
-          <span class="m-breadcrumb"><a href="dir_cfafba98a580ce4b62f8a6fa96d7cbb0.html">example</a>/</span>send_receive.c <span class="m-thin">file</span>
+          ws_frame_data <span class="m-thin">struct</span>
+          <div class="m-doc-include m-code m-inverted m-text-right"><span class="cp">#include</span> <a class="cpf" href="ws_8c.html">&lt;src/ws.c&gt;</a></div>
         </h1>
-        <p>Simple send/receiver example.</p>
+        <p>WebSocket frame data.</p>
         <div class="m-block m-default">
           <h3>Contents</h3>
           <ul>
             <li>
               Reference
               <ul>
-                <li><a href="#func-members">Functions</a></li>
+                <li><a href="#pub-attribs">Public variables</a></li>
               </ul>
             </li>
           </ul>
         </div>
-        <section id="func-members">
-          <h2><a href="#func-members">Functions</a></h2>
+        <section id="pub-attribs">
+          <h2><a href="#pub-attribs">Public variables</a></h2>
           <dl class="m-doc">
-            <dt>
-              <span class="m-doc-wrap-bumper">void <a href="#a84d1c78f09bf338479ba21c2640f7fe4" class="m-doc">onopen</a>(</span><span class="m-doc-wrap">int fd)</span>
+            <dt id="ae8f6ad34d02fc7c0554d6ff3f4f63af3">
+              unsigned char <a href="#ae8f6ad34d02fc7c0554d6ff3f4f63af3" class="m-doc-self">frm</a>
             </dt>
-            <dd>Called when a client connects to the server.</dd>
-            <dt>
-              <span class="m-doc-wrap-bumper">void <a href="#a7e46594ea3fb0924a0c0e8637596165d" class="m-doc">onclose</a>(</span><span class="m-doc-wrap">int fd)</span>
+            <dd>Frame read.</dd>
+            <dt id="a66bfb3d8607490b574b64d84624bd3b9">
+              unsigned char* <a href="#a66bfb3d8607490b574b64d84624bd3b9" class="m-doc-self">msg</a>
             </dt>
-            <dd>Called when a client disconnects to the server.</dd>
-            <dt>
-              <span class="m-doc-wrap-bumper">void <a href="#a2df0ade18fd99aa8dd5eadd42322d97f" class="m-doc">onmessage</a>(</span><span class="m-doc-wrap">int fd,
-              const unsigned char* msg,
-              size_t size)</span>
+            <dd>Processed message at the moment.</dd>
+            <dt id="a4af5b1b924e319af21ad5aa6d9ef6a2f">
+              size_t <a href="#a4af5b1b924e319af21ad5aa6d9ef6a2f" class="m-doc-self">cur_pos</a>
             </dt>
-            <dd>Called when a client connects to the server.</dd>
-            <dt>
-              <span class="m-doc-wrap-bumper">auto <a href="#a840291bc02cba5474a4cb46a9b9566fe" class="m-doc">main</a>(</span><span class="m-doc-wrap">void) -&gt; int</span>
+            <dd>Current byte position.</dd>
+            <dt id="a1dd2a305e64aedfa31f21bc64ea8652a">
+              size_t <a href="#a1dd2a305e64aedfa31f21bc64ea8652a" class="m-doc-self">amt_read</a>
             </dt>
-            <dd>Main routine.</dd>
+            <dd>Amount of read bytes.</dd>
+            <dt id="a3773fc9e095d5d752b6570a919847c1f">
+              int <a href="#a3773fc9e095d5d752b6570a919847c1f" class="m-doc-self">frame_type</a>
+            </dt>
+            <dd>Frame type, like text or binary.</dd>
+            <dt id="ac8619efd55530288bf9059dbbd239a3c">
+              size_t <a href="#ac8619efd55530288bf9059dbbd239a3c" class="m-doc-self">frame_size</a>
+            </dt>
+            <dd>Frame size.</dd>
+            <dt id="abbf83869d6b4551ff4ccb119aa1cbfa1">
+              int <a href="#abbf83869d6b4551ff4ccb119aa1cbfa1" class="m-doc-self">error</a>
+            </dt>
+            <dd>Error flag, set when a read was not possible.</dd>
+            <dt id="ab8c08d07ce4ed8de0030319c9ae14864">
+              int <a href="#ab8c08d07ce4ed8de0030319c9ae14864" class="m-doc-self">sock</a>
+            </dt>
+            <dd>Client socket file descriptor.</dd>
           </dl>
-        </section>
-        <section>
-          <h2>Function documentation</h2>
-          <section class="m-doc-details" id="a84d1c78f09bf338479ba21c2640f7fe4"><div>
-            <h3>
-              <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a84d1c78f09bf338479ba21c2640f7fe4" class="m-doc-self">onopen</a>(</span><span class="m-doc-wrap">int fd)</span></span>
-            </h3>
-            <p>Called when a client connects to the server.</p>
-            <table class="m-table m-fullwidth m-flat">
-              <thead>
-                <tr><th colspan="2">Parameters</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="width: 1%">fd</td>
-                  <td>File Descriptor belonging to the client. The <code>fd</code> parameter is used in order to send messages and retrieve informations about the client.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div></section>
-          <section class="m-doc-details" id="a7e46594ea3fb0924a0c0e8637596165d"><div>
-            <h3>
-              <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a7e46594ea3fb0924a0c0e8637596165d" class="m-doc-self">onclose</a>(</span><span class="m-doc-wrap">int fd)</span></span>
-            </h3>
-            <p>Called when a client disconnects to the server.</p>
-            <table class="m-table m-fullwidth m-flat">
-              <thead>
-                <tr><th colspan="2">Parameters</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="width: 1%">fd</td>
-                  <td>File Descriptor belonging to the client. The <code>fd</code> parameter is used in order to send messages and retrieve informations about the client.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div></section>
-          <section class="m-doc-details" id="a2df0ade18fd99aa8dd5eadd42322d97f"><div>
-            <h3>
-              <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a2df0ade18fd99aa8dd5eadd42322d97f" class="m-doc-self">onmessage</a>(</span><span class="m-doc-wrap">int fd,
-              const unsigned char* msg,
-              size_t size)</span></span>
-            </h3>
-            <p>Called when a client connects to the server.</p>
-            <table class="m-table m-fullwidth m-flat">
-              <thead>
-                <tr><th colspan="2">Parameters</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="width: 1%">fd</td>
-                  <td>File Descriptor belonging to the client. The <code>fd</code> parameter is used in order to send messages and retrieve informations about the client.</td>
-                </tr>
-                <tr>
-                  <td>msg</td>
-                  <td>Received message, this message can be a text or binary message.</td>
-                </tr>
-                <tr>
-                  <td>size</td>
-                  <td>Message size (in bytes).</td>
-                </tr>
-              </tbody>
-            </table>
-          </div></section>
-          <section class="m-doc-details" id="a840291bc02cba5474a4cb46a9b9566fe"><div>
-            <h3>
-              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a840291bc02cba5474a4cb46a9b9566fe" class="m-doc-self">main</a>(</span><span class="m-doc-wrap">void)</span></span>
-            </h3>
-            <p>Main routine.</p>
-<aside class="m-note m-info"><h4>Note</h4><p>After invoking <a href="ws_8c.html#acca44489f52d8c7e4ffe0c83e17e971f" class="m-doc">ws_<wbr />socket</a>, this routine never returns, unless if invoked from a different thread.</p></aside>
-          </div></section>
         </section>
       </div>
     </div>

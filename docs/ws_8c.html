@@ -75,6 +75,10 @@
               struct <a href="structws__connection.html" class="m-doc">ws_connection</a>
             </dt>
             <dd>Client socks.</dd>
+            <dt>
+              struct <a href="structws__frame__data.html" class="m-doc">ws_frame_data</a>
+            </dt>
+            <dd>WebSocket frame data.</dd>
           </dl>
         </section>
         <section id="func-members">
@@ -85,18 +89,43 @@
             </dt>
             <dd>Gets the IP address relative to a file descriptor opened by the server.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">auto <a href="#a4c4cc2916b3e1b174d5e9bd5aff9b30c" class="m-doc">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">auto <a href="#a7e93ed47fe5043d9fed2e7b823a9a2a1" class="m-doc">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
               const char* msg,
-              int size,
+              ssize_t size,
+              bool broadcast,
+              int type) -&gt; int</span>
+            </dt>
+            <dd>Creates and send an WebSocket frame with some payload data.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">auto <a href="#a19f035f036b1e78b4918d53fcad76cc0" class="m-doc">ws_sendframe_txt</a>(</span><span class="m-doc-wrap">int fd,
+              const char* msg,
               bool broadcast) -&gt; int</span>
             </dt>
-            <dd>Creates and send an WebSocket frame with some text message.</dd>
+            <dd>Sends a WebSocket text frame.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">static auto <a href="#a3b42c06346ad985b945d57ad13c24168" class="m-doc">ws_receiveframe</a>(</span><span class="m-doc-wrap">unsigned char* frame,
-              size_t length,
-              int* type) -&gt; unsigned char*</span>
+              <span class="m-doc-wrap-bumper">auto <a href="#aec4fce2b51671706c217e84721f20856" class="m-doc">ws_sendframe_bin</a>(</span><span class="m-doc-wrap">int fd,
+              const char* msg,
+              size_t size,
+              bool broadcast) -&gt; int</span>
             </dt>
-            <dd>Receives a text frame, parse and decodes it.</dd>
+            <dd>Sends a WebSocket text frame.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#a0ae005274345918fb7b00fdd7650b37c" class="m-doc">do_handshake</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              int p_index) -&gt; int</span>
+            </dt>
+            <dd>Do the handshake process.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#aa3203f6ea48a498e13d3ac270f299723" class="m-doc">do_pong</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd) -&gt; int</span>
+            </dt>
+            <dd>Send a pong frame in response to a ping frame.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#aee9d3645a147dc40f74adf424347247b" class="m-doc">next_byte</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd) -&gt; int</span>
+            </dt>
+            <dd>Read a chunk of bytes and return the next byte belonging to the frame.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#a1231406d8acfa19b9fec01a7ea8e6538" class="m-doc">next_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd) -&gt; int</span>
+            </dt>
+            <dd>Reads the next frame, whether if a TXT/BIN/CLOSE of arbitrary size.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">static auto <a href="#aeba76d6264853d4e0b51ec58e38bcc8a" class="m-doc">ws_establishconnection</a>(</span><span class="m-doc-wrap">void* vsock) -&gt; void*</span>
             </dt>
@@ -163,14 +192,15 @@
               </tfoot>
             </table>
           </div></section>
-          <section class="m-doc-details" id="a4c4cc2916b3e1b174d5e9bd5aff9b30c"><div>
+          <section class="m-doc-details" id="a7e93ed47fe5043d9fed2e7b823a9a2a1"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a4c4cc2916b3e1b174d5e9bd5aff9b30c" class="m-doc-self">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a7e93ed47fe5043d9fed2e7b823a9a2a1" class="m-doc-self">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
               const char* msg,
-              int size,
-              bool broadcast)</span></span>
+              ssize_t size,
+              bool broadcast,
+              int type)</span></span>
             </h3>
-            <p>Creates and send an WebSocket frame with some text message.</p>
+            <p>Creates and send an WebSocket frame with some payload data.</p>
             <table class="m-table m-fullwidth m-flat">
               <thead>
                 <tr><th colspan="2">Parameters</th></tr>
@@ -192,6 +222,10 @@
                   <td>broadcast</td>
                   <td>Enable/disable broadcast.</td>
                 </tr>
+                <tr>
+                  <td>type</td>
+                  <td>Frame type.</td>
+                </tr>
               </tbody>
               <tfoot>
                 <tr>
@@ -200,37 +234,175 @@
                 </tr>
               </tfoot>
             </table>
-<aside class="m-note m-info"><h4>Note</h4><p>If <code>size</code> is -1, it is assumed that a text frame is being sent, otherwise, a binary frame. In the later case, the <code>size</code> is used.</p></aside>
+<p>This routine is intended to be used to create a websocket frame for a given type e sending to the client. For higher level routines, please check <a href="ws_8c.html#a19f035f036b1e78b4918d53fcad76cc0" class="m-doc">ws_<wbr />sendframe_<wbr />txt</a> and <a href="ws_8c.html#aec4fce2b51671706c217e84721f20856" class="m-doc">ws_<wbr />sendframe_<wbr />bin</a>.</p><aside class="m-note m-info"><h4>Note</h4><p>If <code>size</code> is -1, it is assumed that a text frame is being sent, otherwise, a binary frame. In the later case, the <code>size</code> is used.</p></aside>
           </div></section>
-          <section class="m-doc-details" id="a3b42c06346ad985b945d57ad13c24168"><div>
+          <section class="m-doc-details" id="a19f035f036b1e78b4918d53fcad76cc0"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">static unsigned char* </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a3b42c06346ad985b945d57ad13c24168" class="m-doc-self">ws_receiveframe</a>(</span><span class="m-doc-wrap">unsigned char* frame,
-              size_t length,
-              int* type)</span></span>
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a19f035f036b1e78b4918d53fcad76cc0" class="m-doc-self">ws_sendframe_txt</a>(</span><span class="m-doc-wrap">int fd,
+              const char* msg,
+              bool broadcast)</span></span>
             </h3>
-            <p>Receives a text frame, parse and decodes it.</p>
+            <p>Sends a WebSocket text frame.</p>
             <table class="m-table m-fullwidth m-flat">
               <thead>
                 <tr><th colspan="2">Parameters</th></tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style="width: 1%">frame</td>
-                  <td>WebSocket frame to be parsed.</td>
+                  <td style="width: 1%">fd</td>
+                  <td>Target to be send.</td>
                 </tr>
                 <tr>
-                  <td>length</td>
-                  <td>Frame length.</td>
+                  <td>msg</td>
+                  <td>Text message to be send.</td>
                 </tr>
                 <tr>
-                  <td>type</td>
-                  <td>Frame type pointer.</td>
+                  <td>broadcast</td>
+                  <td>Enable/disable broadcast (0-disable/anything-enable).</td>
                 </tr>
               </tbody>
               <tfoot>
                 <tr>
                   <th>Returns</th>
-                  <td>Returns a dynamic null-terminated string that contains a pointer to the received frame.</td>
+                  <td>Returns the number of bytes written.</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div></section>
+          <section class="m-doc-details" id="aec4fce2b51671706c217e84721f20856"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#aec4fce2b51671706c217e84721f20856" class="m-doc-self">ws_sendframe_bin</a>(</span><span class="m-doc-wrap">int fd,
+              const char* msg,
+              size_t size,
+              bool broadcast)</span></span>
+            </h3>
+            <p>Sends a WebSocket text frame.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">fd</td>
+                  <td>Target to be send.</td>
+                </tr>
+                <tr>
+                  <td>msg</td>
+                  <td>Binary message to be send.</td>
+                </tr>
+                <tr>
+                  <td>size</td>
+                  <td>Message size (in bytes).</td>
+                </tr>
+                <tr>
+                  <td>broadcast</td>
+                  <td>Enable/disable broadcast (0-disable/anything-enable).</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns the number of bytes written.</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div></section>
+          <section class="m-doc-details" id="a0ae005274345918fb7b00fdd7650b37c"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a0ae005274345918fb7b00fdd7650b37c" class="m-doc-self">do_handshake</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              int p_index)</span></span>
+            </h3>
+            <p>Do the handshake process.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">wfd</td>
+                  <td>Websocket Frame Data.</td>
+                </tr>
+                <tr>
+                  <td>p_index</td>
+                  <td>Client port index.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns 0 if success, a negative number otherwise.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
+          <section class="m-doc-details" id="aa3203f6ea48a498e13d3ac270f299723"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#aa3203f6ea48a498e13d3ac270f299723" class="m-doc-self">do_pong</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd)</span></span>
+            </h3>
+            <p>Send a pong frame in response to a ping frame.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">wfd</td>
+                  <td>Websocket frame data.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns 0 if success and a negative number otherwise.</td>
+                </tr>
+              </tfoot>
+            </table>
+<p>Accordingly to the RFC, a pong frame must have the same data payload as the ping frame, so we just send a ordinary frame with PONG opcode.</p><aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
+          <section class="m-doc-details" id="aee9d3645a147dc40f74adf424347247b"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#aee9d3645a147dc40f74adf424347247b" class="m-doc-self">next_byte</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd)</span></span>
+            </h3>
+            <p>Read a chunk of bytes and return the next byte belonging to the frame.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">wfd</td>
+                  <td>Websocket Frame Data.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns the byte read, or -1 if error.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
+          <section class="m-doc-details" id="a1231406d8acfa19b9fec01a7ea8e6538"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a1231406d8acfa19b9fec01a7ea8e6538" class="m-doc-self">next_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd)</span></span>
+            </h3>
+            <p>Reads the next frame, whether if a TXT/BIN/CLOSE of arbitrary size.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">wfd</td>
+                  <td>Websocket Frame Data.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns 0 if success, a negative number otherwise.</td>
                 </tr>
               </tfoot>
             </table>

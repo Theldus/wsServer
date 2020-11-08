@@ -93,12 +93,26 @@
             </dt>
             <dd>Gets the IP address relative to a file descriptor opened by the server.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">auto <a href="#a4c4cc2916b3e1b174d5e9bd5aff9b30c" class="m-doc">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">auto <a href="#a7e93ed47fe5043d9fed2e7b823a9a2a1" class="m-doc">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
               const char* msg,
-              int size,
+              ssize_t size,
+              bool broadcast,
+              int type) -&gt; int</span>
+            </dt>
+            <dd>Creates and send an WebSocket frame with some payload data.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">auto <a href="#a19f035f036b1e78b4918d53fcad76cc0" class="m-doc">ws_sendframe_txt</a>(</span><span class="m-doc-wrap">int fd,
+              const char* msg,
               bool broadcast) -&gt; int</span>
             </dt>
-            <dd>Creates and send an WebSocket frame with some text message.</dd>
+            <dd>Sends a WebSocket text frame.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">auto <a href="#aec4fce2b51671706c217e84721f20856" class="m-doc">ws_sendframe_bin</a>(</span><span class="m-doc-wrap">int fd,
+              const char* msg,
+              size_t size,
+              bool broadcast) -&gt; int</span>
+            </dt>
+            <dd>Sends a WebSocket text frame.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">auto <a href="#acca44489f52d8c7e4ffe0c83e17e971f" class="m-doc">ws_socket</a>(</span><span class="m-doc-wrap">struct <a href="structws__events.html" class="m-doc">ws_<wbr />events</a>* evs,
               uint16_t port) -&gt; int</span>
@@ -159,6 +173,10 @@
               <span class="m-doc-wrap-bumper">#define <a href="#a7e97e32d281f1207b742728d6fe4c010" class="m-doc-self">WS_HS_ACCEPT</a></span>
             </dt>
             <dd>Handshake accept message.</dd>
+            <dt id="a96dd473db0b3d10bd43390cdacb00120">
+              <span class="m-doc-wrap-bumper">#define <a href="#a96dd473db0b3d10bd43390cdacb00120" class="m-doc-self">DEBUG</a>(</span><span class="m-doc-wrap">...)</span>
+            </dt>
+            <dd>Debug.</dd>
           </dl>
         </section>
         <section id="frame-types">
@@ -168,6 +186,14 @@
               <span class="m-doc-wrap-bumper">#define <a href="#a92ac38df97a72ad13675c9392b6f0ef5" class="m-doc-self">WS_FIN</a></span>
             </dt>
             <dd>Frame FIN.</dd>
+            <dt id="a7fe11fc8d80fba497ce07483671da710">
+              <span class="m-doc-wrap-bumper">#define <a href="#a7fe11fc8d80fba497ce07483671da710" class="m-doc-self">WS_FIN_SHIFT</a></span>
+            </dt>
+            <dd>Frame FIN shift.</dd>
+            <dt id="a71e23145425a949410e8253a628160ec">
+              <span class="m-doc-wrap-bumper">#define <a href="#a71e23145425a949410e8253a628160ec" class="m-doc-self">WS_FR_OP_CONT</a></span>
+            </dt>
+            <dd>Continuation frame.</dd>
             <dt id="af6abad47b51003413393946d60bbc4ca">
               <span class="m-doc-wrap-bumper">#define <a href="#af6abad47b51003413393946d60bbc4ca" class="m-doc-self">WS_FR_OP_TXT</a></span>
             </dt>
@@ -180,6 +206,14 @@
               <span class="m-doc-wrap-bumper">#define <a href="#a51dcb053c17f2a4b4bfcd38e4a90e88c" class="m-doc-self">WS_FR_OP_CLSE</a></span>
             </dt>
             <dd>Close frame.</dd>
+            <dt id="a95fcab327cc3b908e251d18387b926ab">
+              <span class="m-doc-wrap-bumper">#define <a href="#a95fcab327cc3b908e251d18387b926ab" class="m-doc-self">WS_FR_OP_PING</a></span>
+            </dt>
+            <dd>Ping frame.</dd>
+            <dt id="a61067031f718130b0db190d556847620">
+              <span class="m-doc-wrap-bumper">#define <a href="#a61067031f718130b0db190d556847620" class="m-doc-self">WS_FR_OP_PONG</a></span>
+            </dt>
+            <dd>Pong frame.</dd>
             <dt id="ae3529b135c003e493f9678f97ad04355">
               <span class="m-doc-wrap-bumper">#define <a href="#ae3529b135c003e493f9678f97ad04355" class="m-doc-self">WS_FR_OP_UNSUPPORTED</a></span>
             </dt>
@@ -269,14 +303,15 @@
               </tfoot>
             </table>
           </div></section>
-          <section class="m-doc-details" id="a4c4cc2916b3e1b174d5e9bd5aff9b30c"><div>
+          <section class="m-doc-details" id="a7e93ed47fe5043d9fed2e7b823a9a2a1"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a4c4cc2916b3e1b174d5e9bd5aff9b30c" class="m-doc-self">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a7e93ed47fe5043d9fed2e7b823a9a2a1" class="m-doc-self">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
               const char* msg,
-              int size,
-              bool broadcast)</span></span>
+              ssize_t size,
+              bool broadcast,
+              int type)</span></span>
             </h3>
-            <p>Creates and send an WebSocket frame with some text message.</p>
+            <p>Creates and send an WebSocket frame with some payload data.</p>
             <table class="m-table m-fullwidth m-flat">
               <thead>
                 <tr><th colspan="2">Parameters</th></tr>
@@ -298,6 +333,10 @@
                   <td>broadcast</td>
                   <td>Enable/disable broadcast.</td>
                 </tr>
+                <tr>
+                  <td>type</td>
+                  <td>Frame type.</td>
+                </tr>
               </tbody>
               <tfoot>
                 <tr>
@@ -306,7 +345,78 @@
                 </tr>
               </tfoot>
             </table>
-<aside class="m-note m-info"><h4>Note</h4><p>If <code>size</code> is -1, it is assumed that a text frame is being sent, otherwise, a binary frame. In the later case, the <code>size</code> is used.</p></aside>
+<p>This routine is intended to be used to create a websocket frame for a given type e sending to the client. For higher level routines, please check <a href="ws_8c.html#a19f035f036b1e78b4918d53fcad76cc0" class="m-doc">ws_<wbr />sendframe_<wbr />txt</a> and <a href="ws_8c.html#aec4fce2b51671706c217e84721f20856" class="m-doc">ws_<wbr />sendframe_<wbr />bin</a>.</p><aside class="m-note m-info"><h4>Note</h4><p>If <code>size</code> is -1, it is assumed that a text frame is being sent, otherwise, a binary frame. In the later case, the <code>size</code> is used.</p></aside>
+          </div></section>
+          <section class="m-doc-details" id="a19f035f036b1e78b4918d53fcad76cc0"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a19f035f036b1e78b4918d53fcad76cc0" class="m-doc-self">ws_sendframe_txt</a>(</span><span class="m-doc-wrap">int fd,
+              const char* msg,
+              bool broadcast)</span></span>
+            </h3>
+            <p>Sends a WebSocket text frame.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">fd</td>
+                  <td>Target to be send.</td>
+                </tr>
+                <tr>
+                  <td>msg</td>
+                  <td>Text message to be send.</td>
+                </tr>
+                <tr>
+                  <td>broadcast</td>
+                  <td>Enable/disable broadcast (0-disable/anything-enable).</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns the number of bytes written.</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div></section>
+          <section class="m-doc-details" id="aec4fce2b51671706c217e84721f20856"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#aec4fce2b51671706c217e84721f20856" class="m-doc-self">ws_sendframe_bin</a>(</span><span class="m-doc-wrap">int fd,
+              const char* msg,
+              size_t size,
+              bool broadcast)</span></span>
+            </h3>
+            <p>Sends a WebSocket text frame.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">fd</td>
+                  <td>Target to be send.</td>
+                </tr>
+                <tr>
+                  <td>msg</td>
+                  <td>Binary message to be send.</td>
+                </tr>
+                <tr>
+                  <td>size</td>
+                  <td>Message size (in bytes).</td>
+                </tr>
+                <tr>
+                  <td>broadcast</td>
+                  <td>Enable/disable broadcast (0-disable/anything-enable).</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns the number of bytes written.</td>
+                </tr>
+              </tfoot>
+            </table>
           </div></section>
           <section class="m-doc-details" id="acca44489f52d8c7e4ffe0c83e17e971f"><div>
             <h3>
