@@ -14,16 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-#include <sys/socket.h>
 #include <arpa/inet.h>
+#include <pthread.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <unistd.h>
-#include <pthread.h>
-#include <stddef.h>
 
 #include <ws.h>
 
@@ -122,12 +122,12 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
  *
  * @param s Error message.
  */
-#define panic(s)     \
-do                   \
-{                    \
-	perror(s);       \
-	exit(-1);        \
-} while (0);
+#define panic(s)   \
+	do             \
+	{              \
+		perror(s); \
+		exit(-1);  \
+	} while (0);
 
 /**
  * @brief Gets the IP address relative to a file descriptor opened
@@ -137,7 +137,7 @@ do                   \
  *
  * @return Pointer the ip address.
  */
-char* ws_getaddress(int fd)
+char *ws_getaddress(int fd)
 {
 	struct sockaddr_in addr;
 	socklen_t addr_size;
@@ -170,21 +170,20 @@ char* ws_getaddress(int fd)
  * @note If @p size is -1, it is assumed that a text frame is being sent,
  * otherwise, a binary frame. In the later case, the @p size is used.
  */
-int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast,
-	int type)
+int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast, int type)
 {
-	unsigned char *response;  /* Response data.  */
-	unsigned char frame[10];  /* Frame.          */
-	uint8_t idx_first_rData;  /* Index data.     */
-	uint64_t length;          /* Message length. */
-	int idx_response;         /* Index response. */
-	ssize_t output;           /* Bytes sent.     */
-	int sock;                 /* File Descript.  */
-	uint64_t i;               /* Loop index.     */
-	int cur_port_index;       /* Current port index */
+	unsigned char *response; /* Response data.     */
+	unsigned char frame[10]; /* Frame.             */
+	uint8_t idx_first_rData; /* Index data.        */
+	uint64_t length;         /* Message length.    */
+	int idx_response;        /* Index response.    */
+	ssize_t output;          /* Bytes sent.        */
+	int sock;                /* File Descript.     */
+	uint64_t i;              /* Loop index.        */
+	int cur_port_index;      /* Current port index */
 
 	frame[0] = (WS_FIN | type);
-	length = size;
+	length   = size;
 
 	/* Guess the size if not informed, perhaps a TXT frame. */
 	if (size < 0)
@@ -193,37 +192,37 @@ int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast,
 	/* Split the size between octects. */
 	if (length <= 125)
 	{
-		frame[1] = length & 0x7F;
+		frame[1]        = length & 0x7F;
 		idx_first_rData = 2;
 	}
 
 	/* Size between 126 and 65535 bytes. */
 	else if (length >= 126 && length <= 65535)
 	{
-		frame[1] = 126;
-		frame[2] = (length >> 8) & 255;
-		frame[3] = length & 255;
+		frame[1]        = 126;
+		frame[2]        = (length >> 8) & 255;
+		frame[3]        = length & 255;
 		idx_first_rData = 4;
 	}
 
 	/* More than 65535 bytes. */
 	else
 	{
-		frame[1] = 127;
-		frame[2] = (unsigned char) ((length >> 56) & 255);
-		frame[3] = (unsigned char) ((length >> 48) & 255);
-		frame[4] = (unsigned char) ((length >> 40) & 255);
-		frame[5] = (unsigned char) ((length >> 32) & 255);
-		frame[6] = (unsigned char) ((length >> 24) & 255);
-		frame[7] = (unsigned char) ((length >> 16) & 255);
-		frame[8] = (unsigned char) ((length >> 8) & 255);
-		frame[9] = (unsigned char) (length & 255);
+		frame[1]        = 127;
+		frame[2]        = (unsigned char)((length >> 56) & 255);
+		frame[3]        = (unsigned char)((length >> 48) & 255);
+		frame[4]        = (unsigned char)((length >> 40) & 255);
+		frame[5]        = (unsigned char)((length >> 32) & 255);
+		frame[6]        = (unsigned char)((length >> 24) & 255);
+		frame[7]        = (unsigned char)((length >> 16) & 255);
+		frame[8]        = (unsigned char)((length >> 8) & 255);
+		frame[9]        = (unsigned char)(length & 255);
 		idx_first_rData = 10;
 	}
 
 	/* Add frame bytes. */
 	idx_response = 0;
-	response = malloc( sizeof(unsigned char) * (idx_first_rData + length + 1) );
+	response     = malloc(sizeof(unsigned char) * (idx_first_rData + length + 1));
 	for (i = 0; i < idx_first_rData; i++)
 	{
 		response[i] = frame[i];
@@ -238,21 +237,22 @@ int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast,
 	}
 
 	response[idx_response] = '\0';
-	output = write(fd, response, idx_response);
+	output                 = write(fd, response, idx_response);
 	if (broadcast)
 	{
 		pthread_mutex_lock(&mutex);
-			cur_port_index = - 1;
-			for (i = 0; i < MAX_CLIENTS; i++)
-				if (client_socks[i].client_sock == fd)
-					cur_port_index = client_socks[i].port_index, i = MAX_CLIENTS;
+		cur_port_index = -1;
+		for (i = 0; i < MAX_CLIENTS; i++)
+			if (client_socks[i].client_sock == fd)
+				cur_port_index = client_socks[i].port_index, i = MAX_CLIENTS;
 
-			for (i = 0; i < MAX_CLIENTS; i++)
-			{
-				sock = client_socks[i].client_sock;
-				if ((sock > -1) && (sock != fd) &&(client_socks[i].port_index == cur_port_index))
-					output += write(sock, response, idx_response);
-			}
+		for (i = 0; i < MAX_CLIENTS; i++)
+		{
+			sock = client_socks[i].client_sock;
+			if ((sock > -1) && (sock != fd) &&
+				(client_socks[i].port_index == cur_port_index))
+				output += write(sock, response, idx_response);
+		}
 		pthread_mutex_unlock(&mutex);
 	}
 
@@ -311,17 +311,17 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 		return (-1);
 
 	/* Advance our pointers before the first next_byte(). */
-	p = strstr((const char*)wfd->frm, "\r\n\r\n");
+	p = strstr((const char *)wfd->frm, "\r\n\r\n");
 	if (p == NULL)
 	{
 		DEBUG("An empty line with \\r\\n was expected!\n");
 		return (-1);
 	}
 	wfd->amt_read = n;
-	wfd->cur_pos = (size_t)((ptrdiff_t)(p - (char*)wfd->frm)) + 4;
+	wfd->cur_pos  = (size_t)((ptrdiff_t)(p - (char *)wfd->frm)) + 4;
 
 	/* Get response. */
-	if (get_handshake_response((char*)wfd->frm, &response) < 0)
+	if (get_handshake_response((char *)wfd->frm, &response) < 0)
 	{
 		DEBUG("Cannot get handshake response, request was: %s\n", wfd->frm);
 		return (-1);
@@ -329,10 +329,10 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 
 	/* Valid request. */
 	DEBUG("Handshaked, response: \n"
-		"------------------------------------\n"
-		"%s"
-		"------------------------------------\n"
-		,response);
+		  "------------------------------------\n"
+		  "%s"
+		  "------------------------------------\n",
+		response);
 
 	/* Send handshake. */
 	if (write(wfd->sock, response, strlen(response)) < 0)
@@ -364,8 +364,8 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
  */
 static int do_pong(struct ws_frame_data *wfd)
 {
-	if (ws_sendframe(wfd->sock, (const char*)wfd->msg, wfd->frame_size,
-		false, WS_FR_OP_PONG) < 0)
+	if (ws_sendframe(wfd->sock, (const char *)wfd->msg, wfd->frame_size, false,
+			WS_FR_OP_PONG) < 0)
 	{
 		DEBUG("An error has ocurred while ponging!\n");
 		free(wfd->msg);
@@ -426,7 +426,7 @@ static int next_frame(struct ws_frame_data *wfd)
 	char cur_byte;       /* Current frame byte. */
 	uint8_t mask;        /* Mask.               */
 	uint8_t is_fin;      /* Is FIN frame flag.  */
-	size_t  i;           /* Loop index.         */
+	size_t i;            /* Loop index.         */
 
 	msg             = NULL;
 	is_fin          = 0;
@@ -453,17 +453,15 @@ static int next_frame(struct ws_frame_data *wfd)
 		is_fin = (cur_byte & 0xFF) >> WS_FIN_SHIFT;
 		opcode = (cur_byte & 0xF);
 
-		if (opcode == WS_FR_OP_TXT ||
-			opcode == WS_FR_OP_BIN ||
-			opcode == WS_FR_OP_CONT ||
-			opcode == WS_FR_OP_PING)
+		if (opcode == WS_FR_OP_TXT || opcode == WS_FR_OP_BIN ||
+			opcode == WS_FR_OP_CONT || opcode == WS_FR_OP_PING)
 		{
 			/* Only change frame type if not a CONT frame. */
 			if (opcode != WS_FR_OP_CONT)
 				wfd->frame_type = opcode;
 
-			mask           = next_byte(wfd);
-			frame_length   = mask & 0x7F;
+			mask         = next_byte(wfd);
+			frame_length = mask & 0x7F;
 
 			/* Decode masks and length for 16-bit messages. */
 			if (frame_length == 126)
@@ -473,13 +471,13 @@ static int next_frame(struct ws_frame_data *wfd)
 			else if (frame_length == 127)
 			{
 				frame_length = (((size_t)next_byte(wfd)) << 56) | /* frame[2]. */
-					(((size_t)next_byte(wfd)) << 48) |   /* frame[3]. */
-					(((size_t)next_byte(wfd)) << 40) |
-					(((size_t)next_byte(wfd)) << 32) |
-					(((size_t)next_byte(wfd)) << 24) |
-					(((size_t)next_byte(wfd)) << 16) |
-					(((size_t)next_byte(wfd)) <<  8) |
-					(((size_t)next_byte(wfd)));          /* frame[9]. */
+							   (((size_t)next_byte(wfd)) << 48) | /* frame[3]. */
+							   (((size_t)next_byte(wfd)) << 40) |
+							   (((size_t)next_byte(wfd)) << 32) |
+							   (((size_t)next_byte(wfd)) << 24) |
+							   (((size_t)next_byte(wfd)) << 16) |
+							   (((size_t)next_byte(wfd)) << 8) |
+							   (((size_t)next_byte(wfd))); /* frame[9]. */
 			}
 
 			wfd->frame_size += frame_length;
@@ -511,8 +509,8 @@ static int next_frame(struct ws_frame_data *wfd)
 			 * and if the current frame is a FIN frame or not, if so,
 			 * increment the size by 1 to accomodate the line ending \0.
 			 */
-			msg = realloc(msg, sizeof(unsigned char) *
-				(msg_idx + frame_length + is_fin));
+			msg = realloc(
+				msg, sizeof(unsigned char) * (msg_idx + frame_length + is_fin));
 
 			/* Copy to the proper location. */
 			for (i = 0; i < frame_length; i++, msg_idx++)
@@ -563,7 +561,7 @@ abort:
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static void* ws_establishconnection(void *vsock)
+static void *ws_establishconnection(void *vsock)
 {
 	struct ws_frame_data wfd; /* WebSocket frame data.   */
 	int connection_index;     /* Client connect. index.  */
@@ -572,10 +570,10 @@ static void* ws_establishconnection(void *vsock)
 	int sock;                 /* File descriptor.        */
 	int i;                    /* Loop index.             */
 
-	close_frame = 0;
+	close_frame      = 0;
 	connection_index = (int)(intptr_t)vsock;
-	sock = client_socks[connection_index].client_sock;
-	p_index = client_socks[connection_index].port_index;
+	sock             = client_socks[connection_index].client_sock;
+	p_index          = client_socks[connection_index].port_index;
 
 	/* Prepare frame data. */
 	memset(&wfd, 0, sizeof(wfd));
@@ -602,9 +600,8 @@ static void* ws_establishconnection(void *vsock)
 		}
 
 		/* Text/binary event. */
-		if (   (wfd.frame_type == WS_FR_OP_TXT
-			||  wfd.frame_type == WS_FR_OP_BIN)
-			&& !wfd.error )
+		if ((wfd.frame_type == WS_FR_OP_TXT || wfd.frame_type == WS_FR_OP_BIN) &&
+			!wfd.error)
 		{
 			ports[p_index].events.onmessage(sock, wfd.msg, wfd.frame_size);
 			free(wfd.msg);
@@ -637,14 +634,14 @@ static void* ws_establishconnection(void *vsock)
 closed:
 	/* Removes client socket from socks list. */
 	pthread_mutex_lock(&mutex);
-		for (i = 0; i < MAX_CLIENTS; i++)
+	for (i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (client_socks[i].client_sock == sock)
 		{
-			if (client_socks[i].client_sock == sock)
-			{
-				client_socks[i].client_sock = -1;
-				break;
-			}
+			client_socks[i].client_sock = -1;
+			break;
 		}
+	}
 	pthread_mutex_unlock(&mutex);
 
 	close(sock);
@@ -683,13 +680,13 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 		panic("Invalid event list!");
 
 	pthread_mutex_lock(&mutex);
-		if (port_index >= MAX_PORTS)
-		{
-			pthread_mutex_unlock(&mutex);
-			panic("too much websocket ports opened !");
-		}
-		p_index = port_index;
-		port_index++;
+	if (port_index >= MAX_PORTS)
+	{
+		pthread_mutex_unlock(&mutex);
+		panic("too much websocket ports opened !");
+	}
+	p_index = port_index;
+	port_index++;
 	pthread_mutex_unlock(&mutex);
 
 	/* Copy events. */
@@ -702,13 +699,13 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 		panic("Could not create socket");
 
 	/* Reuse previous address. */
-	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int)) < 0)
+	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
 		panic("setsockopt(SO_REUSEADDR) failed");
 
 	/* Prepare the sockaddr_in structure. */
-	server.sin_family = AF_INET;
+	server.sin_family      = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons(port);
+	server.sin_port        = htons(port);
 
 	/* Bind. */
 	if (bind(sock, (struct sockaddr *)&server, sizeof(server)) < 0)
@@ -727,25 +724,26 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	while (1)
 	{
 		/* Accept. */
-		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t*)&len);
+		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t *)&len);
 		if (new_sock < 0)
 			panic("Error on accepting connections..");
 
 		/* Adds client socket to socks list. */
 		pthread_mutex_lock(&mutex);
-			for (i = 0; i < MAX_CLIENTS; i++)
+		for (i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (client_socks[i].client_sock == -1)
 			{
-				if (client_socks[i].client_sock == -1)
-				{
-					client_socks[i].client_sock = new_sock;
-					client_socks[i].port_index = p_index;
-					connection_index = i;
-					break;
-				}
+				client_socks[i].client_sock = new_sock;
+				client_socks[i].port_index  = p_index;
+				connection_index            = i;
+				break;
 			}
+		}
 		pthread_mutex_unlock(&mutex);
 
-		if (pthread_create(&client_thread, NULL, ws_establishconnection, (void*)(intptr_t) connection_index) < 0)
+		if (pthread_create(&client_thread, NULL, ws_establishconnection,
+				(void *)(intptr_t)connection_index) < 0)
 			panic("Could not create the client thread!");
 
 		pthread_detach(client_thread);

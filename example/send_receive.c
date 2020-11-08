@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <unistd.h>
 #include <ws.h>
 
@@ -75,8 +75,7 @@ void onmessage(int fd, const unsigned char *msg, size_t size)
 {
 	char *cli;
 	cli = ws_getaddress(fd);
-	printf("I receive a message: %s (size: %zu), from: %s/%d\n", msg,
-		size, cli, fd);
+	printf("I receive a message: %s (size: %zu), from: %s/%d\n", msg, size, cli, fd);
 	ws_sendframe_txt(fd, (char *)msg, true);
 	free(cli);
 }

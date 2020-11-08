@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-#include <sha1.h>
 #include <base64.h>
+#include <sha1.h>
 #include <ws.h>
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * @dir src/handshake
@@ -50,7 +50,7 @@ int get_handshake_accept(char *wsKey, unsigned char **dest)
 	if (!wsKey)
 		return (-1);
 
-	char *str = calloc(1, sizeof(char) * (WS_KEY_LEN + WS_MS_LEN + 1) );
+	char *str = calloc(1, sizeof(char) * (WS_KEY_LEN + WS_MS_LEN + 1));
 	unsigned char hash[SHA1HashSize];
 
 	strncpy(str, wsKey, WS_KEY_LEN);
@@ -85,11 +85,11 @@ int get_handshake_response(char *hsrequest, char **hsresponse)
 	unsigned char *accept;
 	int ret;
 
-	for (s = strtok(hsrequest, "\r\n"); s != NULL; s = strtok(NULL, "\r\n") )
+	for (s = strtok(hsrequest, "\r\n"); s != NULL; s = strtok(NULL, "\r\n"))
 		if (strstr(s, WS_HS_REQ) != NULL)
 			break;
 
-	s = strtok(s,    " ");
+	s = strtok(s, " ");
 	s = strtok(NULL, " ");
 
 	ret = get_handshake_accept(s, &accept);

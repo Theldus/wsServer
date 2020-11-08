@@ -87,11 +87,11 @@
 	/**
 	 * @brief Handshake accept message.
 	 */
-	#define WS_HS_ACCEPT                   \
-	"HTTP/1.1 101 Switching Protocols\r\n" \
-	"Upgrade: websocket\r\n"               \
-	"Connection: Upgrade\r\n"              \
-	"Sec-WebSocket-Accept: "               \
+	#define WS_HS_ACCEPT                       \
+		"HTTP/1.1 101 Switching Protocols\r\n" \
+		"Upgrade: websocket\r\n"               \
+		"Connection: Upgrade\r\n"              \
+		"Sec-WebSocket-Accept: "
 	/**@}*/
 
 	/**
@@ -151,12 +151,11 @@
 	/**
 	 * @brief Debug
 	 */
-#ifdef VERBOSE_MODE
-	#define DEBUG(...)\
-		fprintf(stderr, __VA_ARGS__)
-#else
+	#ifdef VERBOSE_MODE
+	#define DEBUG(...) fprintf(stderr, __VA_ARGS__)
+	#else
 	#define DEBUG(...)
-#endif
+	#endif
 	/**@}*/
 
 	/**
@@ -184,12 +183,11 @@
 	/* Forward declarations. */
 	extern int get_handshake_accept(char *wsKey, unsigned char **dest);
 	extern int get_handshake_response(char *hsrequest, char **hsresponse);
-	extern char* ws_getaddress(int fd);
-	extern int   ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast,
-		int type);
+	extern char *ws_getaddress(int fd);
+	extern int ws_sendframe(
+		int fd, const char *msg, ssize_t size, bool broadcast, int type);
 	extern int ws_sendframe_txt(int fd, const char *msg, bool broadcast);
-	extern int ws_sendframe_bin(int fd, const char *msg, size_t size,
-		bool broadcast);
-	extern int   ws_socket(struct ws_events *evs, uint16_t port);
+	extern int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast);
+	extern int ws_socket(struct ws_events *evs, uint16_t port);
 
 #endif /* WS_H */
