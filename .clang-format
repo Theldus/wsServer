@@ -1,0 +1,27 @@
+﻿---
+BasedOnStyle: Microsoft
+AlignAfterOpenBracket: DontAlign
+AlignConsecutiveMacros: 'true'
+AlignConsecutiveAssignments: 'true'
+AlignEscapedNewlines: Left
+AlignTrailingComments: 'true'
+AllowAllParametersOfDeclarationOnNextLine: 'true'
+AllowShortCaseLabelsOnASingleLine: 'false'
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: 'false'
+ColumnLimit: '85'
+IndentCaseLabels: 'true'
+IndentWidth: '4'
+Language: Cpp
+PointerAlignment: Right
+SpaceAfterCStyleCast: 'false'
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: 'false'
+SpacesInCStyleCastParentheses: 'false'
+SpacesInContainerLiterals: 'false'
+SpacesInParentheses: 'false'
+SpacesInSquareBrackets: 'false'
+TabWidth: '4'
+UseTab: ForContinuationAndIndentation
+
+...

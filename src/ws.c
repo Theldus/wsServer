@@ -296,6 +296,9 @@ int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast)
  * @param p_index Client port index.
  *
  * @return Returns 0 if success, a negative number otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static int do_handshake(struct ws_frame_data *wfd, int p_index)
 {
@@ -355,6 +358,9 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
  *
  * @return Returns 0 if success and a negative number
  * otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static int do_pong(struct ws_frame_data *wfd)
 {
@@ -376,6 +382,9 @@ static int do_pong(struct ws_frame_data *wfd)
  * @param wfd Websocket Frame Data.
  *
  * @return Returns the byte read, or -1 if error.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static inline int next_byte(struct ws_frame_data *wfd)
 {
@@ -403,6 +412,9 @@ static inline int next_byte(struct ws_frame_data *wfd)
  * @param wfd Websocket Frame Data.
  *
  * @return Returns 0 if success, a negative number otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static int next_frame(struct ws_frame_data *wfd)
 {

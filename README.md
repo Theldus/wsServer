@@ -4,19 +4,23 @@ wsServer - a very tiny WebSocket server library written in C
 
 ## Library
 
-The library is made to be as simple as possible, so I don't follow to the letter the [RFC 6455](https://tools.ietf.org/html/rfc6455) and the
-only thing this library can do (until now, contributions are welcome) is send and receive text messages and treats them as events.
+The library is made to be as simple as possible, so I don't follow strictly
+the [RFC 6455](https://tools.ietf.org/html/rfc6455) and the only thing this
+library can do (until now, contributions are welcome) is send and receive
+text/binary messages and treats them as events.
 
-So it could not be helpful if you facing with a big application, but if you just want to send some messages between a non
-serious application, help yourself. :-)
+So it could not be helpful if you facing with a big application, but if you just
+want to send some messages between a non serious application, help yourself. :-)
 
 ## Building
 
-The process to build is very easy, just type `make` to build and `make clean` to clear your workspace. When the library
-is compiled, a new file called libws.a will be generated, you just have to link this library across your main application.
+The process to build is very easy, just type `make` to build and `make clean` to
+clear your workspace. When the library is compiled, a new file called libws.a will
+be generated, you just have to link this library across your main application.
 
-If you are using any IDE with CMake support, just open this project folder and your IDE will initialize the entire project. Alternatively,
-you can build the project by command line using the following steps:
+If you are using any IDE with CMake support, just open this project folder and
+your IDE will initialize the entire project. Alternatively, you can build the
+project by command line using the following steps:
 
 ```bash
 mkdir build && cd build/
@@ -27,7 +31,8 @@ make
 
 ## Why to complicate if things can be simple?
 
-The wsServer abstracts the idea of sockets and you only need to deal with three types of events defined:
+The wsServer abstracts the idea of sockets and you only need to deal with three
+types of events defined:
 
 ```c
 /* New client. */
@@ -42,13 +47,16 @@ void onmessage(int fd, const unsigned char *msg, size_t size);
 /* fd is the File Descriptor returned by accepted connection. */
 ```
 
-this is all you need to worry about, nothing to think about return values in socket, accepting connections, and so on.
+this is all you need to worry about, nothing to think about return values in socket,
+accepting connections, and so on.
 
-As a gift, each client is treated in a separate thread, so you will not have to worry about it.
+As a gift, each client is treated in a separate thread, so you will not have to
+worry about it.
 
 ### A complete example (file.c)
 
-A more complete example, including the html file, can be found in example/ folder, ;-).
+A more complete example, including the html file, can be found in example/
+folder, ;-).
 
 ```c
 #include <stdio.h>
@@ -119,10 +127,18 @@ int main()
 to build the example above, just invoke: `make examples`.
 
 ## SSL/TLS Support
-wsServer does not currently support encryption. However, it is possible to use it in conjunction
-with [Stunnel](https://www.stunnel.org/), a proxy that adds TLS support to existing projects.
-Just follow [these](doc/TLS.md) four easy steps to get TLS support on wsServer.
+wsServer does not currently support encryption. However, it is possible to use it
+in conjunction with [Stunnel](https://www.stunnel.org/), a proxy that adds TLS
+support to existing projects. Just follow [these](doc/TLS.md) four easy steps
+to get TLS support on wsServer.
 
----
+## Contributing
+wsServer is always open to the community and willing to accept contributions,
+whether with issues, documentation, testing, new features, bugfixes, typos...
+welcome aboard. Make sure to read the [coding-style](doc/CODING_STYLE.md)
+guidelines before sending a PR.
 
-That's it. If you liked, found a bug, or wanna contribute, let me know ;-).
+## License and Authors
+wsServer is licensed under GPLv3 License. Written by Davidson Francis and
+[others](https://github.com/Theldus/wsServer/graphs/contributors)
+contributors.
