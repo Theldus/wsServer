@@ -22,7 +22,22 @@ CFLAGS   +=  -I $(INCLUDE) -std=c99 -pedantic
 ARFLAGS   =  cru
 LIB       =  libws.a
 MCSS_DIR ?= /usr/bin/
+MANPAGES  = $(CURDIR)/doc/man/man3
 
+# Prefix
+ifeq ($(PREFIX),)
+    PREFIX := /usr/local
+endif
+
+# Detect machine type
+MACHINE := $(shell uname -m)
+ifeq ($(MACHINE), x86_64)
+	LIBDIR = $(PREFIX)/lib64
+else
+	LIBDIR = $(PREFIX)/lib
+endif
+
+# Source
 C_SRC = $(wildcard $(SRC)/base64/*.c)    \
 		$(wildcard $(SRC)/handshake/*.c) \
 		$(wildcard $(SRC)/sha1/*.c)      \
@@ -32,6 +47,12 @@ OBJ = $(C_SRC:.c=.o)
 
 # Conflicts
 .PHONY: doc
+
+# Paths
+INCDIR = $(PREFIX)/include
+BINDIR = $(PREFIX)/bin
+MANDIR = $(PREFIX)/man
+PKGDIR = $(LIBDIR)/pkgconfig
 
 # General objects
 %.o: %.c
@@ -47,6 +68,44 @@ libws.a: $(OBJ)
 # Examples
 examples: libws.a
 	$(MAKE) -C example/
+
+# Install rules
+install: all wsserver.pc
+	@#Library
+	install -d $(DESTDIR)$(LIBDIR)
+	install -m 644 $(LIB) $(DESTDIR)$(LIBDIR)
+	@#Headers
+	install -d $(DESTDIR)$(INCDIR)/wsserver
+	install -m 644 $(INCLUDE)/*.h $(DESTDIR)$(INCDIR)/wsserver
+	@#Manpages
+	install -d $(DESTDIR)$(MANDIR)/man3
+	install -m 0644 $(MANPAGES)/ws_getaddress.3 $(DESTDIR)$(MANDIR)/man3/
+	install -m 0644 $(MANPAGES)/ws_sendframe.3 $(DESTDIR)$(MANDIR)/man3/
+	install -m 0644 $(MANPAGES)/ws_sendframe_bin.3 $(DESTDIR)$(MANDIR)/man3/
+	install -m 0644 $(MANPAGES)/ws_sendframe_txt.3 $(DESTDIR)$(MANDIR)/man3/
+	install -m 0644 $(MANPAGES)/ws_socket.3 $(DESTDIR)$(MANDIR)/man3/
+
+# Uninstall rules
+uninstall:
+	rm -f  $(DESTDIR)$(LIBDIR)/$(LIB)
+	rf -rf $(DESTDIR)$(INCDIR)/wsserver
+	rm -f  $(DESTDIR)$(MANDIR)/man3/{ws_getaddress.3, ws_sendframe.3}
+	rm -f  $(DESTDIR)$(MANDIR)/man3/{ws_sendframe_bin.3, ws_sendframe_txt.3}
+	rm -f  $(DESTDIR)$(MANDIR)/man3/{ws_socket.3}
+	rm -f  $(DESTDIR)$(PKGDIR)/wsserver.pc
+
+# Generate wsserver.pc
+wsserver.pc:
+	@install -d $(DESTDIR)$(PKGDIR)
+	@echo 'prefix='$(DESTDIR)$(PREFIX)    >  $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'libdir='$(DESTDIR)$(LIBDIR)    >> $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'includedir=$${prefix}/include' >> $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'Name: wsServer'                >> $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'Description: Tiny WebSocket Server Library' >> $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'Version: 1.0'                  >> $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'Libs: -L$${libdir} -lws'       >> $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'Libs.private:'                 >> $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'Cflags: -I$${includedir}/wsserver' >> $(DESTDIR)$(PKGDIR)/wsserver.pc
 
 # Documentation, requires Doxygen and m.css
 #   -> https://mcss.mosra.cz/documentation/doxygen/

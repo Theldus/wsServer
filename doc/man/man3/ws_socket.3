@@ -1,0 +1,69 @@
+.\"
+.\" Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+.\"
+.\" This program is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>
+.\"
+.TH man 3 "07 Nov 2020" "1.0" "wsServer man page"
+.SH NAME
+ws_socket \- Start the WebSocket server 
+.SH SYNOPSIS
+.nf
+.B #include <ws.h>
+.sp
+.BI "int ws_socket(struct ws_events " *evs ", uint16_t " port ");
+.fi
+.SH DESCRIPTION
+.BR ws_socket ()
+starts the websocket server for the configured events
+.I evs
+and port
+.I port
+.SH RETURN VALUE
+This function never returns
+.SH NOTES
+.PP
+The structure
+.I evs
+is defined as follows:
+.nf
+	struct ws_events
+	{
+		void (*onopen)(int fd);
+		void (*onclose)(int fd);
+		void (*onmessage)(int fd, const unsigned char * msg, size_t size);
+	};
+Each element corresponds to function pointers that are triggered when the
+events occur.
+.PP
+The events:
+.RS 2
+.IP \(em 2
+on_open: occurs when a client successfully connects and handshakes with the
+server.
+.IP \(em 2
+on_close: occurs when a valid client (that handshaked with the server)
+disconnects with the server. The reason is not informed.
+.IP \(em 2
+on_message: occurs when a client sends a message (whether txt or bin) to the
+server.
+.PP
+Also note that the thread that sends the events is the same as that deals
+with the client connection, so keep in mind that you need to let the
+function return. If you want to perform further processing, consider
+creating a new thread.
+.SH SEE ALSO
+.BR ws_sendframe_txt (3),
+.BR ws_sendframe_bin (3)
+.SH AUTHOR
+Davidson Francis (davidsondfgl@gmail.com)

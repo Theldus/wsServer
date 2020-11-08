@@ -1,0 +1,64 @@
+.\"
+.\" Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+.\"
+.\" This program is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>
+.\"
+.TH man 3 "07 Nov 2020" "1.0" "wsServer man page"
+.SH NAME
+ws_sendframe \- Creates and send a masked WebSocket frame with some payload data.
+.SH SYNOPSIS
+.nf
+.B #include <ws.h>
+.sp
+.BI "int ws_sendframe(int " fd ", const char " *msg ", ssize_t " size ", bool " broadcast ", int " type ");
+.fi
+.SH DESCRIPTION
+.BR ws_sendframe ()
+sends a given message
+.I msg
+to the client
+.I fd
+with the size
+.I size
+with optional
+.I broadcast
+(true/false), for a given frame
+.I type.
+This routine is intended to be used to create a websocket frame for
+a given type and sending to the client. For higher level routines,
+please check
+.I ws_sendframe_txt
+and
+.I ws_sendframe_bin.
+.SH RETURN VALUE
+Returns the number of bytes written.
+.SH NOTES
+.PP
+The parameter
+.I size
+can be any value or -1, if the later, the size will be automatically calculated
+from the message. Please note that null terminated strings are expected.
+.PP
+The acceptable values for
+.I type
+are:
+.BR WS_FR_OP_TXT,
+.BR WS_FR_OP_BIN
+and
+.BR WS_FR_OP_PONG.
+.SH SEE ALSO
+.BR ws_sendframe_txt (3),
+.BR ws_sendframe_bin (3)
+.SH AUTHOR
+Davidson Francis (davidsondfgl@gmail.com)
