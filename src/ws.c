@@ -479,6 +479,18 @@ static int next_frame(struct ws_frame_data *wfd)
 			masks[3] = next_byte(wfd);
 
 			/*
+			 * Abort if error.
+			 *
+			 * This is tricky: we may have multiples error codes from the
+			 * previous next_bytes() calls, but, since we're only setting
+			 * variables and flags, there is no major issue in setting
+			 * them wrong _if_ we do not use their values, thing that
+			 * we do here.
+			 */
+			if (wfd->error)
+				break;
+
+			/*
 			 * Allocate memory.
 			 *
 			 * The statement below will allocate a new chunk of memory
@@ -492,7 +504,14 @@ static int next_frame(struct ws_frame_data *wfd)
 
 			/* Copy to the proper location. */
 			for (i = 0; i < frame_length; i++, msg_idx++)
-				msg[msg_idx] = next_byte(wfd) ^ masks[i % 4];
+			{
+				/* We were able to read? .*/
+				cur_byte = next_byte(wfd);
+				if (cur_byte == -1)
+					goto abort;
+
+				msg[msg_idx] = cur_byte ^ masks[i % 4];
+			}
 
 			/* If we're inside a FIN frame, lets... */
 			if (is_fin)
@@ -505,6 +524,7 @@ static int next_frame(struct ws_frame_data *wfd)
 
 	} while (!is_fin && !wfd->error);
 
+abort:
 	/* Check for error. */
 	if (wfd->error)
 	{
