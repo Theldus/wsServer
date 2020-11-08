@@ -50,7 +50,7 @@ int get_handshake_accept(char *wsKey, unsigned char **dest)
 	if (!wsKey)
 		return (-1);
 
-	char *str = malloc( sizeof(char) * (WS_KEY_LEN + WS_MS_LEN + 1) );
+	char *str = calloc(1, sizeof(char) * (WS_KEY_LEN + WS_MS_LEN + 1) );
 	unsigned char hash[SHA1HashSize];
 
 	strncpy(str, wsKey, WS_KEY_LEN);
