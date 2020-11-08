@@ -304,7 +304,7 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 	ssize_t n;      /* Read/Write bytes.           */
 
 	/* Read the very first client message. */
-	if ((n = read(wfd->sock, wfd->frm, sizeof(wfd->frm))) < 0)
+	if ((n = read(wfd->sock, wfd->frm, sizeof(wfd->frm) - 1)) < 0)
 		return (-1);
 
 	/* Advance our pointers before the first next_byte(). */
