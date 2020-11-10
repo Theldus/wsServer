@@ -496,12 +496,20 @@ static int next_frame(struct ws_frame_data *wfd)
 			 * bytes. Also keep in mind that this is still true
 			 * for continuation frames.
 			 */
-			if (wfd->frame_size > MAX_FRAME_LENGTH || !wfd->frame_size)
+			if (wfd->frame_size > MAX_FRAME_LENGTH)
 			{
 				DEBUG("Current frame from client %d, exceeds the maximum\n"
-					  "amount of bytes allowed (%zu/%d) or is 0!",
+					  "amount of bytes allowed (%zu/%d)!",
 					wfd->sock, wfd->frame_size, MAX_FRAME_LENGTH);
 
+				wfd->error = 1;
+				break;
+			}
+
+			/* Zero-length frames should be FIN-frames... like: PING/PONG. */
+			if (!wfd->frame_size && !is_fin)
+			{
+				DEBUG("Zero-length frames should be FIN-frames\n");
 				wfd->error = 1;
 				break;
 			}
@@ -533,8 +541,9 @@ static int next_frame(struct ws_frame_data *wfd)
 			 * and if the current frame is a FIN frame or not, if so,
 			 * increment the size by 1 to accomodate the line ending \0.
 			 */
-			if ((msg = realloc(msg, sizeof(unsigned char) *
-										(msg_idx + frame_length + is_fin))) == NULL)
+			msg = realloc(
+				msg, sizeof(unsigned char) * (msg_idx + frame_length + is_fin));
+			if (!msg)
 			{
 				DEBUG("Cannot allocate memory, requested: %zu\n",
 					(msg_idx + frame_length + is_fin));
