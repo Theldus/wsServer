@@ -53,6 +53,10 @@
 	 */
 	#define MESSAGE_LENGTH 2048
 	/**
+	 * @brief Maximum frame/message length.
+	 */
+	#define MAX_FRAME_LENGTH (8*1024*1024)
+	/**
 	 * @brief WebSocket key length.
 	 */
 	#define WS_KEY_LEN     24

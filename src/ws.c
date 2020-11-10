@@ -135,7 +135,7 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
  *
  * @param fd File descriptor target.
  *
- * @return Pointer the ip address.
+ * @return Pointer the ip address, or NULL if fails.
  */
 char *ws_getaddress(int fd)
 {
@@ -148,6 +148,9 @@ char *ws_getaddress(int fd)
 		return NULL;
 
 	client = malloc(sizeof(char) * 20);
+	if (!client)
+		return (NULL);
+
 	strcpy(client, inet_ntoa(addr.sin_addr));
 	return (client);
 }
@@ -165,7 +168,7 @@ char *ws_getaddress(int fd)
  * @param broadcast Enable/disable broadcast.
  * @param type      Frame type.
  *
- * @return Returns the number of bytes written.
+ * @return Returns the number of bytes written, -1 if error.
  *
  * @note If @p size is -1, it is assumed that a text frame is being sent,
  * otherwise, a binary frame. In the later case, the @p size is used.
@@ -223,6 +226,9 @@ int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast, int type
 	/* Add frame bytes. */
 	idx_response = 0;
 	response     = malloc(sizeof(unsigned char) * (idx_first_rData + length + 1));
+	if (!response)
+		return (-1);
+
 	for (i = 0; i < idx_first_rData; i++)
 	{
 		response[i] = frame[i];
@@ -267,7 +273,7 @@ int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast, int type
  * @param msg        Text message to be send.
  * @param broadcast  Enable/disable broadcast (0-disable/anything-enable).
  *
- * @return Returns the number of bytes written.
+ * @return Returns the number of bytes written, -1 if error.
  */
 int ws_sendframe_txt(int fd, const char *msg, bool broadcast)
 {
@@ -282,7 +288,7 @@ int ws_sendframe_txt(int fd, const char *msg, bool broadcast)
  * @param size       Message size (in bytes).
  * @param broadcast  Enable/disable broadcast (0-disable/anything-enable).
  *
- * @return Returns the number of bytes written.
+ * @return Returns the number of bytes written, -1 if error.
  */
 int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast)
 {
@@ -482,6 +488,24 @@ static int next_frame(struct ws_frame_data *wfd)
 
 			wfd->frame_size += frame_length;
 
+			/*
+			 * Check frame size
+			 *
+			 * We need to limit the amount supported here, since if
+			 * we follow strictly to the RFC, we have to allow 2^64
+			 * bytes. Also keep in mind that this is still true
+			 * for continuation frames.
+			 */
+			if (wfd->frame_size > MAX_FRAME_LENGTH || !wfd->frame_size)
+			{
+				DEBUG("Current frame from client %d, exceeds the maximum\n"
+					  "amount of bytes allowed (%zu/%d) or is 0!",
+					wfd->sock, wfd->frame_size, MAX_FRAME_LENGTH);
+
+				wfd->error = 1;
+				break;
+			}
+
 			/* Read masks. */
 			masks[0] = next_byte(wfd);
 			masks[1] = next_byte(wfd);
@@ -509,8 +533,15 @@ static int next_frame(struct ws_frame_data *wfd)
 			 * and if the current frame is a FIN frame or not, if so,
 			 * increment the size by 1 to accomodate the line ending \0.
 			 */
-			msg = realloc(
-				msg, sizeof(unsigned char) * (msg_idx + frame_length + is_fin));
+			if ((msg = realloc(msg, sizeof(unsigned char) *
+										(msg_idx + frame_length + is_fin))) == NULL)
+			{
+				DEBUG("Cannot allocate memory, requested: %zu\n",
+					(msg_idx + frame_length + is_fin));
+
+				wfd->error = 1;
+				break;
+			}
 
 			/* Copy to the proper location. */
 			for (i = 0; i < frame_length; i++, msg_idx++)

@@ -45,13 +45,16 @@
  */
 int get_handshake_accept(char *wsKey, unsigned char **dest)
 {
+	unsigned char hash[SHA1HashSize];
 	SHA1Context ctx;
+	char *str;
 
 	if (!wsKey)
 		return (-1);
 
-	char *str = calloc(1, sizeof(char) * (WS_KEY_LEN + WS_MS_LEN + 1));
-	unsigned char hash[SHA1HashSize];
+	str = calloc(1, sizeof(char) * (WS_KEY_LEN + WS_MS_LEN + 1));
+	if (!str)
+		return (-1);
 
 	strncpy(str, wsKey, WS_KEY_LEN);
 	strcat(str, MAGIC_STRING);
@@ -97,6 +100,9 @@ int get_handshake_response(char *hsrequest, char **hsresponse)
 		return (ret);
 
 	*hsresponse = malloc(sizeof(char) * WS_HS_ACCLEN);
+	if (*hsresponse == NULL)
+		return (-1);
+
 	strcpy(*hsresponse, WS_HS_ACCEPT);
 	strcat(*hsresponse, (const char *)accept);
 	strcat(*hsresponse, "\r\n\r\n");
