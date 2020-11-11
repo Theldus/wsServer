@@ -8,6 +8,9 @@
   <link rel="icon" href="favicon-dark.png" type="image/png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#22272e" />
+  <style>
+    li {margin-top: 10px;}
+  </style>
 </head>
 <body>
 <header><nav id="navigation">
@@ -140,6 +143,10 @@
               <span class="m-doc-wrap-bumper">#define <a href="#ac146c3c7afc6f342ae4f476bd46d924a" class="m-doc-self">MESSAGE_LENGTH</a></span>
             </dt>
             <dd>Message buffer length.</dd>
+            <dt id="aecae779890dfc6b313fe2854369e5497">
+              <span class="m-doc-wrap-bumper">#define <a href="#aecae779890dfc6b313fe2854369e5497" class="m-doc-self">MAX_FRAME_LENGTH</a></span>
+            </dt>
+            <dd>Maximum frame/message length.</dd>
             <dt id="a99b7044cf6174b9a71ec0110ab4e4f06">
               <span class="m-doc-wrap-bumper">#define <a href="#a99b7044cf6174b9a71ec0110ab4e4f06" class="m-doc-self">WS_KEY_LEN</a></span>
             </dt>
@@ -298,7 +305,7 @@
               <tfoot>
                 <tr>
                   <th>Returns</th>
-                  <td>Pointer the ip address.</td>
+                  <td>Pointer the ip address, or NULL if fails.</td>
                 </tr>
               </tfoot>
             </table>
@@ -341,7 +348,7 @@
               <tfoot>
                 <tr>
                   <th>Returns</th>
-                  <td>Returns the number of bytes written.</td>
+                  <td>Returns the number of bytes written, -1 if error.</td>
                 </tr>
               </tfoot>
             </table>
@@ -375,7 +382,7 @@
               <tfoot>
                 <tr>
                   <th>Returns</th>
-                  <td>Returns the number of bytes written.</td>
+                  <td>Returns the number of bytes written, -1 if error.</td>
                 </tr>
               </tfoot>
             </table>
@@ -413,7 +420,7 @@
               <tfoot>
                 <tr>
                   <th>Returns</th>
-                  <td>Returns the number of bytes written.</td>
+                  <td>Returns the number of bytes written, -1 if error.</td>
                 </tr>
               </tfoot>
             </table>
