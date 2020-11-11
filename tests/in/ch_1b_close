@@ -1,0 +1,15 @@
+GET / HTTP/1.1
+Host: 127.0.0.1:8080
+Connection: Upgrade
+Pragma: no-cache
+Cache-Control: no-cache
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36
+Upgrade: websocket
+Origin: file://
+Sec-WebSocket-Version: 13
+Accept-Encoding: gzip, deflate, br
+Accept-Language: pt-BR,pt;q=0.9,en;q=0.8,es;q=0.7,ja;q=0.6
+Sec-WebSocket-Key: 6d9YPRqkE/4/sU4/POk7ww==
+Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+
+ÅÅÃç4fàÇ˚Òêß¯

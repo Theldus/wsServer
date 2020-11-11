@@ -162,6 +162,12 @@
 	#endif
 	/**@}*/
 
+	#ifndef AFL_FUZZ
+	#define CLI_SOCK(sock) (sock)
+	#else
+	#define CLI_SOCK(sock) (fileno(stdout))
+	#endif
+
 	/**
 	 * @brief events Web Socket events types.
 	 */
@@ -193,5 +199,9 @@
 	extern int ws_sendframe_txt(int fd, const char *msg, bool broadcast);
 	extern int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast);
 	extern int ws_socket(struct ws_events *evs, uint16_t port);
+
+#ifdef AFL_FUZZ
+	extern int ws_file(struct ws_events *evs, const char *file);
+#endif
 
 #endif /* WS_H */

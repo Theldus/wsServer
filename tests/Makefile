@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+# Copyright (C) 2016-2020 Davidson Francis <davidsondfgl@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,12 +13,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-# Ignore object files, executables and the library.
-*.o
-*.a
-send_receive
-ws_file
-build/
-doc/doxygen/html
-doc/doxygen/xml
-tests/out/
+CC       = afl-gcc
+WSDIR    = $(CURDIR)/../
+INCLUDE  = -I $(WSDIR)/include
+CFLAGS  +=  -Wall -Wextra -g -DVERBOSE_MODE -DAFL_FUZZ
+CFLAGS  +=  $(INCLUDE) -std=c99 -pthread -pedantic
+LIB      =  $(WSDIR)/libws.a
+
+# Examples
+all: ws_file run_fuzzy
+
+# ws_file
+ws_file:
+	$(CC) $(CFLAGS) $(LDFLAGS) *.c -o ws_file $(LIB)
+
+# Run fuzzing tests
+run_fuzzy: ws_file
+	@bash run-fuzzy.sh
+
+# Clean
+clean:
+	@rm -f ws_file

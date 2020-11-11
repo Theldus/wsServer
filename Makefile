@@ -17,12 +17,13 @@ CC       ?= gcc
 AR        = ar
 INCLUDE   = $(CURDIR)/include
 SRC       = $(CURDIR)/src
-CFLAGS    =  -Wall -Wextra -O2
+CFLAGS   +=  -Wall -Wextra -O2
 CFLAGS   +=  -I $(INCLUDE) -std=c99 -pedantic
 ARFLAGS   =  cru
 LIB       =  libws.a
 MCSS_DIR ?= /usr/bin/
 MANPAGES  = $(CURDIR)/doc/man/man3
+AFL_FUZZ ?= no
 
 # Prefix
 ifeq ($(PREFIX),)
@@ -37,6 +38,14 @@ else
 	LIBDIR = $(PREFIX)/lib
 endif
 
+# Check if AFL fuzzing enabled
+ifeq ($(AFL_FUZZ), yes)
+    CC = afl-gcc
+    CFLAGS := $(filter-out -O2,$(CFLAGS))
+    CFLAGS += -DVERBOSE_MODE -DAFL_FUZZ -g
+    $(info [+] AFL Fuzzing build enabled)
+endif
+
 # Source
 C_SRC = $(wildcard $(SRC)/base64/*.c)    \
 		$(wildcard $(SRC)/handshake/*.c) \
@@ -47,6 +56,7 @@ OBJ = $(C_SRC:.c=.o)
 
 # Conflicts
 .PHONY: doc
+.PHONY: tests
 
 # Paths
 INCDIR = $(PREFIX)/include
@@ -59,7 +69,11 @@ PKGDIR = $(LIBDIR)/pkgconfig
 	$(CC) $< $(CFLAGS) -c -o $@
 
 # All
+ifeq ($(AFL_FUZZ),no)
 all: libws.a examples
+else
+all: libws.a tests
+endif
 
 # Library
 libws.a: $(OBJ)
@@ -68,6 +82,10 @@ libws.a: $(OBJ)
 # Examples
 examples: libws.a
 	$(MAKE) -C example/
+
+# Fuzzing tests
+tests: libws.a
+	$(MAKE) -C tests/
 
 # Install rules
 install: all wsserver.pc
@@ -129,3 +147,4 @@ clean:
 	@rm -f $(SRC)/*.o
 	@rm -f $(LIB)
 	@$(MAKE) clean -C example/
+	@$(MAKE) clean -C tests/

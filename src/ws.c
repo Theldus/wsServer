@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+#define _POSIX_C_SOURCE 200809L
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -243,7 +245,7 @@ int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast, int type
 	}
 
 	response[idx_response] = '\0';
-	output                 = write(fd, response, idx_response);
+	output                 = write(CLI_SOCK(fd), response, idx_response);
 	if (broadcast)
 	{
 		pthread_mutex_lock(&mutex);
@@ -257,7 +259,7 @@ int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast, int type
 			sock = client_socks[i].client_sock;
 			if ((sock > -1) && (sock != fd) &&
 				(client_socks[i].port_index == cur_port_index))
-				output += write(sock, response, idx_response);
+				output += write(CLI_SOCK(sock), response, idx_response);
 		}
 		pthread_mutex_unlock(&mutex);
 	}
@@ -341,14 +343,14 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 		response);
 
 	/* Send handshake. */
-	if (write(wfd->sock, response, strlen(response)) < 0)
+	if (write(CLI_SOCK(wfd->sock), response, strlen(response)) < 0)
 	{
 		DEBUG("As error has ocurred while handshaking!\n");
 		return (-1);
 	}
 
 	/* Trigger events and clean up buffers. */
-	ports[p_index].events.onopen(wfd->sock);
+	ports[p_index].events.onopen(CLI_SOCK(wfd->sock));
 	free(response);
 	return (0);
 }
@@ -370,8 +372,8 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
  */
 static int do_pong(struct ws_frame_data *wfd)
 {
-	if (ws_sendframe(wfd->sock, (const char *)wfd->msg, wfd->frame_size, false,
-			WS_FR_OP_PONG) < 0)
+	if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)wfd->msg, wfd->frame_size,
+			false, WS_FR_OP_PONG) < 0)
 	{
 		DEBUG("An error has ocurred while ponging!\n");
 		free(wfd->msg);
@@ -790,3 +792,45 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 	}
 	return (0);
 }
+
+#ifdef AFL_FUZZ
+/**
+ * @brief WebSocket fuzzy test routine
+ *
+ * @param evs  Events structure.
+ *
+ * @param file File to be read.
+ *
+ * @return Returns 0, or crash.
+ *
+ * @note This is a 'fuzzy version' of the function @ref ws_socket.
+ * This routine do not listen to any port nor accept multiples
+ * connections. It is intended to read a stream of frames through a
+ * file and process it as if they are coming from a socket.
+ *
+ * This behavior enables us to test wsServer against fuzzers, like
+ * AFL, and see if it crashes, hangs or behaves normally, even under
+ * weird conditions.
+ */
+int ws_file(struct ws_events *evs, const char *file)
+{
+	int sock;
+	sock = open(file, O_RDONLY);
+	if (sock < 0)
+		panic("Invalid file\n");
+
+	/* Copy events. */
+	memcpy(&ports[0].events, evs, sizeof(struct ws_events));
+	ports[0].port_number = 0;
+
+	/* Clear client socks list. */
+	memset(client_socks, -1, sizeof(client_socks));
+
+	/* Set client settings. */
+	client_socks[0].client_sock = sock;
+	client_socks[0].port_index  = 0;
+
+	ws_establishconnection((void *)(intptr_t)0);
+	return (0);
+}
+#endif
