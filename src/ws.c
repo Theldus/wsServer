@@ -432,7 +432,7 @@ static int next_frame(struct ws_frame_data *wfd)
 	uint8_t masks[4];    /* Masks array.        */
 	size_t msg_idx;      /* Current msg index.  */
 	uint8_t opcode;      /* Frame opcode.       */
-	char cur_byte;       /* Current frame byte. */
+	int cur_byte;        /* Current frame byte. */
 	uint8_t mask;        /* Mask.               */
 	uint8_t is_fin;      /* Is FIN frame flag.  */
 	size_t i;            /* Loop index.         */
