@@ -147,13 +147,17 @@ char *ws_getaddress(int fd)
 
 	addr_size = sizeof(struct sockaddr_in);
 	if (getpeername(fd, (struct sockaddr *)&addr, &addr_size) < 0)
-		return NULL;
+		return (NULL);
 
-	client = malloc(sizeof(char) * 20);
+	client = malloc(sizeof(char) * INET_ADDRSTRLEN);
 	if (!client)
 		return (NULL);
 
-	strcpy(client, inet_ntoa(addr.sin_addr));
+	if (!inet_ntop(AF_INET, &addr.sin_addr, client, INET_ADDRSTRLEN))
+	{
+		free(client);
+		return (NULL);
+	}
 	return (client);
 }
 
