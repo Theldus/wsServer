@@ -428,6 +428,7 @@ static int next_frame(struct ws_frame_data *wfd)
 {
 	size_t frame_length; /* Frame length.       */
 	unsigned char *msg;  /* Message.            */
+	unsigned char *tmp;  /* Tmp pointer.        */
 	uint8_t masks[4];    /* Masks array.        */
 	size_t msg_idx;      /* Current msg index.  */
 	uint8_t opcode;      /* Frame opcode.       */
@@ -543,9 +544,9 @@ static int next_frame(struct ws_frame_data *wfd)
 			 * and if the current frame is a FIN frame or not, if so,
 			 * increment the size by 1 to accomodate the line ending \0.
 			 */
-			msg = realloc(
+			tmp = realloc(
 				msg, sizeof(unsigned char) * (msg_idx + frame_length + is_fin));
-			if (!msg)
+			if (!tmp)
 			{
 				DEBUG("Cannot allocate memory, requested: %zu\n",
 					(msg_idx + frame_length + is_fin));
@@ -553,6 +554,7 @@ static int next_frame(struct ws_frame_data *wfd)
 				wfd->error = 1;
 				break;
 			}
+			msg = tmp;
 
 			/* Copy to the proper location. */
 			for (i = 0; i < frame_length; i++, msg_idx++)
