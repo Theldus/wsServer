@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+#define _POSIX_C_SOURCE 200809L
 #include <base64.h>
 #include <sha1.h>
 #include <ws.h>
@@ -45,10 +46,11 @@
  */
 int get_handshake_accept(char *wsKey, unsigned char **dest)
 {
-	unsigned char hash[SHA1HashSize];
-	SHA1Context ctx;
-	char *str;
+	unsigned char hash[SHA1HashSize]; /* SHA-1 Hash.                   */
+	SHA1Context ctx;                  /* SHA-1 Context.                */
+	char *str;                        /* WebSocket key + magic string. */
 
+	/* Invalid key. */
 	if (!wsKey)
 		return (-1);
 
@@ -84,16 +86,22 @@ int get_handshake_accept(char *wsKey, unsigned char **dest)
  */
 int get_handshake_response(char *hsrequest, char **hsresponse)
 {
-	char *s;
-	unsigned char *accept;
-	int ret;
+	unsigned char *accept; /* Accept message.     */
+	char *saveptr;         /* strtok_r() pointer. */
+	char *s;               /* Current string.     */
+	int ret;               /* Return value.       */
 
-	for (s = strtok(hsrequest, "\r\n"); s != NULL; s = strtok(NULL, "\r\n"))
+	saveptr = NULL;
+	for (s = strtok_r(hsrequest, "\r\n", &saveptr); s != NULL;
+		 s = strtok_r(NULL, "\r\n", &saveptr))
+	{
 		if (strstr(s, WS_HS_REQ) != NULL)
 			break;
+	}
 
-	s = strtok(s, " ");
-	s = strtok(NULL, " ");
+	saveptr = NULL;
+	s       = strtok_r(s, " ", &saveptr);
+	s       = strtok_r(NULL, " ", &saveptr);
 
 	ret = get_handshake_accept(s, &accept);
 	if (ret < 0)
