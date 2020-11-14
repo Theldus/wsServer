@@ -55,7 +55,7 @@
 	/**
 	 * @brief Maximum frame/message length.
 	 */
-	#define MAX_FRAME_LENGTH (8*1024*1024)
+	#define MAX_FRAME_LENGTH (16*1024*1024)
 	/**
 	 * @brief WebSocket key length.
 	 */
