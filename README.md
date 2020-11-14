@@ -42,7 +42,7 @@ void onopen(int fd);
 void onclose(int fd);
 
 /* Client sent a text message. */
-void onmessage(int fd, const unsigned char *msg, size_t size);
+void onmessage(int fd, const unsigned char *msg, size_t size, int type);
 
 /* fd is the File Descriptor returned by accepted connection. */
 ```
@@ -93,8 +93,9 @@ void onclose(int fd)
  * @param fd   Client file descriptor.
  * @param msg  Message content.
  * @param size Message size.
+ * @param type Message type.
  */
-void onmessage(int fd, const unsigned char *msg, size_t size)
+void onmessage(int fd, const unsigned char *msg, size_t size, int type)
 {
     char *cli;
     cli = ws_getaddress(fd);

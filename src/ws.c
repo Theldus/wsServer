@@ -651,7 +651,8 @@ static void *ws_establishconnection(void *vsock)
 		if ((wfd.frame_type == WS_FR_OP_TXT || wfd.frame_type == WS_FR_OP_BIN) &&
 			!wfd.error)
 		{
-			ports[p_index].events.onmessage(sock, wfd.msg, wfd.frame_size);
+			ports[p_index].events.onmessage(
+				sock, wfd.msg, wfd.frame_size, wfd.frame_type);
 			free(wfd.msg);
 			wfd.msg = NULL;
 		}
