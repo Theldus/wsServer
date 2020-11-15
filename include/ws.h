@@ -149,6 +149,20 @@
 	/**@}*/
 
 	/**
+	 * @name Close codes
+	 */
+	/**@{*/
+	/**
+	 * @brief Normal close
+	 */
+	#define WS_CLSE_NORMAL  1000
+	/**
+	 * @brief Protocol error
+	 */
+	#define WS_CLSE_PROTERR 1002
+	/**@}*/
+
+	/**
 	 * @name Handshake constants.
 	 */
 	/**@{*/

@@ -360,6 +360,73 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 }
 
 /**
+ * @brief Sends a close frame, accordingly with the @p close_code
+ * or the message inside @p wfd.
+ *
+ * @param wfd Websocket Frame Data.
+ * @param close_code Websocket close code.
+ *
+ * @return Returns 0 if success, a negative number otherwise.
+ */
+static int do_close(struct ws_frame_data *wfd, int close_code)
+{
+	unsigned char msg[2]; /* Message local buffer. */
+	int cc;               /* Close code.           */
+
+	/* If custom close-code. */
+	if (close_code != -1)
+	{
+		cc = close_code;
+		goto custom_close;
+	}
+
+	/* If empty or have a close reason, just re-send. */
+	if (wfd->frame_size == 0 || wfd->frame_size > 2)
+		goto send;
+
+	/* Parse close code and check if valid, if not, we issue an protocol error. */
+	if (wfd->msg != NULL)
+	{
+		if (wfd->frame_size == 1)
+			cc = wfd->msg[0];
+		else
+			cc = ((int)wfd->msg[0]) << 8 | wfd->msg[1];
+
+		/* Check if it's not valid, if so, we send a protocol error (1002). */
+		if ((cc < 1000 || cc > 1003) && (cc < 1007 || cc > 1011) &&
+			(cc < 3000 || cc > 4999))
+		{
+			cc = WS_CLSE_PROTERR;
+
+		custom_close:
+			free(wfd->msg);
+			msg[0] = (cc >> 8);
+			msg[1] = (cc & 0xFF);
+
+			if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)msg, sizeof(msg),
+					false, WS_FR_OP_CLSE) < 0)
+			{
+				DEBUG("An error has occurred while sending closing frame!\n");
+				return (-1);
+			}
+			return (0);
+		}
+	}
+
+	/* Send the data inside wfd->msg. */
+send:
+	if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)wfd->msg, wfd->frame_size,
+			false, WS_FR_OP_CLSE) < 0)
+	{
+		DEBUG("An error has occurred while sending closing frame!\n");
+		free(wfd->msg);
+		return (-1);
+	}
+	free(wfd->msg);
+	return (0);
+}
+
+/**
  * @brief Send a pong frame in response to a ping frame.
  *
  * Accordingly to the RFC, a pong frame must have the same
@@ -467,7 +534,8 @@ static int next_frame(struct ws_frame_data *wfd)
 		opcode = (cur_byte & 0xF);
 
 		if (opcode == WS_FR_OP_TXT || opcode == WS_FR_OP_BIN ||
-			opcode == WS_FR_OP_CONT || opcode == WS_FR_OP_PING)
+			opcode == WS_FR_OP_CONT || opcode == WS_FR_OP_PING ||
+			opcode == WS_FR_OP_CLSE)
 		{
 			/* Only change frame type if not a CONT frame. */
 			if (opcode != WS_FR_OP_CONT)
@@ -576,7 +644,7 @@ static int next_frame(struct ws_frame_data *wfd)
 				msg[msg_idx] = '\0';
 		}
 
-		/* Anything else (close frame or unsupported). */
+		/* Anything else (unsupported frames). */
 		else
 			wfd->frame_type = opcode;
 
@@ -661,7 +729,11 @@ static void *ws_establishconnection(void *vsock)
 		else if (wfd.frame_type == WS_FR_OP_CLSE && !wfd.error)
 		{
 			close_frame = 1;
-			free(wfd.msg);
+
+			/* Send close frame */
+			if (do_close(&wfd, -1) < 0)
+				break;
+
 			ports[p_index].events.onclose(sock);
 			break;
 		}
