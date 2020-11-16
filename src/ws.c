@@ -648,7 +648,11 @@ static int next_frame(struct ws_frame_data *wfd)
 
 		/* Anything else (unsupported frames). */
 		else
+		{
+			/* We should consider as error receive an unknown frame. */
 			wfd->frame_type = opcode;
+			wfd->error = 1;
+		}
 
 	} while (!is_fin && !wfd->error);
 
