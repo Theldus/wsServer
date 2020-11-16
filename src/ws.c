@@ -349,6 +349,7 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 	/* Send handshake. */
 	if (write(CLI_SOCK(wfd->sock), response, strlen(response)) < 0)
 	{
+		free(response);
 		DEBUG("As error has ocurred while handshaking!\n");
 		return (-1);
 	}
@@ -450,7 +451,6 @@ static int do_pong(struct ws_frame_data *wfd)
 		free(wfd->msg);
 		return (-1);
 	}
-	free(wfd->msg);
 	return (0);
 }
 
@@ -512,6 +512,8 @@ static int next_frame(struct ws_frame_data *wfd)
 	is_fin          = 0;
 	msg_idx         = 0;
 	wfd->frame_size = 0;
+	wfd->frame_type = 0;
+	wfd->msg        = NULL;
 
 	/* Read until find a FIN or a unsupported frame. */
 	do
@@ -721,8 +723,6 @@ static void *ws_establishconnection(void *vsock)
 		{
 			ports[p_index].events.onmessage(
 				sock, wfd.msg, wfd.frame_size, wfd.frame_type);
-			free(wfd.msg);
-			wfd.msg = NULL;
 		}
 
 		/* Close event. */
@@ -742,6 +742,8 @@ static void *ws_establishconnection(void *vsock)
 		else if (wfd.frame_type == WS_FR_OP_PING && !wfd.error)
 			if (do_pong(&wfd) < 0)
 				break;
+
+		free(wfd.msg);
 	}
 
 	/*
