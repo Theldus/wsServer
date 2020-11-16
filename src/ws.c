@@ -583,14 +583,6 @@ static int next_frame(struct ws_frame_data *wfd)
 				break;
 			}
 
-			/* Zero-length frames should be FIN-frames... like: PING/PONG. */
-			if (!wfd->frame_size && !is_fin)
-			{
-				DEBUG("Zero-length frames should be FIN-frames\n");
-				wfd->error = 1;
-				break;
-			}
-
 			/* Read masks. */
 			masks[0] = next_byte(wfd);
 			masks[1] = next_byte(wfd);
@@ -618,31 +610,34 @@ static int next_frame(struct ws_frame_data *wfd)
 			 * and if the current frame is a FIN frame or not, if so,
 			 * increment the size by 1 to accomodate the line ending \0.
 			 */
-			tmp = realloc(
-				msg, sizeof(unsigned char) * (msg_idx + frame_length + is_fin));
-			if (!tmp)
+			if (frame_length > 0)
 			{
-				DEBUG("Cannot allocate memory, requested: %zu\n",
-					(msg_idx + frame_length + is_fin));
+				tmp = realloc(
+					msg, sizeof(unsigned char) * (msg_idx + frame_length + is_fin));
+				if (!tmp)
+				{
+					DEBUG("Cannot allocate memory, requested: %zu\n",
+						(msg_idx + frame_length + is_fin));
 
-				wfd->error = 1;
-				break;
-			}
-			msg = tmp;
+					wfd->error = 1;
+					break;
+				}
+				msg = tmp;
 
-			/* Copy to the proper location. */
-			for (i = 0; i < frame_length; i++, msg_idx++)
-			{
-				/* We were able to read? .*/
-				cur_byte = next_byte(wfd);
-				if (cur_byte == -1)
-					goto abort;
+				/* Copy to the proper location. */
+				for (i = 0; i < frame_length; i++, msg_idx++)
+				{
+					/* We were able to read? .*/
+					cur_byte = next_byte(wfd);
+					if (cur_byte == -1)
+						goto abort;
 
-				msg[msg_idx] = cur_byte ^ masks[i % 4];
+					msg[msg_idx] = cur_byte ^ masks[i % 4];
+				}
 			}
 
 			/* If we're inside a FIN frame, lets... */
-			if (is_fin)
+			if (is_fin && wfd->frame_size > 0)
 				msg[msg_idx] = '\0';
 		}
 
@@ -708,19 +703,6 @@ static void *ws_establishconnection(void *vsock)
 	/* Read next frame until client disconnects or an error occur. */
 	while (next_frame(&wfd) >= 0)
 	{
-		/* Frame without data payload. */
-		if (wfd.msg == NULL)
-		{
-			DEBUG("Non text frame received from %d", sock);
-			if (wfd.frame_type == WS_FR_OP_CLSE)
-				DEBUG(": close frame!\n");
-			else
-			{
-				DEBUG(", type: %x\n", wfd.frame_type);
-				continue;
-			}
-		}
-
 		/* Text/binary event. */
 		if ((wfd.frame_type == WS_FR_OP_TXT || wfd.frame_type == WS_FR_OP_BIN) &&
 			!wfd.error)
