@@ -79,14 +79,17 @@ void onmessage(int fd, const unsigned char *msg, size_t size, int type)
 	cli = ws_getaddress(fd);
 	printf("I receive a message: %s (size: %zu, type: %d), from: %s/%d\n", msg, size,
 		type, cli, fd);
-
-	/* Send the very same message, either text or binary. */
-	if (type == WS_FR_OP_TXT)
-		ws_sendframe_txt(fd, (char *)msg, true);
-	else
-		ws_sendframe_bin(fd, (char *)msg, size, true);
-
 	free(cli);
+
+	/**
+	 * Mimicks the same frame type received and re-send it again
+	 *
+	 * Please note that we could just use a ws_sendframe_txt()
+	 * or ws_sendframe_bin() here, but we're just being safe
+	 * and re-sending the very same frame type and content
+	 * again.
+	 */
+	ws_sendframe(fd, (char *)msg, size, true, type);
 }
 
 /**
