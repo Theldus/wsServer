@@ -638,7 +638,23 @@ static int next_frame(struct ws_frame_data *wfd)
 
 			/* If we're inside a FIN frame, lets... */
 			if (is_fin && wfd->frame_size > 0)
+			{
+				/* Increase memory if our FIN frame is of length 0. */
+				if (!frame_length)
+				{
+					tmp = realloc(msg, sizeof(unsigned char) * (msg_idx + 1));
+					if (!tmp)
+					{
+						DEBUG("Cannot allocate memory, requested: %zu\n",
+							(msg_idx + 1));
+
+						wfd->error = 1;
+						break;
+					}
+					msg = tmp;
+				}
 				msg[msg_idx] = '\0';
+			}
 		}
 
 		/* Anything else (unsupported frames). */
@@ -646,7 +662,7 @@ static int next_frame(struct ws_frame_data *wfd)
 		{
 			/* We should consider as error receive an unknown frame. */
 			wfd->frame_type = opcode;
-			wfd->error = 1;
+			wfd->error      = 1;
 		}
 
 	} while (!is_fin && !wfd->error);
