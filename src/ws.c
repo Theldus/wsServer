@@ -198,7 +198,7 @@ int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast, int type
 	if (size < 0)
 		length = strlen((const char *)msg);
 
-	/* Split the size between octects. */
+	/* Split the size between octets. */
 	if (length <= 125)
 	{
 		frame[1]        = length & 0x7F;
@@ -350,7 +350,7 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 	if (write(CLI_SOCK(wfd->sock), response, strlen(response)) < 0)
 	{
 		free(response);
-		DEBUG("As error has ocurred while handshaking!\n");
+		DEBUG("As error has occurred while handshaking!\n");
 		return (-1);
 	}
 
@@ -447,7 +447,7 @@ static int do_pong(struct ws_frame_data *wfd)
 	if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)wfd->msg, wfd->frame_size,
 			false, WS_FR_OP_PONG) < 0)
 	{
-		DEBUG("An error has ocurred while ponging!\n");
+		DEBUG("An error has occurred while ponging!\n");
 		free(wfd->msg);
 		return (-1);
 	}
@@ -475,7 +475,7 @@ static inline int next_byte(struct ws_frame_data *wfd)
 		if ((n = read(wfd->sock, wfd->frm, sizeof(wfd->frm))) <= 0)
 		{
 			wfd->error = 1;
-			DEBUG("An error has ocorred while trying to read next byte\n");
+			DEBUG("An error has occurred while trying to read next byte\n");
 			return (-1);
 		}
 		wfd->amt_read = (size_t)n;
@@ -608,7 +608,7 @@ static int next_frame(struct ws_frame_data *wfd)
 			 * if msg is NULL with size total_length. Otherwise, it will
 			 * resize the total memory accordingly with the message index
 			 * and if the current frame is a FIN frame or not, if so,
-			 * increment the size by 1 to accomodate the line ending \0.
+			 * increment the size by 1 to accommodate the line ending \0.
 			 */
 			if (frame_length > 0)
 			{
@@ -784,7 +784,7 @@ closed:
  * @note Note that this function can be called multiples times,
  * from multiples different threads (depending on the @ref MAX_PORTS)
  * value. Each call _should_ have a different port and can have
- * differents events configured.
+ * different events configured.
  */
 int ws_socket(struct ws_events *evs, uint16_t port)
 {
