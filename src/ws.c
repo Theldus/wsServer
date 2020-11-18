@@ -499,6 +499,29 @@ static inline int next_byte(struct ws_frame_data *wfd)
 }
 
 /**
+ * @brief Skips @p frame_size bytes of the current frame.
+ *
+ * @param wfd Websocket Frame Data.
+ * @param frame_size Amount of bytes to be skipped.
+ *
+ * @return Returns 0 if success, a negative number
+ * otherwise.
+ */
+static int skip_frame(struct ws_frame_data *wfd, size_t frame_size)
+{
+	size_t i;
+	for (i = 0; i < frame_size; i++)
+	{
+		if (next_byte(wfd) == -1)
+		{
+			wfd->error = 1;
+			return (-1);
+		}
+	}
+	return (0);
+}
+
+/**
  * @brief Reads the next frame, whether if a TXT/BIN/CLOSE
  * of arbitrary size.
  *
@@ -551,7 +574,7 @@ static int next_frame(struct ws_frame_data *wfd)
 
 		if (opcode == WS_FR_OP_TXT || opcode == WS_FR_OP_BIN ||
 			opcode == WS_FR_OP_CONT || opcode == WS_FR_OP_PING ||
-			opcode == WS_FR_OP_CLSE)
+			opcode == WS_FR_OP_PONG || opcode == WS_FR_OP_CLSE)
 		{
 			/* Only change frame type if not a CONT frame. */
 			if (opcode != WS_FR_OP_CONT)
@@ -568,6 +591,20 @@ static int next_frame(struct ws_frame_data *wfd)
 			{
 				DEBUG("Control frame bigger than 125 octets or not a FIN frame!\n");
 				wfd->error = 1;
+				break;
+			}
+
+			/*
+			 * We _never_ send a PING frame, so it's not expected to receive a PONG
+			 * frame. However, the specs states that a client could send an
+			 * unsolicited PONG frame. The server just have to ignore the
+			 * frame.
+			 *
+			 * The skip amount will always be 4 (masks vector size) + frame size
+			 */
+			if (opcode == WS_FR_OP_PONG)
+			{
+				skip_frame(wfd, 4 + frame_length);
 				break;
 			}
 
