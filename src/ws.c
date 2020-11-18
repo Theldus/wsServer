@@ -302,6 +302,20 @@ int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast)
 }
 
 /**
+ * @brief Checks is a given opcode @p frame
+ * belongs to a control frame or not.
+ *
+ * @param frame Frame opcode to be checked.
+ *
+ * @return Returns 1 if is a control frame, 0 otherwise.
+ */
+static inline int is_control_frame(int frame)
+{
+	return (
+		frame == WS_FR_OP_CLSE || frame == WS_FR_OP_PING || frame == WS_FR_OP_PONG);
+}
+
+/**
  * @brief Do the handshake process.
  *
  * @param wfd Websocket Frame Data.
@@ -545,6 +559,17 @@ static int next_frame(struct ws_frame_data *wfd)
 
 			mask         = next_byte(wfd);
 			frame_length = mask & 0x7F;
+
+			/*
+			 * We should deny non-FIN control frames or that have
+			 * more than 125 octets.
+			 */
+			if (is_control_frame(opcode) && (!is_fin || frame_length > 125))
+			{
+				DEBUG("Control frame bigger than 125 octets or not a FIN frame!\n");
+				wfd->error = 1;
+				break;
+			}
 
 			/* Decode masks and length for 16-bit messages. */
 			if (frame_length == 126)
