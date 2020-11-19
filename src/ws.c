@@ -723,6 +723,20 @@ static int next_frame(struct ws_frame_data *wfd)
 		is_fin = (cur_byte & 0xFF) >> WS_FIN_SHIFT;
 		opcode = (cur_byte & 0xF);
 
+		/*
+		 * Check for RSV field.
+		 *
+		 * Since wsServer do not negotiate extensions if we receive
+		 * a RSV field, we must drop the connection.
+		 */
+		if (cur_byte & 0x70)
+		{
+			DEBUG("RSV is set while wsServer do not negotiate extensions!\n");
+			wfd->error = 1;
+			break;
+		}
+
+		/* Check if one of the valid opcodes. */
 		if (opcode == WS_FR_OP_TXT || opcode == WS_FR_OP_BIN ||
 			opcode == WS_FR_OP_CONT || opcode == WS_FR_OP_PING ||
 			opcode == WS_FR_OP_PONG || opcode == WS_FR_OP_CLSE)
