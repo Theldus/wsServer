@@ -9,6 +9,7 @@ AllowAllParametersOfDeclarationOnNextLine: 'true'
 AllowShortCaseLabelsOnASingleLine: 'false'
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: 'false'
+BinPackParameters: 'false'
 ColumnLimit: '85'
 IndentCaseLabels: 'true'
 IndentWidth: '4'
