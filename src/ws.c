@@ -700,7 +700,7 @@ static int next_frame(struct ws_frame_data *wfd)
 	msg_idx_data    = 0;
 	msg_idx_ctrl    = 0;
 	wfd->frame_size = 0;
-	wfd->frame_type = 0;
+	wfd->frame_type = -1;
 	wfd->msg        = NULL;
 
 	/* Read until find a FIN or a unsupported frame. */
@@ -732,6 +732,30 @@ static int next_frame(struct ws_frame_data *wfd)
 		if (cur_byte & 0x70)
 		{
 			DEBUG("RSV is set while wsServer do not negotiate extensions!\n");
+			wfd->error = 1;
+			break;
+		}
+
+		/*
+		 * Check if the current opcode makes sense:
+		 * a) If we're inside a cont frame but no previous data frame
+		 *
+		 * b) If we're handling a data-frame and receive another data
+		 *    frame. (it's expected to receive only CONT or control
+		 *    frames).
+		 *
+		 * It is worth to note that in a), we do not need to check
+		 * if the previous frame was FIN or not: if was FIN, an
+		 * on_message event was triggered and this function returned;
+		 * so the only possibility here is a previous non-FIN data
+		 * frame, ;-).
+		 */
+		if ((wfd->frame_type == -1 && opcode == WS_FR_OP_CONT) ||
+			(wfd->frame_type != -1 && !is_control_frame(opcode) &&
+				opcode != WS_FR_OP_CONT))
+		{
+			DEBUG("Unexpected frame was received!, opcode: %d, previous: %d\n",
+				opcode, wfd->frame_type);
 			wfd->error = 1;
 			break;
 		}
