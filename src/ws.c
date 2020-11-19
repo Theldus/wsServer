@@ -89,6 +89,10 @@ struct ws_frame_data
 	 */
 	unsigned char *msg;
 	/**
+	 * @brief Control frame payload
+	 */
+	unsigned char msg_ctrl[125];
+	/**
 	 * @brief Current byte position.
 	 */
 	size_t cur_pos;
@@ -385,8 +389,7 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
  */
 static int do_close(struct ws_frame_data *wfd, int close_code)
 {
-	unsigned char msg[2]; /* Message local buffer. */
-	int cc;               /* Close code.           */
+	int cc; /* Close code.           */
 
 	/* If custom close-code. */
 	if (close_code != -1)
@@ -400,44 +403,38 @@ static int do_close(struct ws_frame_data *wfd, int close_code)
 		goto send;
 
 	/* Parse close code and check if valid, if not, we issue an protocol error. */
-	if (wfd->msg != NULL)
+	if (wfd->frame_size == 1)
+		cc = wfd->msg_ctrl[0];
+	else
+		cc = ((int)wfd->msg_ctrl[0]) << 8 | wfd->msg_ctrl[1];
+
+	/* Check if it's not valid, if so, we send a protocol error (1002). */
+	if ((cc < 1000 || cc > 1003) && (cc < 1007 || cc > 1011) &&
+		(cc < 3000 || cc > 4999))
 	{
-		if (wfd->frame_size == 1)
-			cc = wfd->msg[0];
-		else
-			cc = ((int)wfd->msg[0]) << 8 | wfd->msg[1];
+		cc = WS_CLSE_PROTERR;
 
-		/* Check if it's not valid, if so, we send a protocol error (1002). */
-		if ((cc < 1000 || cc > 1003) && (cc < 1007 || cc > 1011) &&
-			(cc < 3000 || cc > 4999))
+	custom_close:
+		wfd->msg_ctrl[0] = (cc >> 8);
+		wfd->msg_ctrl[1] = (cc & 0xFF);
+
+		if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)wfd->msg_ctrl,
+				sizeof(char) * 2, false, WS_FR_OP_CLSE) < 0)
 		{
-			cc = WS_CLSE_PROTERR;
-
-		custom_close:
-			free(wfd->msg);
-			msg[0] = (cc >> 8);
-			msg[1] = (cc & 0xFF);
-
-			if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)msg, sizeof(msg),
-					false, WS_FR_OP_CLSE) < 0)
-			{
-				DEBUG("An error has occurred while sending closing frame!\n");
-				return (-1);
-			}
-			return (0);
+			DEBUG("An error has occurred while sending closing frame!\n");
+			return (-1);
 		}
+		return (0);
 	}
 
-	/* Send the data inside wfd->msg. */
+	/* Send the data inside wfd->msg_ctrl. */
 send:
-	if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)wfd->msg, wfd->frame_size,
-			false, WS_FR_OP_CLSE) < 0)
+	if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)wfd->msg_ctrl,
+			wfd->frame_size, false, WS_FR_OP_CLSE) < 0)
 	{
 		DEBUG("An error has occurred while sending closing frame!\n");
-		free(wfd->msg);
 		return (-1);
 	}
-	free(wfd->msg);
 	return (0);
 }
 
@@ -456,13 +453,13 @@ send:
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int do_pong(struct ws_frame_data *wfd)
+static int do_pong(struct ws_frame_data *wfd, size_t frame_size)
 {
-	if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)wfd->msg, wfd->frame_size,
+	if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)wfd->msg_ctrl, frame_size,
 			false, WS_FR_OP_PONG) < 0)
 	{
+		wfd->error = 1;
 		DEBUG("An error has occurred while ponging!\n");
-		free(wfd->msg);
 		return (-1);
 	}
 	return (0);
@@ -522,6 +519,154 @@ static int skip_frame(struct ws_frame_data *wfd, size_t frame_size)
 }
 
 /**
+ * @brief Reads the current frame isolating data from control frames.
+ * The parameters are changed in order to reflect the current state.
+ *
+ * @param wfd Websocket Frame Data.
+ * @param opcode Frame opcode.
+ * @param buf Buffer to be written.
+ * @param frame_length Length of the current frame.
+ * @param frame_size Total size of the frame (considering CONT frames)
+ *                   read until the moment.
+ * @param msg_idx Message index, reflects the current buffer pointer state.
+ * @param masks Masks vector.
+ * @param is_fin Is FIN frame indicator.
+ *
+ * @return Returns 0 if success, a negative number otherwise.
+ */
+static int read_frame(struct ws_frame_data *wfd,
+	int opcode,
+	unsigned char **buf,
+	size_t *frame_length,
+	size_t *frame_size,
+	size_t *msg_idx,
+	uint8_t *masks,
+	int is_fin)
+{
+	unsigned char *tmp; /* Tmp message.     */
+	unsigned char *msg; /* Current message. */
+	int cur_byte;       /* Curr byte read.  */
+	size_t i;           /* Loop index.      */
+
+	msg = *buf;
+
+	/* Decode masks and length for 16-bit messages. */
+	if (*frame_length == 126)
+		*frame_length = (((size_t)next_byte(wfd)) << 8) | next_byte(wfd);
+
+	/* 64-bit messages. */
+	else if (*frame_length == 127)
+	{
+		*frame_length =
+			(((size_t)next_byte(wfd)) << 56) | /* frame[2]. */
+			(((size_t)next_byte(wfd)) << 48) | /* frame[3]. */
+			(((size_t)next_byte(wfd)) << 40) | (((size_t)next_byte(wfd)) << 32) |
+			(((size_t)next_byte(wfd)) << 24) | (((size_t)next_byte(wfd)) << 16) |
+			(((size_t)next_byte(wfd)) << 8) |
+			(((size_t)next_byte(wfd))); /* frame[9]. */
+	}
+
+	*frame_size += *frame_length;
+
+	/*
+	 * Check frame size
+	 *
+	 * We need to limit the amount supported here, since if
+	 * we follow strictly to the RFC, we have to allow 2^64
+	 * bytes. Also keep in mind that this is still true
+	 * for continuation frames.
+	 */
+	if (*frame_size > MAX_FRAME_LENGTH)
+	{
+		DEBUG("Current frame from client %d, exceeds the maximum\n"
+			  "amount of bytes allowed (%zu/%d)!",
+			wfd->sock, *frame_size + *frame_length, MAX_FRAME_LENGTH);
+
+		wfd->error = 1;
+		return (-1);
+	}
+
+	/* Read masks. */
+	masks[0] = next_byte(wfd);
+	masks[1] = next_byte(wfd);
+	masks[2] = next_byte(wfd);
+	masks[3] = next_byte(wfd);
+
+	/*
+	 * Abort if error.
+	 *
+	 * This is tricky: we may have multiples error codes from the
+	 * previous next_bytes() calls, but, since we're only setting
+	 * variables and flags, there is no major issue in setting
+	 * them wrong _if_ we do not use their values, thing that
+	 * we do here.
+	 */
+	if (wfd->error)
+		return (-1);
+
+	/*
+	 * Allocate memory.
+	 *
+	 * The statement below will allocate a new chunk of memory
+	 * if msg is NULL with size total_length. Otherwise, it will
+	 * resize the total memory accordingly with the message index
+	 * and if the current frame is a FIN frame or not, if so,
+	 * increment the size by 1 to accommodate the line ending \0.
+	 */
+	if (*frame_length > 0)
+	{
+		if (!is_control_frame(opcode))
+		{
+			tmp = realloc(
+				msg, sizeof(unsigned char) * (*msg_idx + *frame_length + is_fin));
+			if (!tmp)
+			{
+				DEBUG("Cannot allocate memory, requested: %zu\n",
+					(*msg_idx + *frame_length + is_fin));
+
+				wfd->error = 1;
+				return (-1);
+			}
+			msg  = tmp;
+			*buf = msg;
+		}
+
+		/* Copy to the proper location. */
+		for (i = 0; i < *frame_length; i++, (*msg_idx)++)
+		{
+			/* We were able to read? .*/
+			cur_byte = next_byte(wfd);
+			if (cur_byte == -1)
+				return (-1);
+
+			msg[*msg_idx] = cur_byte ^ masks[i % 4];
+		}
+	}
+
+	/* If we're inside a FIN frame, lets... */
+	if (is_fin && *frame_size > 0)
+	{
+		/* Increase memory if our FIN frame is of length 0. */
+		if (!*frame_length && !is_control_frame(opcode))
+		{
+			tmp = realloc(msg, sizeof(unsigned char) * (*msg_idx + 1));
+			if (!tmp)
+			{
+				DEBUG("Cannot allocate memory, requested: %zu\n", (*msg_idx + 1));
+
+				wfd->error = 1;
+				return (-1);
+			}
+			msg  = tmp;
+			*buf = msg;
+		}
+		msg[*msg_idx] = '\0';
+	}
+
+	return (0);
+}
+
+/**
  * @brief Reads the next frame, whether if a TXT/BIN/CLOSE
  * of arbitrary size.
  *
@@ -534,20 +679,26 @@ static int skip_frame(struct ws_frame_data *wfd, size_t frame_size)
  */
 static int next_frame(struct ws_frame_data *wfd)
 {
-	size_t frame_length; /* Frame length.       */
-	unsigned char *msg;  /* Message.            */
-	unsigned char *tmp;  /* Tmp pointer.        */
-	uint8_t masks[4];    /* Masks array.        */
-	size_t msg_idx;      /* Current msg index.  */
-	uint8_t opcode;      /* Frame opcode.       */
-	int cur_byte;        /* Current frame byte. */
-	uint8_t mask;        /* Mask.               */
-	uint8_t is_fin;      /* Is FIN frame flag.  */
-	size_t i;            /* Loop index.         */
+	unsigned char *msg_data; /* Data frame.                */
+	unsigned char *msg_ctrl; /* Control frame.             */
+	uint8_t masks_data[4];   /* Masks data frame array.    */
+	uint8_t masks_ctrl[4];   /* Masks control frame array. */
+	size_t msg_idx_data;     /* Current msg index.         */
+	size_t msg_idx_ctrl;     /* Current msg index.         */
+	size_t frame_length;     /* Frame length.              */
+	size_t frame_size;       /* Current frame size.        */
+	uint8_t opcode;          /* Frame opcode.              */
+	uint8_t is_fin;          /* Is FIN frame flag.         */
+	uint8_t mask;            /* Mask.                      */
+	int cur_byte;            /* Current frame byte.        */
 
-	msg             = NULL;
+	msg_data        = NULL;
+	msg_ctrl        = wfd->msg_ctrl;
 	is_fin          = 0;
-	msg_idx         = 0;
+	frame_length    = 0;
+	frame_size      = 0;
+	msg_idx_data    = 0;
+	msg_idx_ctrl    = 0;
 	wfd->frame_size = 0;
 	wfd->frame_type = 0;
 	wfd->msg        = NULL;
@@ -577,11 +728,13 @@ static int next_frame(struct ws_frame_data *wfd)
 			opcode == WS_FR_OP_PONG || opcode == WS_FR_OP_CLSE)
 		{
 			/* Only change frame type if not a CONT frame. */
-			if (opcode != WS_FR_OP_CONT)
+			if (opcode != WS_FR_OP_CONT && !is_control_frame(opcode))
 				wfd->frame_type = opcode;
 
 			mask         = next_byte(wfd);
 			frame_length = mask & 0x7F;
+			frame_size   = 0;
+			msg_idx_ctrl = 0;
 
 			/*
 			 * We should deny non-FIN control frames or that have
@@ -594,6 +747,14 @@ static int next_frame(struct ws_frame_data *wfd)
 				break;
 			}
 
+			/* Normal data frames. */
+			if (opcode == WS_FR_OP_TXT || opcode == WS_FR_OP_BIN ||
+				opcode == WS_FR_OP_CONT)
+			{
+				read_frame(wfd, opcode, &msg_data, &frame_length, &wfd->frame_size,
+					&msg_idx_data, masks_data, is_fin);
+			}
+
 			/*
 			 * We _never_ send a PING frame, so it's not expected to receive a PONG
 			 * frame. However, the specs states that a client could send an
@@ -602,126 +763,47 @@ static int next_frame(struct ws_frame_data *wfd)
 			 *
 			 * The skip amount will always be 4 (masks vector size) + frame size
 			 */
-			if (opcode == WS_FR_OP_PONG)
+			else if (opcode == WS_FR_OP_PONG)
 			{
 				skip_frame(wfd, 4 + frame_length);
-				break;
+				is_fin = 0;
+				continue;
 			}
 
-			/* Decode masks and length for 16-bit messages. */
-			if (frame_length == 126)
-				frame_length = (((size_t)next_byte(wfd)) << 8) | next_byte(wfd);
-
-			/* 64-bit messages. */
-			else if (frame_length == 127)
+			/* We should answer to a PING frame as soon as possible. */
+			else if (opcode == WS_FR_OP_PING)
 			{
-				frame_length = (((size_t)next_byte(wfd)) << 56) | /* frame[2]. */
-							   (((size_t)next_byte(wfd)) << 48) | /* frame[3]. */
-							   (((size_t)next_byte(wfd)) << 40) |
-							   (((size_t)next_byte(wfd)) << 32) |
-							   (((size_t)next_byte(wfd)) << 24) |
-							   (((size_t)next_byte(wfd)) << 16) |
-							   (((size_t)next_byte(wfd)) << 8) |
-							   (((size_t)next_byte(wfd))); /* frame[9]. */
-			}
-
-			wfd->frame_size += frame_length;
-
-			/*
-			 * Check frame size
-			 *
-			 * We need to limit the amount supported here, since if
-			 * we follow strictly to the RFC, we have to allow 2^64
-			 * bytes. Also keep in mind that this is still true
-			 * for continuation frames.
-			 */
-			if (wfd->frame_size > MAX_FRAME_LENGTH)
-			{
-				DEBUG("Current frame from client %d, exceeds the maximum\n"
-					  "amount of bytes allowed (%zu/%d)!",
-					wfd->sock, wfd->frame_size, MAX_FRAME_LENGTH);
-
-				wfd->error = 1;
-				break;
-			}
-
-			/* Read masks. */
-			masks[0] = next_byte(wfd);
-			masks[1] = next_byte(wfd);
-			masks[2] = next_byte(wfd);
-			masks[3] = next_byte(wfd);
-
-			/*
-			 * Abort if error.
-			 *
-			 * This is tricky: we may have multiples error codes from the
-			 * previous next_bytes() calls, but, since we're only setting
-			 * variables and flags, there is no major issue in setting
-			 * them wrong _if_ we do not use their values, thing that
-			 * we do here.
-			 */
-			if (wfd->error)
-				break;
-
-			/*
-			 * Allocate memory.
-			 *
-			 * The statement below will allocate a new chunk of memory
-			 * if msg is NULL with size total_length. Otherwise, it will
-			 * resize the total memory accordingly with the message index
-			 * and if the current frame is a FIN frame or not, if so,
-			 * increment the size by 1 to accommodate the line ending \0.
-			 */
-			if (frame_length > 0)
-			{
-				tmp = realloc(
-					msg, sizeof(unsigned char) * (msg_idx + frame_length + is_fin));
-				if (!tmp)
-				{
-					DEBUG("Cannot allocate memory, requested: %zu\n",
-						(msg_idx + frame_length + is_fin));
-
-					wfd->error = 1;
+				if (read_frame(wfd, opcode, &msg_ctrl, &frame_length, &frame_size,
+						&msg_idx_ctrl, masks_ctrl, is_fin) < 0)
 					break;
-				}
-				msg = tmp;
 
-				/* Copy to the proper location. */
-				for (i = 0; i < frame_length; i++, msg_idx++)
-				{
-					/* We were able to read? .*/
-					cur_byte = next_byte(wfd);
-					if (cur_byte == -1)
-						goto abort;
+				if (do_pong(wfd, frame_size) < 0)
+					break;
 
-					msg[msg_idx] = cur_byte ^ masks[i % 4];
-				}
+				/* Quick hack to keep our loop. */
+				is_fin = 0;
 			}
 
-			/* If we're inside a FIN frame, lets... */
-			if (is_fin && wfd->frame_size > 0)
+			/* We interrupt the loop as soon as we find a CLOSE frame. */
+			else
 			{
-				/* Increase memory if our FIN frame is of length 0. */
-				if (!frame_length)
-				{
-					tmp = realloc(msg, sizeof(unsigned char) * (msg_idx + 1));
-					if (!tmp)
-					{
-						DEBUG("Cannot allocate memory, requested: %zu\n",
-							(msg_idx + 1));
+				free(msg_data);
+				if (read_frame(wfd, opcode, &msg_ctrl, &frame_length, &frame_size,
+						&msg_idx_ctrl, masks_ctrl, is_fin) < 0)
+					break;
 
-						wfd->error = 1;
-						break;
-					}
-					msg = tmp;
-				}
-				msg[msg_idx] = '\0';
+				/* Since we're aborting, we can scratch the 'data'-related
+				 * vars here. */
+				wfd->frame_size = frame_size;
+				wfd->frame_type = WS_FR_OP_CLSE;
+				return (0);
 			}
 		}
 
 		/* Anything else (unsupported frames). */
 		else
 		{
+			DEBUG("Unsupported frame opcode: %d\n", opcode);
 			/* We should consider as error receive an unknown frame. */
 			wfd->frame_type = opcode;
 			wfd->error      = 1;
@@ -729,16 +811,15 @@ static int next_frame(struct ws_frame_data *wfd)
 
 	} while (!is_fin && !wfd->error);
 
-abort:
 	/* Check for error. */
 	if (wfd->error)
 	{
-		free(msg);
+		free(msg_data);
 		wfd->msg = NULL;
 		return (-1);
 	}
 
-	wfd->msg = msg;
+	wfd->msg = msg_data;
 	return (0);
 }
 
@@ -801,11 +882,6 @@ static void *ws_establishconnection(void *vsock)
 			ports[p_index].events.onclose(sock);
 			break;
 		}
-
-		/* Ping. */
-		else if (wfd.frame_type == WS_FR_OP_PING && !wfd.error)
-			if (do_pong(&wfd) < 0)
-				break;
 
 		free(wfd.msg);
 	}
