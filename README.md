@@ -4,34 +4,57 @@ wsServer - a very tiny WebSocket server library written in C
 
 ## Library
 
-The library is made to be as simple as possible, so I don't follow strictly
-the [RFC 6455](https://tools.ietf.org/html/rfc6455) and the only thing this
-library can do (until now, contributions are welcome) is send and receive
-text/binary messages and treats them as events.
+wsServer is a tiny, lightweight WebSocket server library written in C that intends
+to be easy to use, fast, hackable, and [almost](doc/AUTOBAHN.md) compliant to the
+[RFC 6455](https://tools.ietf.org/html/rfc6455).
 
-So it could not be helpful if you facing with a big application, but if you just
-want to send some messages between a non serious application, help yourself. :-)
+The main features are:
+- Send/Receive Text and Binary messages
+- PING/PONG frames
+- Opening/Closing handshakes
+
+See Autobahn [report](https://theldus.github.io/wsServer/autobahn) and the
+[docs](doc/AUTOBAHN.md) for an 'in-depth' analysis.
 
 ## Building
 
-The process to build is very easy, just type `make` to build and `make clean` to
-clear your workspace. When the library is compiled, a new file called libws.a will
-be generated, you just have to link this library across your main application.
+wsServer only requires a C99-compatible compiler, and optionally Doxygen to build
+the docs. The build process comes in two flavors: pure makefile or CMake.
 
-If you are using any IDE with CMake support, just open this project folder and
-your IDE will initialize the entire project. Alternatively, you can build the
-project by command line using the following steps:
-
+### Make
+The preferred way to build wsServer on Linux environments. This also automatically
+builds an example file or a ready-to-use fuzzy version (see [here](doc/FUZZING.md) for
+details):
 ```bash
+git clone https://github.com/Theldus/wsServer
+cd wsServer/
+make
+
+# Optionally, a user can also install wsServer into the system,
+# either on default paths or by providing PATH or DESTDIR env
+# vars to the makefile.
+
+make install # Or make install DESTDIR=/my/folder/
+```
+
+### CMake
+CMake enables the user to easily build wsServer in others environments other than Linux
+and also allows the use of an IDE to build the project automatically. If that's
+your case:
+```bash
+git clone https://github.com/Theldus/wsServer
+cd wsServer/
 mkdir build && cd build/
 cmake ..
 make
 ./send_receive # Waiting for incoming connections...
 ```
 
+in both cases, a statically lib (libws.a) will be generated.
+
 ## Why to complicate if things can be simple?
 
-The wsServer abstracts the idea of sockets and you only need to deal with three
+wsServer abstracts the idea of sockets and you only need to deal with three
 types of events defined:
 
 ```c
@@ -50,7 +73,7 @@ void onmessage(int fd, const unsigned char *msg, size_t size, int type);
 this is all you need to worry about, nothing to think about return values in socket,
 accepting connections, and so on.
 
-As a gift, each client is treated in a separate thread, so you will not have to
+As a gift, each client is handled in a separate thread, so you will not have to
 worry about it.
 
 ### A complete example (file.c)
