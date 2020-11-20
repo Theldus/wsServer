@@ -65,6 +65,7 @@
                 <li><a href="#key-and-message-configurations">Key and message configurations.</a></li>
                 <li><a href="#handshake-constants">Handshake constants.</a></li>
                 <li><a href="#frame-types">Frame types.</a></li>
+                <li><a href="#close-codes">Close codes</a></li>
               </ul>
             </li>
           </ul>
@@ -225,6 +226,19 @@
               <span class="m-doc-wrap-bumper">#define <a href="#ae3529b135c003e493f9678f97ad04355" class="m-doc-self">WS_FR_OP_UNSUPPORTED</a></span>
             </dt>
             <dd>Unsupported frame.</dd>
+          </dl>
+        </section>
+        <section id="close-codes">
+          <h2><a href="#close-codes">Close codes</a></h2>
+          <dl class="m-doc">
+            <dt id="a2ff326178afdc6da3905790161803fd5">
+              <span class="m-doc-wrap-bumper">#define <a href="#a2ff326178afdc6da3905790161803fd5" class="m-doc-self">WS_CLSE_NORMAL</a></span>
+            </dt>
+            <dd>Normal close.</dd>
+            <dt id="a194a5eaa86bb6f2ba2b7c8cd878416e8">
+              <span class="m-doc-wrap-bumper">#define <a href="#a194a5eaa86bb6f2ba2b7c8cd878416e8" class="m-doc-self">WS_CLSE_PROTERR</a></span>
+            </dt>
+            <dd>Protocol error.</dd>
           </dl>
         </section>
         <section>
@@ -452,7 +466,7 @@
                 </tr>
               </tfoot>
             </table>
-<aside class="m-note m-info"><h4>Note</h4><p>Note that this function can be called multiples times, from multiples different threads (depending on the <a href="ws_8h.html#a40ad70cc6e2125af9340a4bc26a83764" class="m-doc">MAX_<wbr />PORTS</a>) value. Each call <em>should</em> have a different port and can have differents events configured.</p></aside>
+<aside class="m-note m-info"><h4>Note</h4><p>Note that this function can be called multiples times, from multiples different threads (depending on the <a href="ws_8h.html#a40ad70cc6e2125af9340a4bc26a83764" class="m-doc">MAX_<wbr />PORTS</a>) value. Each call <em>should</em> have a different port and can have different events configured.</p></aside>
           </div></section>
         </section>
       </div>
