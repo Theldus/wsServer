@@ -99,6 +99,10 @@ int get_handshake_response(char *hsrequest, char **hsresponse)
 			break;
 	}
 
+	/* Ensure that we have a valid pointer. */
+	if (s == NULL)
+		return (-1);
+
 	saveptr = NULL;
 	s       = strtok_r(s, " ", &saveptr);
 	s       = strtok_r(NULL, " ", &saveptr);
