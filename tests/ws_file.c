@@ -75,14 +75,14 @@ void onclose(int fd)
  * or binary message.
  *
  * @param size Message size (in bytes).
+ *
+ * @param type Message type.
  */
-void onmessage(int fd, const unsigned char *msg, size_t size)
+void onmessage(int fd, const unsigned char *msg, size_t size, int type)
 {
-	char *cli;
-	cli = ws_getaddress(fd);
-	printf("I receive a message: %s (size: %zu)\n", msg, size);
-	ws_sendframe_txt(fd, (char *)msg, true);
-	free(cli);
+	printf("I receive a message: (%.*s) (size: %zu, type: %d)\n", (int)size, msg,
+		size, type);
+	ws_sendframe(fd, (char *)msg, size, true, type);
 }
 
 /**
