@@ -825,7 +825,6 @@ static int next_frame(struct ws_frame_data *wfd)
 			/* We interrupt the loop as soon as we find a CLOSE frame. */
 			else
 			{
-				free(msg_data);
 				if (read_frame(wfd, opcode, &msg_ctrl, &frame_length, &frame_size,
 						&msg_idx_ctrl, masks_ctrl, is_fin) < 0)
 					break;
@@ -834,6 +833,7 @@ static int next_frame(struct ws_frame_data *wfd)
 				 * vars here. */
 				wfd->frame_size = frame_size;
 				wfd->frame_type = WS_FR_OP_CLSE;
+				free(msg_data);
 				return (0);
 			}
 		}
