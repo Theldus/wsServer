@@ -291,7 +291,7 @@ int ws_sendframe_txt(int fd, const char *msg, bool broadcast)
 }
 
 /**
- * @brief Sends a WebSocket text frame.
+ * @brief Sends a WebSocket binary frame.
  *
  * @param fd         Target to be send.
  * @param msg        Binary message to be send.
