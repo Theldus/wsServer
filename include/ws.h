@@ -163,6 +163,28 @@
 	/**@}*/
 
 	/**
+	 * @name Connection states
+	 */
+	/**@{*/
+	/**
+	 * @brief Connection not established yet.
+	 */
+	#define WS_STATE_CONNECTING 0
+	/**
+	 * @brief Communicating.
+	 */
+	#define WS_STATE_OPEN       1
+	/**
+	 * @brief Closing state.
+	 */
+	#define WS_STATE_CLOSING    2
+	/**
+	 * @brief Closed.
+	 */
+	#define WS_STATE_CLOSED     3
+	/**@}*/
+
+	/**
 	 * @name Handshake constants.
 	 */
 	/**@{*/
@@ -212,6 +234,7 @@
 		int fd, const char *msg, ssize_t size, bool broadcast, int type);
 	extern int ws_sendframe_txt(int fd, const char *msg, bool broadcast);
 	extern int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast);
+	extern int ws_get_state(int fd);
 	extern int ws_socket(struct ws_events *evs, uint16_t port);
 
 #ifdef AFL_FUZZ

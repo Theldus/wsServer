@@ -68,6 +68,7 @@ struct ws_connection
 {
 	int client_sock; /**< Client socket FD.        */
 	int port_index;  /**< Index in the port list.  */
+	int state;       /**< WebSocket current state. */
 };
 
 /**
@@ -134,6 +135,26 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 		perror(s); \
 		exit(-1);  \
 	} while (0);
+
+/**
+ * @brief For a given client @p fd, returns its
+ * client index if exists, or -1 otherwise.
+ *
+ * @param fd Client fd.
+ *
+ * @return Return the client index or -1 if invalid
+ * fd.
+ */
+static int get_client_index(int fd)
+{
+	int i;
+	pthread_mutex_lock(&mutex);
+	for (i = 0; i < MAX_CLIENTS; i++)
+		if (client_socks[i].client_sock == fd)
+			break;
+	pthread_mutex_unlock(&mutex);
+	return (i == MAX_CLIENTS ? -1 : i);
+}
 
 /**
  * @brief Gets the IP address relative to a file descriptor opened
@@ -303,6 +324,24 @@ int ws_sendframe_txt(int fd, const char *msg, bool broadcast)
 int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast)
 {
 	return ws_sendframe(fd, msg, size, broadcast, WS_FR_OP_BIN);
+}
+
+/**
+ * @brief For a given @p fd, gets the current state for
+ * the connection, or -1 if invalid.
+ *
+ * @param fd Client fd.
+ *
+ * @return Returns the connection state or -1 if
+ * invalid @p fd.
+ */
+int ws_get_state(int fd)
+{
+	int idx;
+	if ((idx = get_client_index(fd)) == -1)
+		return (-1);
+
+	return (client_socks[idx].state);
 }
 
 /**
@@ -897,6 +936,9 @@ static void *ws_establishconnection(void *vsock)
 	if (do_handshake(&wfd, p_index) < 0)
 		goto closed;
 
+	/* Change state. */
+	client_socks[connection_index].state = WS_STATE_OPEN;
+
 	/* Read next frame until client disconnects or an error occur. */
 	while (next_frame(&wfd) >= 0)
 	{
@@ -911,18 +953,22 @@ static void *ws_establishconnection(void *vsock)
 		/* Close event. */
 		else if (wfd.frame_type == WS_FR_OP_CLSE && !wfd.error)
 		{
+			client_socks[connection_index].state = WS_STATE_CLOSING;
 			close_frame = 1;
 
 			/* Send close frame */
 			if (do_close(&wfd, -1) < 0)
 				break;
 
+			client_socks[connection_index].state = WS_STATE_CLOSED;
 			ports[p_index].events.onclose(sock);
 			break;
 		}
 
 		free(wfd.msg);
 	}
+
+	client_socks[connection_index].state = WS_STATE_CLOSED;
 
 	/*
 	 * If we do not receive a close frame, we still need to
@@ -945,6 +991,7 @@ closed:
 	}
 	pthread_mutex_unlock(&mutex);
 
+	client_socks[connection_index].state = WS_STATE_CLOSED;
 	close(sock);
 	return (vsock);
 }
@@ -1037,6 +1084,7 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 			{
 				client_socks[i].client_sock = new_sock;
 				client_socks[i].port_index  = p_index;
+				client_socks[i].state       = WS_STATE_CONNECTING;
 				connection_index            = i;
 				break;
 			}
