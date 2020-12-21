@@ -151,6 +151,9 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
  *
  * @return Return the client index or -1 if invalid
  * fd.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static int get_client_index(int fd)
 {
@@ -307,6 +310,8 @@ out:
  * @param fd File descriptor target.
  *
  * @return Pointer the ip address, or NULL if fails.
+ *
+ * @note It is up the caller to free the returned string.
  */
 char *ws_getaddress(int fd)
 {
@@ -478,6 +483,11 @@ int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast)
  *
  * @return Returns the connection state or -1 if
  * invalid @p fd.
+ *
+ * @see WS_STATE_CONNECTING
+ * @see WS_STATE_OPEN
+ * @see WS_STATE_CLOSING
+ * @see WS_STATE_CLOSED
  */
 int ws_get_state(int fd)
 {
@@ -542,6 +552,9 @@ int ws_close_client(int fd)
  * @param frame Frame opcode to be checked.
  *
  * @return Returns 1 if is a control frame, 0 otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static inline int is_control_frame(int frame)
 {
@@ -616,6 +629,9 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
  * @param close_code Websocket close code.
  *
  * @return Returns 0 if success, a negative number otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static int do_close(struct ws_frame_data *wfd, int close_code)
 {
@@ -766,6 +782,9 @@ static int skip_frame(struct ws_frame_data *wfd, size_t frame_size)
  * @param is_fin Is FIN frame indicator.
  *
  * @return Returns 0 if success, a negative number otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
 static int read_frame(struct ws_frame_data *wfd,
 	int opcode,
