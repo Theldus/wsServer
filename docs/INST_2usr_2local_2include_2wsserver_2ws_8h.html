@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ws.h file | wsServer | a very tiny WebSocket server library written in C</title>
+  <title>INST/usr/local/include/wsserver/ws.h file | wsServer | a very tiny WebSocket server library written in C</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i%7CSource+Code+Pro:400,400i,600" />
   <link rel="stylesheet" href="m-dark+documentation.compiled.css" />
   <link rel="icon" href="favicon-dark.png" type="image/png" />
@@ -50,7 +50,7 @@
     <div class="m-row">
       <div class="m-col-l-10 m-push-l-1">
         <h1>
-          ws.h <span class="m-thin">file</span>
+          <span class="m-breadcrumb"><a href="dir_a42ff8ea439b7ce6213066d2527106d6.html">INST</a>/</span><span class="m-breadcrumb"><a href="dir_14153849a3c96a52c3a6cfaec8564f70.html">usr</a>/</span><span class="m-breadcrumb"><a href="dir_75eff02e9717a361e85c4561ecbe4794.html">local</a>/</span><span class="m-breadcrumb"><a href="dir_255307971d617749636122df87c3a7b0.html">include</a>/</span><span class="m-breadcrumb"><a href="dir_a3cd75b92200fd41ca84a1f939228af7.html">wsserver</a>/</span>ws.h <span class="m-thin">file</span>
         </h1>
         <p>wsServer constants and functions.</p>
         <div class="m-block m-default">
@@ -66,6 +66,8 @@
                 <li><a href="#handshake-constants">Handshake constants.</a></li>
                 <li><a href="#frame-types">Frame types.</a></li>
                 <li><a href="#close-codes">Close codes</a></li>
+                <li><a href="#connection-states">Connection states</a></li>
+                <li><a href="#timeout-util">Timeout util</a></li>
               </ul>
             </li>
           </ul>
@@ -116,7 +118,15 @@
               size_t size,
               bool broadcast) -&gt; int</span>
             </dt>
-            <dd>Sends a WebSocket text frame.</dd>
+            <dd>Sends a WebSocket binary frame.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">auto <a href="#a9e6a382f10451ce42d453ce19cc5cd6f" class="m-doc">ws_get_state</a>(</span><span class="m-doc-wrap">int fd) -&gt; int</span>
+            </dt>
+            <dd>For a given <code>fd</code>, gets the current state for the connection, or -1 if invalid.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">auto <a href="#a8ff8147bdaa2d128b6e719124767a635" class="m-doc">ws_close_client</a>(</span><span class="m-doc-wrap">int fd) -&gt; int</span>
+            </dt>
+            <dd>Close the client connection for the given <code>fd</code> with normal close code (1000) and no reason string.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">auto <a href="#acca44489f52d8c7e4ffe0c83e17e971f" class="m-doc">ws_socket</a>(</span><span class="m-doc-wrap">struct <a href="structws__events.html" class="m-doc">ws_<wbr />events</a>* evs,
               uint16_t port) -&gt; int</span>
@@ -241,6 +251,40 @@
             <dd>Protocol error.</dd>
           </dl>
         </section>
+        <section id="connection-states">
+          <h2><a href="#connection-states">Connection states</a></h2>
+          <dl class="m-doc">
+            <dt id="a2e0dc474d59b4f6362baeb9c3f556523">
+              <span class="m-doc-wrap-bumper">#define <a href="#a2e0dc474d59b4f6362baeb9c3f556523" class="m-doc-self">WS_STATE_CONNECTING</a></span>
+            </dt>
+            <dd>Connection not established yet.</dd>
+            <dt id="a2fe743eb09e44700deb9f6bc1bc5e484">
+              <span class="m-doc-wrap-bumper">#define <a href="#a2fe743eb09e44700deb9f6bc1bc5e484" class="m-doc-self">WS_STATE_OPEN</a></span>
+            </dt>
+            <dd>Communicating.</dd>
+            <dt id="a0463873293d20536a4fa2445af3ca7e9">
+              <span class="m-doc-wrap-bumper">#define <a href="#a0463873293d20536a4fa2445af3ca7e9" class="m-doc-self">WS_STATE_CLOSING</a></span>
+            </dt>
+            <dd>Closing state.</dd>
+            <dt id="a02363560e73ebd3d01c09902d2290c4d">
+              <span class="m-doc-wrap-bumper">#define <a href="#a02363560e73ebd3d01c09902d2290c4d" class="m-doc-self">WS_STATE_CLOSED</a></span>
+            </dt>
+            <dd>Closed.</dd>
+          </dl>
+        </section>
+        <section id="timeout-util">
+          <h2><a href="#timeout-util">Timeout util</a></h2>
+          <dl class="m-doc">
+            <dt id="aab882fbb7595b97461f54850fc8eb217">
+              <span class="m-doc-wrap-bumper">#define <a href="#aab882fbb7595b97461f54850fc8eb217" class="m-doc-self">MS_TO_NS</a>(</span><span class="m-doc-wrap">x)</span>
+            </dt>
+            <dd>Nanoseconds macro converter.</dd>
+            <dt id="a53bb6ce0dbc843daa4ad914d78713ac2">
+              <span class="m-doc-wrap-bumper">#define <a href="#a53bb6ce0dbc843daa4ad914d78713ac2" class="m-doc-self">TIMEOUT_MS</a></span>
+            </dt>
+            <dd>Timeout in milliseconds.</dd>
+          </dl>
+        </section>
         <section>
           <h2>Function documentation</h2>
           <section class="m-doc-details" id="a4b23f0ffa1e04bb15f05d59eddde367d"><div>
@@ -323,6 +367,7 @@
                 </tr>
               </tfoot>
             </table>
+<aside class="m-note m-info"><h4>Note</h4><p>It is up the caller to free the returned string.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a7e93ed47fe5043d9fed2e7b823a9a2a1"><div>
             <h3>
@@ -408,7 +453,7 @@
               size_t size,
               bool broadcast)</span></span>
             </h3>
-            <p>Sends a WebSocket text frame.</p>
+            <p>Sends a WebSocket binary frame.</p>
             <table class="m-table m-fullwidth m-flat">
               <thead>
                 <tr><th colspan="2">Parameters</th></tr>
@@ -439,6 +484,54 @@
               </tfoot>
             </table>
           </div></section>
+          <section class="m-doc-details" id="a9e6a382f10451ce42d453ce19cc5cd6f"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a9e6a382f10451ce42d453ce19cc5cd6f" class="m-doc-self">ws_get_state</a>(</span><span class="m-doc-wrap">int fd)</span></span>
+            </h3>
+            <p>For a given <code>fd</code>, gets the current state for the connection, or -1 if invalid.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">fd</td>
+                  <td>Client fd.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns the connection state or -1 if invalid <code>fd</code>.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-default"><h4>See also</h4><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a2e0dc474d59b4f6362baeb9c3f556523" class="m-doc">WS_<wbr />STATE_<wbr />CONNECTING</a></p><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a2fe743eb09e44700deb9f6bc1bc5e484" class="m-doc">WS_<wbr />STATE_<wbr />OPEN</a></p><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a0463873293d20536a4fa2445af3ca7e9" class="m-doc">WS_<wbr />STATE_<wbr />CLOSING</a></p><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a02363560e73ebd3d01c09902d2290c4d" class="m-doc">WS_<wbr />STATE_<wbr />CLOSED</a></p></aside>
+          </div></section>
+          <section class="m-doc-details" id="a8ff8147bdaa2d128b6e719124767a635"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a8ff8147bdaa2d128b6e719124767a635" class="m-doc-self">ws_close_client</a>(</span><span class="m-doc-wrap">int fd)</span></span>
+            </h3>
+            <p>Close the client connection for the given <code>fd</code> with normal close code (1000) and no reason string.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">fd</td>
+                  <td>Client fd.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns 0 on success, -1 otherwise.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-info"><h4>Note</h4><p>If the client did not send a close frame in TIMEOUT_MS milliseconds, the server will close the connection with error code (1002).</p></aside>
+          </div></section>
           <section class="m-doc-details" id="acca44489f52d8c7e4ffe0c83e17e971f"><div>
             <h3>
               <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#acca44489f52d8c7e4ffe0c83e17e971f" class="m-doc-self">ws_socket</a>(</span><span class="m-doc-wrap">struct <a href="structws__events.html" class="m-doc">ws_<wbr />events</a>* evs,
@@ -466,7 +559,7 @@
                 </tr>
               </tfoot>
             </table>
-<aside class="m-note m-info"><h4>Note</h4><p>Note that this function can be called multiples times, from multiples different threads (depending on the <a href="ws_8h.html#a40ad70cc6e2125af9340a4bc26a83764" class="m-doc">MAX_<wbr />PORTS</a>) value. Each call <em>should</em> have a different port and can have different events configured.</p></aside>
+<aside class="m-note m-info"><h4>Note</h4><p>Note that this function can be called multiples times, from multiples different threads (depending on the <a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a40ad70cc6e2125af9340a4bc26a83764" class="m-doc">MAX_<wbr />PORTS</a>) value. Each call <em>should</em> have a different port and can have different events configured.</p></aside>
           </div></section>
         </section>
       </div>

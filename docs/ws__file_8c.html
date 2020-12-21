@@ -76,9 +76,10 @@
             </dt>
             <dd>Called when a client disconnects to the server.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">void <a href="#a2df0ade18fd99aa8dd5eadd42322d97f" class="m-doc">onmessage</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">void <a href="#a2b57b388651a3c1fb43c489e18535f71" class="m-doc">onmessage</a>(</span><span class="m-doc-wrap">int fd,
               const unsigned char* msg,
-              size_t size)</span>
+              size_t size,
+              int type)</span>
             </dt>
             <dd>Called when a client connects to the server.</dd>
             <dt id="a3c04138a5bfe5d72780bb7e82a18e627">
@@ -124,11 +125,12 @@
               </tbody>
             </table>
           </div></section>
-          <section class="m-doc-details" id="a2df0ade18fd99aa8dd5eadd42322d97f"><div>
+          <section class="m-doc-details" id="a2b57b388651a3c1fb43c489e18535f71"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a2df0ade18fd99aa8dd5eadd42322d97f" class="m-doc-self">onmessage</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a2b57b388651a3c1fb43c489e18535f71" class="m-doc-self">onmessage</a>(</span><span class="m-doc-wrap">int fd,
               const unsigned char* msg,
-              size_t size)</span></span>
+              size_t size,
+              int type)</span></span>
             </h3>
             <p>Called when a client connects to the server.</p>
             <table class="m-table m-fullwidth m-flat">
@@ -147,6 +149,10 @@
                 <tr>
                   <td>size</td>
                   <td>Message size (in bytes).</td>
+                </tr>
+                <tr>
+                  <td>type</td>
+                  <td>Message type.</td>
                 </tr>
               </tbody>
             </table>

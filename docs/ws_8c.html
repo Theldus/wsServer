@@ -88,6 +88,27 @@
           <h2><a href="#func-members">Functions</a></h2>
           <dl class="m-doc">
             <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#ac4086a67a9f2f699752c96fc6868ba14" class="m-doc">get_client_index</a>(</span><span class="m-doc-wrap">int fd) -&gt; int</span>
+            </dt>
+            <dd>For a given client <code>fd</code>, returns its client index if exists, or -1 otherwise.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#a38aa4f1d66c1659561514ff2d6ca99b7" class="m-doc">get_client_state</a>(</span><span class="m-doc-wrap">int idx) -&gt; int</span>
+            </dt>
+            <dd>Returns the current client state for a given client <code>idx</code>.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#af514a22d00405b8ff306f742fd6a6de8" class="m-doc">set_client_state</a>(</span><span class="m-doc-wrap">int idx,
+              int state) -&gt; int</span>
+            </dt>
+            <dd>Set a state <code>state</code> to the client index <code>idx</code>.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#aad4f720219c2f1352dd3a721ae6c41a1" class="m-doc">close_timeout</a>(</span><span class="m-doc-wrap">void* p) -&gt; void*</span>
+            </dt>
+            <dd>Close time-out thread.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#a28e90c693ee5199e298b30b8d2808b55" class="m-doc">start_close_timeout</a>(</span><span class="m-doc-wrap">int idx) -&gt; int</span>
+            </dt>
+            <dd>For a valid client index <code>idx</code>, starts the timeout thread and set the current state to &#x27;CLOSING&#x27;.</dd>
+            <dt>
               <span class="m-doc-wrap-bumper">auto <a href="#a212c04bb48ca0294c952b4270f7a4bc4" class="m-doc">ws_getaddress</a>(</span><span class="m-doc-wrap">int fd) -&gt; char*</span>
             </dt>
             <dd>Gets the IP address relative to a file descriptor opened by the server.</dd>
@@ -111,7 +132,15 @@
               size_t size,
               bool broadcast) -&gt; int</span>
             </dt>
-            <dd>Sends a WebSocket text frame.</dd>
+            <dd>Sends a WebSocket binary frame.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">auto <a href="#a9e6a382f10451ce42d453ce19cc5cd6f" class="m-doc">ws_get_state</a>(</span><span class="m-doc-wrap">int fd) -&gt; int</span>
+            </dt>
+            <dd>For a given <code>fd</code>, gets the current state for the connection, or -1 if invalid.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">auto <a href="#a8ff8147bdaa2d128b6e719124767a635" class="m-doc">ws_close_client</a>(</span><span class="m-doc-wrap">int fd) -&gt; int</span>
+            </dt>
+            <dd>Close the client connection for the given <code>fd</code> with normal close code (1000) and no reason string.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">static auto <a href="#abf7063eb47085893be1ec75773872db4" class="m-doc">is_control_frame</a>(</span><span class="m-doc-wrap">int frame) -&gt; int</span>
             </dt>
@@ -152,7 +181,8 @@
             </dt>
             <dd>Reads the current frame isolating data from control frames. The parameters are changed in order to reflect the current state.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">static auto <a href="#a1231406d8acfa19b9fec01a7ea8e6538" class="m-doc">next_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd) -&gt; int</span>
+              <span class="m-doc-wrap-bumper">static auto <a href="#a074240948479ea2867e92e99008f3ebc" class="m-doc">next_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              int idx) -&gt; int</span>
             </dt>
             <dd>Reads the next frame, whether if a TXT/BIN/CLOSE of arbitrary size.</dd>
             <dt>
@@ -198,6 +228,131 @@
         </section>
         <section>
           <h2>Function documentation</h2>
+          <section class="m-doc-details" id="ac4086a67a9f2f699752c96fc6868ba14"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#ac4086a67a9f2f699752c96fc6868ba14" class="m-doc-self">get_client_index</a>(</span><span class="m-doc-wrap">int fd)</span></span>
+            </h3>
+            <p>For a given client <code>fd</code>, returns its client index if exists, or -1 otherwise.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">fd</td>
+                  <td>Client fd.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Return the client index or -1 if invalid fd.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
+          <section class="m-doc-details" id="a38aa4f1d66c1659561514ff2d6ca99b7"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a38aa4f1d66c1659561514ff2d6ca99b7" class="m-doc-self">get_client_state</a>(</span><span class="m-doc-wrap">int idx)</span></span>
+            </h3>
+            <p>Returns the current client state for a given client <code>idx</code>.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">idx</td>
+                  <td>Client index.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns the client state, -1 otherwise.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
+          <section class="m-doc-details" id="af514a22d00405b8ff306f742fd6a6de8"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#af514a22d00405b8ff306f742fd6a6de8" class="m-doc-self">set_client_state</a>(</span><span class="m-doc-wrap">int idx,
+              int state)</span></span>
+            </h3>
+            <p>Set a state <code>state</code> to the client index <code>idx</code>.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">idx</td>
+                  <td>Client index.</td>
+                </tr>
+                <tr>
+                  <td>state</td>
+                  <td>State to be set.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns 0 if success, -1 otherwise.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
+          <section class="m-doc-details" id="aad4f720219c2f1352dd3a721ae6c41a1"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static void* </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#aad4f720219c2f1352dd3a721ae6c41a1" class="m-doc-self">close_timeout</a>(</span><span class="m-doc-wrap">void* p)</span></span>
+            </h3>
+            <p>Close time-out thread.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">p</td>
+                  <td><a href="structws__connection.html" class="m-doc">ws_<wbr />connection</a> Structure Pointer.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Always NULL.</td>
+                </tr>
+              </tfoot>
+            </table>
+<p>For a given client, this routine sleeps until TIMEOUT_MS and closes the connection or returns sooner if already closed connection.</p><aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
+          <section class="m-doc-details" id="a28e90c693ee5199e298b30b8d2808b55"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a28e90c693ee5199e298b30b8d2808b55" class="m-doc-self">start_close_timeout</a>(</span><span class="m-doc-wrap">int idx)</span></span>
+            </h3>
+            <p>For a valid client index <code>idx</code>, starts the timeout thread and set the current state to &#x27;CLOSING&#x27;.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">idx</td>
+                  <td>Client index.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns 0 if success, -1 otherwise.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
           <section class="m-doc-details" id="a212c04bb48ca0294c952b4270f7a4bc4"><div>
             <h3>
               <span class="m-doc-wrap-bumper">char* </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a212c04bb48ca0294c952b4270f7a4bc4" class="m-doc-self">ws_getaddress</a>(</span><span class="m-doc-wrap">int fd)</span></span>
@@ -220,6 +375,7 @@
                 </tr>
               </tfoot>
             </table>
+<aside class="m-note m-info"><h4>Note</h4><p>It is up the caller to free the returned string.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a7e93ed47fe5043d9fed2e7b823a9a2a1"><div>
             <h3>
@@ -305,7 +461,7 @@
               size_t size,
               bool broadcast)</span></span>
             </h3>
-            <p>Sends a WebSocket text frame.</p>
+            <p>Sends a WebSocket binary frame.</p>
             <table class="m-table m-fullwidth m-flat">
               <thead>
                 <tr><th colspan="2">Parameters</th></tr>
@@ -336,6 +492,54 @@
               </tfoot>
             </table>
           </div></section>
+          <section class="m-doc-details" id="a9e6a382f10451ce42d453ce19cc5cd6f"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a9e6a382f10451ce42d453ce19cc5cd6f" class="m-doc-self">ws_get_state</a>(</span><span class="m-doc-wrap">int fd)</span></span>
+            </h3>
+            <p>For a given <code>fd</code>, gets the current state for the connection, or -1 if invalid.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">fd</td>
+                  <td>Client fd.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns the connection state or -1 if invalid <code>fd</code>.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-default"><h4>See also</h4><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a2e0dc474d59b4f6362baeb9c3f556523" class="m-doc">WS_<wbr />STATE_<wbr />CONNECTING</a></p><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a2fe743eb09e44700deb9f6bc1bc5e484" class="m-doc">WS_<wbr />STATE_<wbr />OPEN</a></p><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a0463873293d20536a4fa2445af3ca7e9" class="m-doc">WS_<wbr />STATE_<wbr />CLOSING</a></p><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a02363560e73ebd3d01c09902d2290c4d" class="m-doc">WS_<wbr />STATE_<wbr />CLOSED</a></p></aside>
+          </div></section>
+          <section class="m-doc-details" id="a8ff8147bdaa2d128b6e719124767a635"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a8ff8147bdaa2d128b6e719124767a635" class="m-doc-self">ws_close_client</a>(</span><span class="m-doc-wrap">int fd)</span></span>
+            </h3>
+            <p>Close the client connection for the given <code>fd</code> with normal close code (1000) and no reason string.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">fd</td>
+                  <td>Client fd.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns 0 on success, -1 otherwise.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-info"><h4>Note</h4><p>If the client did not send a close frame in TIMEOUT_MS milliseconds, the server will close the connection with error code (1002).</p></aside>
+          </div></section>
           <section class="m-doc-details" id="abf7063eb47085893be1ec75773872db4"><div>
             <h3>
               <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#abf7063eb47085893be1ec75773872db4" class="m-doc-self">is_control_frame</a>(</span><span class="m-doc-wrap">int frame)</span></span>
@@ -358,6 +562,7 @@
                 </tr>
               </tfoot>
             </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a0ae005274345918fb7b00fdd7650b37c"><div>
             <h3>
@@ -415,6 +620,7 @@
                 </tr>
               </tfoot>
             </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a599cb8b142dbb31b4c26adb2ade0b649"><div>
             <h3>
@@ -496,6 +702,7 @@
                 </tr>
               </tfoot>
             </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
           </div></section>
           <section class="m-doc-details" id="ad9dd03049fbb3ea6a35c30f289b12573"><div>
             <h3>
@@ -554,10 +761,12 @@
                 </tr>
               </tfoot>
             </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
           </div></section>
-          <section class="m-doc-details" id="a1231406d8acfa19b9fec01a7ea8e6538"><div>
+          <section class="m-doc-details" id="a074240948479ea2867e92e99008f3ebc"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a1231406d8acfa19b9fec01a7ea8e6538" class="m-doc-self">next_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd)</span></span>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a074240948479ea2867e92e99008f3ebc" class="m-doc-self">next_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              int idx)</span></span>
             </h3>
             <p>Reads the next frame, whether if a TXT/BIN/CLOSE of arbitrary size.</p>
             <table class="m-table m-fullwidth m-flat">
@@ -568,6 +777,10 @@
                 <tr>
                   <td style="width: 1%">wfd</td>
                   <td>Websocket Frame Data.</td>
+                </tr>
+                <tr>
+                  <td>idx</td>
+                  <td>Websocket connection index.</td>
                 </tr>
               </tbody>
               <tfoot>
@@ -630,7 +843,7 @@
                 </tr>
               </tfoot>
             </table>
-<aside class="m-note m-info"><h4>Note</h4><p>Note that this function can be called multiples times, from multiples different threads (depending on the <a href="ws_8h.html#a40ad70cc6e2125af9340a4bc26a83764" class="m-doc">MAX_<wbr />PORTS</a>) value. Each call <em>should</em> have a different port and can have different events configured.</p></aside>
+<aside class="m-note m-info"><h4>Note</h4><p>Note that this function can be called multiples times, from multiples different threads (depending on the <a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a40ad70cc6e2125af9340a4bc26a83764" class="m-doc">MAX_<wbr />PORTS</a>) value. Each call <em>should</em> have a different port and can have different events configured.</p></aside>
           </div></section>
         </section>
       </div>
