@@ -54,10 +54,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 		};
 
 		/* Close events. */
-		ws.onclose = function()
+		ws.onclose = function(event)
 		{
 			document.getElementById("btConn").value = "Connect!";
-			document.getElementById("taLog").value += ("Connection closed\n");
+			document.getElementById("taLog").value +=
+				("Connection closed: wasClean: " + event.wasClean + ", evCode: "
+					+ event.code + "\n");
 			scoll_to_bottom();
 			connected = false;
 		};
