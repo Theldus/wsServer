@@ -97,19 +97,19 @@ install: all wsserver.pc
 	install -m 644 $(INCLUDE)/*.h $(DESTDIR)$(INCDIR)/wsserver
 	@#Manpages
 	install -d $(DESTDIR)$(MANDIR)/man3
-	install -m 0644 $(MANPAGES)/ws_getaddress.3 $(DESTDIR)$(MANDIR)/man3/
-	install -m 0644 $(MANPAGES)/ws_sendframe.3 $(DESTDIR)$(MANDIR)/man3/
-	install -m 0644 $(MANPAGES)/ws_sendframe_bin.3 $(DESTDIR)$(MANDIR)/man3/
-	install -m 0644 $(MANPAGES)/ws_sendframe_txt.3 $(DESTDIR)$(MANDIR)/man3/
-	install -m 0644 $(MANPAGES)/ws_socket.3 $(DESTDIR)$(MANDIR)/man3/
+	install -m 0644 $(MANPAGES)/*.3 $(DESTDIR)$(MANDIR)/man3/
 
 # Uninstall rules
 uninstall:
 	rm -f  $(DESTDIR)$(LIBDIR)/$(LIB)
-	rf -rf $(DESTDIR)$(INCDIR)/wsserver
-	rm -f  $(DESTDIR)$(MANDIR)/man3/{ws_getaddress.3, ws_sendframe.3}
-	rm -f  $(DESTDIR)$(MANDIR)/man3/{ws_sendframe_bin.3, ws_sendframe_txt.3}
-	rm -f  $(DESTDIR)$(MANDIR)/man3/{ws_socket.3}
+	rm -rf $(DESTDIR)$(INCDIR)/wsserver
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_getaddress.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe_bin.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe_txt.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_socket.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_close_client.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_get_state.3
 	rm -f  $(DESTDIR)$(PKGDIR)/wsserver.pc
 
 # Generate wsserver.pc
@@ -121,7 +121,7 @@ wsserver.pc:
 	@echo 'Name: wsServer'                >> $(DESTDIR)$(PKGDIR)/wsserver.pc
 	@echo 'Description: Tiny WebSocket Server Library' >> $(DESTDIR)$(PKGDIR)/wsserver.pc
 	@echo 'Version: 1.0'                  >> $(DESTDIR)$(PKGDIR)/wsserver.pc
-	@echo 'Libs: -L$${libdir} -lws'       >> $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'Libs: -L$${libdir} -lws -pthread' >> $(DESTDIR)$(PKGDIR)/wsserver.pc
 	@echo 'Libs.private:'                 >> $(DESTDIR)$(PKGDIR)/wsserver.pc
 	@echo 'Cflags: -I$${includedir}/wsserver' >> $(DESTDIR)$(PKGDIR)/wsserver.pc
 
