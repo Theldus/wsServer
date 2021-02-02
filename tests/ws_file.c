@@ -78,10 +78,10 @@ void onclose(int fd)
  *
  * @param type Message type.
  */
-void onmessage(int fd, const unsigned char *msg, size_t size, int type)
+void onmessage(int fd, const unsigned char *msg, uint64_t size, int type)
 {
-	printf("I receive a message: (%.*s) (size: %zu, type: %d)\n", (int)size, msg,
-		size, type);
+	printf("I receive a message: (%.*s) (size: %" PRId64 ", type: %d)\n", (int)size,
+		msg, size, type);
 	ws_sendframe(fd, (char *)msg, size, true, type);
 }
 

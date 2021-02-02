@@ -115,7 +115,7 @@ struct ws_frame_data
 	/**
 	 * @brief Frame size.
 	 */
-	size_t frame_size;
+	uint64_t frame_size;
 	/**
 	 * @brief Error flag, set when a read was not possible.
 	 */
@@ -344,7 +344,7 @@ char *ws_getaddress(int fd)
  *
  * @param fd        Target to be send.
  * @param msg       Message to be send.
- * @param size      Binary message size (set it <0 for text message)
+ * @param size      Binary message size.
  * @param broadcast Enable/disable broadcast.
  * @param type      Frame type.
  *
@@ -353,7 +353,7 @@ char *ws_getaddress(int fd)
  * @note If @p size is -1, it is assumed that a text frame is being sent,
  * otherwise, a binary frame. In the later case, the @p size is used.
  */
-int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast, int type)
+int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int type)
 {
 	unsigned char *response; /* Response data.     */
 	unsigned char frame[10]; /* Frame.             */
@@ -366,11 +366,7 @@ int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast, int type
 	int cur_port_index;      /* Current port index */
 
 	frame[0] = (WS_FIN | type);
-	length   = size;
-
-	/* Guess the size if not informed, perhaps a TXT frame. */
-	if (size < 0)
-		length = strlen((const char *)msg);
+	length   = (uint64_t)size;
 
 	/* Split the size between octets. */
 	if (length <= 125)
@@ -457,7 +453,7 @@ int ws_sendframe(int fd, const char *msg, ssize_t size, bool broadcast, int type
  */
 int ws_sendframe_txt(int fd, const char *msg, bool broadcast)
 {
-	return ws_sendframe(fd, msg, -1, broadcast, WS_FR_OP_TXT);
+	return ws_sendframe(fd, msg, (uint64_t)strlen(msg), broadcast, WS_FR_OP_TXT);
 }
 
 /**
@@ -470,7 +466,7 @@ int ws_sendframe_txt(int fd, const char *msg, bool broadcast)
  *
  * @return Returns the number of bytes written, -1 if error.
  */
-int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast)
+int ws_sendframe_bin(int fd, const char *msg, uint64_t size, bool broadcast)
 {
 	return ws_sendframe(fd, msg, size, broadcast, WS_FR_OP_BIN);
 }
@@ -699,7 +695,7 @@ send:
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int do_pong(struct ws_frame_data *wfd, size_t frame_size)
+static int do_pong(struct ws_frame_data *wfd, uint64_t frame_size)
 {
 	if (ws_sendframe(CLI_SOCK(wfd->sock), (const char *)wfd->msg_ctrl, frame_size,
 			false, WS_FR_OP_PONG) < 0)
@@ -753,9 +749,9 @@ static inline int next_byte(struct ws_frame_data *wfd)
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int skip_frame(struct ws_frame_data *wfd, size_t frame_size)
+static int skip_frame(struct ws_frame_data *wfd, uint64_t frame_size)
 {
-	size_t i;
+	uint64_t i;
 	for (i = 0; i < frame_size; i++)
 	{
 		if (next_byte(wfd) == -1)
@@ -789,33 +785,33 @@ static int skip_frame(struct ws_frame_data *wfd, size_t frame_size)
 static int read_frame(struct ws_frame_data *wfd,
 	int opcode,
 	unsigned char **buf,
-	size_t *frame_length,
-	size_t *frame_size,
-	size_t *msg_idx,
+	uint64_t *frame_length,
+	uint64_t *frame_size,
+	uint64_t *msg_idx,
 	uint8_t *masks,
 	int is_fin)
 {
 	unsigned char *tmp; /* Tmp message.     */
 	unsigned char *msg; /* Current message. */
 	int cur_byte;       /* Curr byte read.  */
-	size_t i;           /* Loop index.      */
+	uint64_t i;         /* Loop index.      */
 
 	msg = *buf;
 
 	/* Decode masks and length for 16-bit messages. */
 	if (*frame_length == 126)
-		*frame_length = (((size_t)next_byte(wfd)) << 8) | next_byte(wfd);
+		*frame_length = (((uint64_t)next_byte(wfd)) << 8) | next_byte(wfd);
 
 	/* 64-bit messages. */
 	else if (*frame_length == 127)
 	{
 		*frame_length =
-			(((size_t)next_byte(wfd)) << 56) | /* frame[2]. */
-			(((size_t)next_byte(wfd)) << 48) | /* frame[3]. */
-			(((size_t)next_byte(wfd)) << 40) | (((size_t)next_byte(wfd)) << 32) |
-			(((size_t)next_byte(wfd)) << 24) | (((size_t)next_byte(wfd)) << 16) |
-			(((size_t)next_byte(wfd)) << 8) |
-			(((size_t)next_byte(wfd))); /* frame[9]. */
+			(((uint64_t)next_byte(wfd)) << 56) | /* frame[2]. */
+			(((uint64_t)next_byte(wfd)) << 48) | /* frame[3]. */
+			(((uint64_t)next_byte(wfd)) << 40) | (((uint64_t)next_byte(wfd)) << 32) |
+			(((uint64_t)next_byte(wfd)) << 24) | (((uint64_t)next_byte(wfd)) << 16) |
+			(((uint64_t)next_byte(wfd)) << 8) |
+			(((uint64_t)next_byte(wfd))); /* frame[9]. */
 	}
 
 	*frame_size += *frame_length;
@@ -831,7 +827,7 @@ static int read_frame(struct ws_frame_data *wfd,
 	if (*frame_size > MAX_FRAME_LENGTH)
 	{
 		DEBUG("Current frame from client %d, exceeds the maximum\n"
-			  "amount of bytes allowed (%zu/%d)!",
+			  "amount of bytes allowed (%" PRId64 "/%d)!",
 			wfd->sock, *frame_size + *frame_length, MAX_FRAME_LENGTH);
 
 		wfd->error = 1;
@@ -873,7 +869,7 @@ static int read_frame(struct ws_frame_data *wfd,
 				msg, sizeof(unsigned char) * (*msg_idx + *frame_length + is_fin));
 			if (!tmp)
 			{
-				DEBUG("Cannot allocate memory, requested: %zu\n",
+				DEBUG("Cannot allocate memory, requested: % " PRId64 "\n",
 					(*msg_idx + *frame_length + is_fin));
 
 				wfd->error = 1;
@@ -904,7 +900,8 @@ static int read_frame(struct ws_frame_data *wfd,
 			tmp = realloc(msg, sizeof(unsigned char) * (*msg_idx + 1));
 			if (!tmp)
 			{
-				DEBUG("Cannot allocate memory, requested: %zu\n", (*msg_idx + 1));
+				DEBUG("Cannot allocate memory, requested: %" PRId64 "\n",
+					(*msg_idx + 1));
 
 				wfd->error = 1;
 				return (-1);
@@ -936,10 +933,10 @@ static int next_frame(struct ws_frame_data *wfd, int idx)
 	unsigned char *msg_ctrl; /* Control frame.             */
 	uint8_t masks_data[4];   /* Masks data frame array.    */
 	uint8_t masks_ctrl[4];   /* Masks control frame array. */
-	size_t msg_idx_data;     /* Current msg index.         */
-	size_t msg_idx_ctrl;     /* Current msg index.         */
-	size_t frame_length;     /* Frame length.              */
-	size_t frame_size;       /* Current frame size.        */
+	uint64_t msg_idx_data;   /* Current msg index.         */
+	uint64_t msg_idx_ctrl;   /* Current msg index.         */
+	uint64_t frame_length;   /* Frame length.              */
+	uint64_t frame_size;     /* Current frame size.        */
 	uint8_t opcode;          /* Frame opcode.              */
 	uint8_t is_fin;          /* Is FIN frame flag.         */
 	uint8_t mask;            /* Mask.                      */

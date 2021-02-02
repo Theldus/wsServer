@@ -73,12 +73,12 @@ void onclose(int fd)
  *
  * @param type Message type.
  */
-void onmessage(int fd, const unsigned char *msg, size_t size, int type)
+void onmessage(int fd, const unsigned char *msg, uint64_t size, int type)
 {
 	char *cli;
 	cli = ws_getaddress(fd);
-	printf("I receive a message: %s (size: %zu, type: %d), from: %s/%d\n", msg, size,
-		type, cli, fd);
+	printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s/%d\n",
+		msg, size, type, cli, fd);
 	free(cli);
 
 	/**

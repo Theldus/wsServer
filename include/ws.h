@@ -27,6 +27,7 @@
 
 	#include <stdbool.h>
 	#include <stdint.h>
+	#include <inttypes.h>
 
 	/**
 	 * @name Global configurations
@@ -237,7 +238,7 @@
 		 * @brief On message event, called when a client sends a text
 		 * or binary message.
 		 */
-		void (*onmessage)(int, const unsigned char *, size_t, int);
+		void (*onmessage)(int, const unsigned char *, uint64_t, int);
 	};
 
 	/* Forward declarations. */
@@ -245,9 +246,10 @@
 	extern int get_handshake_response(char *hsrequest, char **hsresponse);
 	extern char *ws_getaddress(int fd);
 	extern int ws_sendframe(
-		int fd, const char *msg, ssize_t size, bool broadcast, int type);
+		int fd, const char *msg, uint64_t size, bool broadcast, int type);
 	extern int ws_sendframe_txt(int fd, const char *msg, bool broadcast);
-	extern int ws_sendframe_bin(int fd, const char *msg, size_t size, bool broadcast);
+	extern int ws_sendframe_bin(int fd, const char *msg, uint64_t size,
+		bool broadcast);
 	extern int ws_get_state(int fd);
 	extern int ws_close_client(int fd);
 	extern int ws_socket(struct ws_events *evs, uint16_t port);
