@@ -1341,12 +1341,18 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 			}
 		}
 		pthread_mutex_unlock(&mutex);
-
-		if (pthread_create(&client_thread, NULL, ws_establishconnection,
+		
+		/* Client socket added to socks list ? */
+		if (i != MAX_CLIENTS)
+		{
+			if (pthread_create(&client_thread, NULL, ws_establishconnection,
 				(void *)(intptr_t)connection_index))
 			panic("Could not create the client thread!");
 
-		pthread_detach(client_thread);
+			pthread_detach(client_thread);
+		}
+		else close(new_sock);
+		
 	}
 	return (0);
 }
