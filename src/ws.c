@@ -361,6 +361,7 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 	uint64_t length;         /* Message length.    */
 	int idx_response;        /* Index response.    */
 	ssize_t output;          /* Bytes sent.        */
+	ssize_t send_ret;        /* Ret send function  */
 	int sock;                /* File Descript.     */
 	uint64_t i;              /* Loop index.        */
 	int cur_port_index;      /* Current port index */
@@ -419,9 +420,11 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 	}
 
 	response[idx_response] = '\0';
-	output                 = write(CLI_SOCK(fd), response, idx_response);
-	if (broadcast)
+    	send_ret               = send(CLI_SOCK(fd), response, idx_response, MSG_NOSIGNAL);
+
+    	if (send_ret != -1 && broadcast)
 	{
+		output = send_ret;
 		pthread_mutex_lock(&mutex);
 		cur_port_index = -1;
 		for (i = 0; i < MAX_CLIENTS; i++)
@@ -433,7 +436,15 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 			sock = client_socks[i].client_sock;
 			if ((sock > -1) && (sock != fd) &&
 				(client_socks[i].port_index == cur_port_index))
-				output += write(CLI_SOCK(sock), response, idx_response);
+			{
+				if ((send_ret = send(CLI_SOCK(sock), response, idx_response, 
+					MSG_NOSIGNAL)) != -1) output += send_ret;
+				else
+				{
+				    output = -1;
+				    break;
+				}
+			}
 		}
 		pthread_mutex_unlock(&mutex);
 	}
