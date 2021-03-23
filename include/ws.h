@@ -215,8 +215,12 @@
 
 	#ifndef AFL_FUZZ
 	#define CLI_SOCK(sock) (sock)
+	#define SEND(fd,buf,len) send((fd), (buf), (len), MSG_NOSIGNAL)
+	#define RECV(fd,buf,len) recv((fd), (buf), (len), 0)
 	#else
 	#define CLI_SOCK(sock) (fileno(stdout))
+	#define SEND(fd,buf,len) write(fileno(stdout), (buf), (len))
+	#define RECV(fd,buf,len) read((fd), (buf), (len))
 	#endif
 
 	/**

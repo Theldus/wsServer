@@ -420,7 +420,7 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 	}
 
 	response[idx_response] = '\0';
-    	output                 = send(CLI_SOCK(fd), response, idx_response, MSG_NOSIGNAL);
+    	output                 = SEND(fd, response, idx_response);
 	
 	if (output != -1 && broadcast)
 	{	
@@ -436,8 +436,8 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 			if ((sock > -1) && (sock != fd) &&
 				(client_socks[i].port_index == cur_port_index))
 			{
-				if ((send_ret = send(CLI_SOCK(sock), response, idx_response, 
-					MSG_NOSIGNAL)) != -1) output += send_ret;
+				if ((send_ret = SEND(fd, response, idx_response)) != -1) 
+					output += send_ret;
 				else
 				{
 				    output = -1;
@@ -586,7 +586,7 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 	ssize_t n;      /* Read/Write bytes.           */
 
 	/* Read the very first client message. */
-	if ((n = recv(wfd->sock, wfd->frm, sizeof(wfd->frm) - 1, 0)) < 0)
+	if ((n = RECV(wfd->sock, wfd->frm, sizeof(wfd->frm) - 1)) < 0)
 		return (-1);
 
 	/* Advance our pointers before the first next_byte(). */
@@ -614,7 +614,7 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 		response);
 
 	/* Send handshake. */
-	if (send(CLI_SOCK(wfd->sock), response, strlen(response), MSG_NOSIGNAL) < 0)
+	if (SEND(wfd->sock, response, strlen(response)) < 0)
 	{
 		free(response);
 		DEBUG("As error has occurred while handshaking!\n");
@@ -735,7 +735,7 @@ static inline int next_byte(struct ws_frame_data *wfd)
 	/* If empty or full. */
 	if (wfd->cur_pos == 0 || wfd->cur_pos == wfd->amt_read)
 	{
-		if ((n = recv(wfd->sock, wfd->frm, sizeof(wfd->frm), 0)) <= 0)
+		if ((n = RECV(wfd->sock, wfd->frm, sizeof(wfd->frm))) <= 0)
 		{
 			wfd->error = 1;
 			DEBUG("An error has occurred while trying to read next byte\n");
