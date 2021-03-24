@@ -420,7 +420,7 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 	}
 
 	response[idx_response] = '\0';
-    	output                 = SEND(fd, response, idx_response);
+	output                 = SEND(fd, response, idx_response);
 	
 	if (output != -1 && broadcast)
 	{	
@@ -436,7 +436,7 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 			if ((sock > -1) && (sock != fd) &&
 				(client_socks[i].port_index == cur_port_index))
 			{
-				if ((send_ret = SEND(fd, response, idx_response)) != -1) 
+				if ((send_ret = SEND(sock, response, idx_response)) != -1)
 					output += send_ret;
 				else
 				{
