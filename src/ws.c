@@ -1403,6 +1403,14 @@ int ws_file(struct ws_events *evs, const char *file)
 	/* Set client settings. */
 	client_socks[0].client_sock = sock;
 	client_socks[0].port_index  = 0;
+	client_socks[0].state       = WS_STATE_CONNECTING;
+	client_socks[0].close_thrd  = false;
+
+	/* Initialize mutexes. */
+	if (pthread_mutex_init(&client_socks[0].mtx_state, NULL))
+		panic("Error on allocating close mutex");
+	if (pthread_cond_init(&client_socks[0].cnd_state_close, NULL))
+		panic("Error on allocating condition var\n");
 
 	ws_establishconnection((void *)(intptr_t)0);
 	return (0);
