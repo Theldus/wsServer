@@ -421,9 +421,9 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 
 	response[idx_response] = '\0';
 	output                 = SEND(fd, response, idx_response);
-	
+
 	if (output != -1 && broadcast)
-	{	
+	{
 		pthread_mutex_lock(&mutex);
 		cur_port_index = -1;
 		for (i = 0; i < MAX_CLIENTS; i++)
@@ -440,8 +440,8 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 					output += send_ret;
 				else
 				{
-				    output = -1;
-				    break;
+					output = -1;
+					break;
 				}
 			}
 		}
@@ -1351,18 +1351,18 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 			}
 		}
 		pthread_mutex_unlock(&mutex);
-		
+
 		/* Client socket added to socks list ? */
 		if (i != MAX_CLIENTS)
 		{
 			if (pthread_create(&client_thread, NULL, ws_establishconnection,
-				(void *)(intptr_t)connection_index))
-			panic("Could not create the client thread!");
+					(void *)(intptr_t)connection_index))
+				panic("Could not create the client thread!");
 
 			pthread_detach(client_thread);
 		}
-		else close(new_sock);
-		
+		else
+			close(new_sock);
 	}
 	return (0);
 }
