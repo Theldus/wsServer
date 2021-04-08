@@ -1156,12 +1156,10 @@ static void *ws_establishconnection(void *vsock)
 {
 	struct ws_frame_data wfd; /* WebSocket frame data.   */
 	int connection_index;     /* Client connect. index.  */
-	int close_frame;          /* Close frame flag.       */
 	int clse_thrd;            /* Time-out close thread.  */
 	int p_index;              /* Port list index.        */
 	int sock;                 /* File descriptor.        */
 
-	close_frame      = 0;
 	connection_index = (int)(intptr_t)vsock;
 	sock             = client_socks[connection_index].client_sock;
 	p_index          = client_socks[connection_index].port_index;
@@ -1191,7 +1189,6 @@ static void *ws_establishconnection(void *vsock)
 		/* Close event. */
 		else if (wfd.frame_type == WS_FR_OP_CLSE && !wfd.error)
 		{
-			close_frame = 1;
 
 			/*
 			 * We only send a CLOSE frame once, if we're already
@@ -1202,15 +1199,10 @@ static void *ws_establishconnection(void *vsock)
 				set_client_state(connection_index, WS_STATE_CLOSING);
 
 				/* We only send a close frameSend close frame */
-				if (do_close(&wfd, -1) < 0)
-					break;
+				do_close(&wfd, -1);
 			}
 
-			/*
-			 * on_close events always occur, whether for client
-			 * closure or server closure.
-			 */
-			ports[p_index].events.onclose(sock);
+			free(wfd.msg);
 			break;
 		}
 
@@ -1218,12 +1210,11 @@ static void *ws_establishconnection(void *vsock)
 	}
 
 	/*
-	 * If we do not receive a close frame, we still need to
-	 * call the close event, as the server is expected to
+	 * on_close events always occur, whether for client closure
+	 * or server closure, as the server is expected to
 	 * always know when the client disconnects.
 	 */
-	if (!close_frame)
-		ports[p_index].events.onclose(sock);
+	ports[p_index].events.onclose(sock);
 
 closed:
 	pthread_mutex_lock(&client_socks[connection_index].mtx_state);
