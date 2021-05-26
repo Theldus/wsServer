@@ -144,6 +144,39 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 	} while (0);
 
 /**
+ * @brief Send a given message @p buf on a socket @p sockfd.
+ *
+ * @param sockfd Target socket.
+ * @param buf Message to be sent.
+ * @param len Message length.
+ * @param flags Send flags.
+ *
+ * @return Returns 0 if success (i.e: all message was sent),
+ * -1 otherwise.
+ *
+ * @note Technically this shouldn't be necessary, since send() should
+ * block until all content is sent, since _we_ don't use 'O_NONBLOCK'.
+ * However, it was reported (issue #22 on GitHub) that this was
+ * happening, so just to be cautious, I will keep using this routine.
+ */
+static ssize_t send_all(int sockfd, const void *buf, size_t len,
+	int flags)
+{
+	const char *p;
+	ssize_t ret;
+	p = buf;
+	while (len)
+	{
+		ret = send(sockfd, p, len, flags);
+		if (ret == -1)
+			return (-1);
+		p += ret;
+		len -= ret;
+	}
+	return (0);
+}
+
+/**
  * @brief For a given client @p fd, returns its
  * client index if exists, or -1 otherwise.
  *
