@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>tests/ws_file.c file | wsServer | a very tiny WebSocket server library written in C</title>
+  <title>ws_accept struct | wsServer | a very tiny WebSocket server library written in C</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i%7CSource+Code+Pro:400,400i,600" />
   <link rel="stylesheet" href="m-dark+documentation.compiled.css" />
   <link rel="icon" href="favicon-dark.png" type="image/png" />
@@ -50,112 +50,48 @@
     <div class="m-row">
       <div class="m-col-l-10 m-push-l-1">
         <h1>
-          <span class="m-breadcrumb"><a href="dir_59425e443f801f1f2fd8bbe4959a3ccf.html">tests</a>/</span>ws_file.c <span class="m-thin">file</span>
+          ws_accept <span class="m-thin">struct</span>
+          <div class="m-doc-include m-code m-inverted m-text-right"><span class="cp">#include</span> <a class="cpf" href="ws_8c.html">&lt;src/ws.c&gt;</a></div>
         </h1>
-        <p>Read a given stream of frames from a file and parse them.</p>
+        <p><a href="structws__accept.html" class="m-doc">ws_<wbr />accept</a> data.</p>
         <div class="m-block m-default">
           <h3>Contents</h3>
           <ul>
             <li>
               Reference
               <ul>
-                <li><a href="#func-members">Functions</a></li>
+                <li><a href="#pub-attribs">Public variables</a></li>
               </ul>
             </li>
           </ul>
         </div>
-        <section id="func-members">
-          <h2><a href="#func-members">Functions</a></h2>
+<p>This defines a set of data that is used inside of each accept routine, whether by the main routine or not.</p>
+        <section id="pub-attribs">
+          <h2><a href="#pub-attribs">Public variables</a></h2>
           <dl class="m-doc">
             <dt>
-              <span class="m-doc-wrap-bumper">void <a href="#a84d1c78f09bf338479ba21c2640f7fe4" class="m-doc">onopen</a>(</span><span class="m-doc-wrap">int fd)</span>
+              int <a href="#aa64f84d851a0cc8baaa0865617c76cc0" class="m-doc">sock</a>
             </dt>
-            <dd>Called when a client connects to the server.</dd>
+            <dd></dd>
             <dt>
-              <span class="m-doc-wrap-bumper">void <a href="#a7e46594ea3fb0924a0c0e8637596165d" class="m-doc">onclose</a>(</span><span class="m-doc-wrap">int fd)</span>
+              int <a href="#a66f4d0e1b8347e45f95b715362be901f" class="m-doc">port_index</a>
             </dt>
-            <dd>Called when a client disconnects to the server.</dd>
-            <dt>
-              <span class="m-doc-wrap-bumper">void <a href="#accb21d5ff8aa0519f5e2832ad1bd309f" class="m-doc">onmessage</a>(</span><span class="m-doc-wrap">int fd,
-              const unsigned char* msg,
-              uint64_t size,
-              int type)</span>
-            </dt>
-            <dd>Called when a client connects to the server.</dd>
-            <dt id="a3c04138a5bfe5d72780bb7e82a18e627">
-              <span class="m-doc-wrap-bumper">auto <a href="#a3c04138a5bfe5d72780bb7e82a18e627" class="m-doc-self">main</a>(</span><span class="m-doc-wrap">int argc,
-              char** argv) -&gt; int</span>
-            </dt>
-            <dd>Main routine.</dd>
+            <dd></dd>
           </dl>
         </section>
         <section>
-          <h2>Function documentation</h2>
-          <section class="m-doc-details" id="a84d1c78f09bf338479ba21c2640f7fe4"><div>
+          <h2>Variable documentation</h2>
+          <section class="m-doc-details" id="aa64f84d851a0cc8baaa0865617c76cc0"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a84d1c78f09bf338479ba21c2640f7fe4" class="m-doc-self">onopen</a>(</span><span class="m-doc-wrap">int fd)</span></span>
+              int ws_<wbr />accept::<wbr /><a href="#aa64f84d851a0cc8baaa0865617c76cc0" class="m-doc-self">sock</a>
             </h3>
-            <p>Called when a client connects to the server.</p>
-            <table class="m-table m-fullwidth m-flat">
-              <thead>
-                <tr><th colspan="2">Parameters</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="width: 1%">fd</td>
-                  <td>File Descriptor belonging to the client. The <code>fd</code> parameter is used in order to send messages and retrieve informations about the client.</td>
-                </tr>
-              </tbody>
-            </table>
+<p>Socket number.<br /></p>
           </div></section>
-          <section class="m-doc-details" id="a7e46594ea3fb0924a0c0e8637596165d"><div>
+          <section class="m-doc-details" id="a66f4d0e1b8347e45f95b715362be901f"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a7e46594ea3fb0924a0c0e8637596165d" class="m-doc-self">onclose</a>(</span><span class="m-doc-wrap">int fd)</span></span>
+              int ws_<wbr />accept::<wbr /><a href="#a66f4d0e1b8347e45f95b715362be901f" class="m-doc-self">port_index</a>
             </h3>
-            <p>Called when a client disconnects to the server.</p>
-            <table class="m-table m-fullwidth m-flat">
-              <thead>
-                <tr><th colspan="2">Parameters</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="width: 1%">fd</td>
-                  <td>File Descriptor belonging to the client. The <code>fd</code> parameter is used in order to send messages and retrieve informations about the client.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div></section>
-          <section class="m-doc-details" id="accb21d5ff8aa0519f5e2832ad1bd309f"><div>
-            <h3>
-              <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#accb21d5ff8aa0519f5e2832ad1bd309f" class="m-doc-self">onmessage</a>(</span><span class="m-doc-wrap">int fd,
-              const unsigned char* msg,
-              uint64_t size,
-              int type)</span></span>
-            </h3>
-            <p>Called when a client connects to the server.</p>
-            <table class="m-table m-fullwidth m-flat">
-              <thead>
-                <tr><th colspan="2">Parameters</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="width: 1%">fd</td>
-                  <td>File Descriptor belonging to the client. The <code>fd</code> parameter is used in order to send messages and retrieve informations about the client.</td>
-                </tr>
-                <tr>
-                  <td>msg</td>
-                  <td>Received message, this message can be a text or binary message.</td>
-                </tr>
-                <tr>
-                  <td>size</td>
-                  <td>Message size (in bytes).</td>
-                </tr>
-                <tr>
-                  <td>type</td>
-                  <td>Message type.</td>
-                </tr>
-              </tbody>
-            </table>
+<p>Port index in the port list.</p>
           </div></section>
         </section>
       </div>

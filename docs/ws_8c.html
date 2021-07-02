@@ -75,6 +75,10 @@
             </dt>
             <dd>Port entry in <a href="structws__port.html" class="m-doc">ws_<wbr />port</a> structure.</dd>
             <dt>
+              struct <a href="structws__accept.html" class="m-doc">ws_accept</a>
+            </dt>
+            <dd><a href="structws__accept.html" class="m-doc">ws_<wbr />accept</a> data.</dd>
+            <dt>
               struct <a href="structws__connection.html" class="m-doc">ws_connection</a>
             </dt>
             <dd>Client socks.</dd>
@@ -87,6 +91,13 @@
         <section id="func-members">
           <h2><a href="#func-members">Functions</a></h2>
           <dl class="m-doc">
+            <dt>
+              <span class="m-doc-wrap-bumper">static auto <a href="#a6ed42308431aa20a520442aa164cbb43" class="m-doc">send_all</a>(</span><span class="m-doc-wrap">int sockfd,
+              const void* buf,
+              size_t len,
+              int flags) -&gt; ssize_t</span>
+            </dt>
+            <dd>Send a given message <code>buf</code> on a socket <code>sockfd</code>.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">static auto <a href="#ac4086a67a9f2f699752c96fc6868ba14" class="m-doc">get_client_index</a>(</span><span class="m-doc-wrap">int fd) -&gt; int</span>
             </dt>
@@ -113,9 +124,9 @@
             </dt>
             <dd>Gets the IP address relative to a file descriptor opened by the server.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">auto <a href="#a7e93ed47fe5043d9fed2e7b823a9a2a1" class="m-doc">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">auto <a href="#aa54ac70a95dc08248bb421869c8176f1" class="m-doc">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
               const char* msg,
-              ssize_t size,
+              uint64_t size,
               bool broadcast,
               int type) -&gt; int</span>
             </dt>
@@ -127,9 +138,9 @@
             </dt>
             <dd>Sends a WebSocket text frame.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">auto <a href="#aec4fce2b51671706c217e84721f20856" class="m-doc">ws_sendframe_bin</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">auto <a href="#a46de7d3baf1a174ec7976e04ef3b0db3" class="m-doc">ws_sendframe_bin</a>(</span><span class="m-doc-wrap">int fd,
               const char* msg,
-              size_t size,
+              uint64_t size,
               bool broadcast) -&gt; int</span>
             </dt>
             <dd>Sends a WebSocket binary frame.</dd>
@@ -156,8 +167,8 @@
             </dt>
             <dd>Sends a close frame, accordingly with the <code>close_code</code> or the message inside <code>wfd</code>.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">static auto <a href="#a599cb8b142dbb31b4c26adb2ade0b649" class="m-doc">do_pong</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
-              size_t frame_size) -&gt; int</span>
+              <span class="m-doc-wrap-bumper">static auto <a href="#a73528e95e9ae952d31ae1609156d7a0a" class="m-doc">do_pong</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              uint64_t frame_size) -&gt; int</span>
             </dt>
             <dd>Send a pong frame in response to a ping frame.</dd>
             <dt>
@@ -165,17 +176,17 @@
             </dt>
             <dd>Read a chunk of bytes and return the next byte belonging to the frame.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">static auto <a href="#aaacae53e0d1550331b258e888f1128cc" class="m-doc">skip_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
-              size_t frame_size) -&gt; int</span>
+              <span class="m-doc-wrap-bumper">static auto <a href="#a2f0e43368d69f335be6d8757a61274b4" class="m-doc">skip_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              uint64_t frame_size) -&gt; int</span>
             </dt>
             <dd>Skips <code>frame_size</code> bytes of the current frame.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">static auto <a href="#ad9dd03049fbb3ea6a35c30f289b12573" class="m-doc">read_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              <span class="m-doc-wrap-bumper">static auto <a href="#a098f247798339775cb132e74e933da76" class="m-doc">read_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
               int opcode,
               unsigned char** buf,
-              size_t* frame_length,
-              size_t* frame_size,
-              size_t* msg_idx,
+              uint64_t* frame_length,
+              uint64_t* frame_size,
+              uint64_t* msg_idx,
               uint8_t* masks,
               int is_fin) -&gt; int</span>
             </dt>
@@ -190,8 +201,13 @@
             </dt>
             <dd>Establishes to connection with the client and trigger events when occurs one.</dd>
             <dt>
-              <span class="m-doc-wrap-bumper">auto <a href="#acca44489f52d8c7e4ffe0c83e17e971f" class="m-doc">ws_socket</a>(</span><span class="m-doc-wrap">struct <a href="structws__events.html" class="m-doc">ws_<wbr />events</a>* evs,
-              uint16_t port) -&gt; int</span>
+              <span class="m-doc-wrap-bumper">static auto <a href="#a9d29beb177ed677d058b0abbd9d8a4eb" class="m-doc">ws_accept</a>(</span><span class="m-doc-wrap">void* data) -&gt; void*</span>
+            </dt>
+            <dd>Main loop that keeps accepting new connections.</dd>
+            <dt>
+              <span class="m-doc-wrap-bumper">auto <a href="#ad0403b6d32c00c079e7d5d7dd81f79c4" class="m-doc">ws_socket</a>(</span><span class="m-doc-wrap">struct <a href="structws__events.html" class="m-doc">ws_<wbr />events</a>* evs,
+              uint16_t port,
+              int thread_loop) -&gt; int</span>
             </dt>
             <dd>Main loop for the server.</dd>
           </dl>
@@ -228,6 +244,45 @@
         </section>
         <section>
           <h2>Function documentation</h2>
+          <section class="m-doc-details" id="a6ed42308431aa20a520442aa164cbb43"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static ssize_t </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a6ed42308431aa20a520442aa164cbb43" class="m-doc-self">send_all</a>(</span><span class="m-doc-wrap">int sockfd,
+              const void* buf,
+              size_t len,
+              int flags)</span></span>
+            </h3>
+            <p>Send a given message <code>buf</code> on a socket <code>sockfd</code>.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">sockfd</td>
+                  <td>Target socket.</td>
+                </tr>
+                <tr>
+                  <td>buf</td>
+                  <td>Message to be sent.</td>
+                </tr>
+                <tr>
+                  <td>len</td>
+                  <td>Message length.</td>
+                </tr>
+                <tr>
+                  <td>flags</td>
+                  <td>Send flags.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns 0 if success (i.e: all message was sent), -1 otherwise.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-info"><h4>Note</h4><p>Technically this shouldn&#x27;t be necessary, since send() should block until all content is sent, since <em>we</em> don&#x27;t use &#x27;O_NONBLOCK&#x27;. However, it was reported (issue #22 on GitHub) that this was happening, so just to be cautious, I will keep using this routine.</p></aside>
+          </div></section>
           <section class="m-doc-details" id="ac4086a67a9f2f699752c96fc6868ba14"><div>
             <h3>
               <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#ac4086a67a9f2f699752c96fc6868ba14" class="m-doc-self">get_client_index</a>(</span><span class="m-doc-wrap">int fd)</span></span>
@@ -377,11 +432,11 @@
             </table>
 <aside class="m-note m-info"><h4>Note</h4><p>It is up the caller to free the returned string.</p></aside>
           </div></section>
-          <section class="m-doc-details" id="a7e93ed47fe5043d9fed2e7b823a9a2a1"><div>
+          <section class="m-doc-details" id="aa54ac70a95dc08248bb421869c8176f1"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a7e93ed47fe5043d9fed2e7b823a9a2a1" class="m-doc-self">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#aa54ac70a95dc08248bb421869c8176f1" class="m-doc-self">ws_sendframe</a>(</span><span class="m-doc-wrap">int fd,
               const char* msg,
-              ssize_t size,
+              uint64_t size,
               bool broadcast,
               int type)</span></span>
             </h3>
@@ -401,7 +456,7 @@
                 </tr>
                 <tr>
                   <td>size</td>
-                  <td>Binary message size (set it &lt;0 for text message)</td>
+                  <td>Binary message size.</td>
                 </tr>
                 <tr>
                   <td>broadcast</td>
@@ -419,7 +474,7 @@
                 </tr>
               </tfoot>
             </table>
-<p>This routine is intended to be used to create a websocket frame for a given type e sending to the client. For higher level routines, please check <a href="ws_8c.html#a19f035f036b1e78b4918d53fcad76cc0" class="m-doc">ws_<wbr />sendframe_<wbr />txt</a> and <a href="ws_8c.html#aec4fce2b51671706c217e84721f20856" class="m-doc">ws_<wbr />sendframe_<wbr />bin</a>.</p><aside class="m-note m-info"><h4>Note</h4><p>If <code>size</code> is -1, it is assumed that a text frame is being sent, otherwise, a binary frame. In the later case, the <code>size</code> is used.</p></aside>
+<p>This routine is intended to be used to create a websocket frame for a given type e sending to the client. For higher level routines, please check <a href="ws_8c.html#a19f035f036b1e78b4918d53fcad76cc0" class="m-doc">ws_<wbr />sendframe_<wbr />txt</a> and <a href="ws_8c.html#a46de7d3baf1a174ec7976e04ef3b0db3" class="m-doc">ws_<wbr />sendframe_<wbr />bin</a>.</p><aside class="m-note m-info"><h4>Note</h4><p>If <code>size</code> is -1, it is assumed that a text frame is being sent, otherwise, a binary frame. In the later case, the <code>size</code> is used.</p></aside>
           </div></section>
           <section class="m-doc-details" id="a19f035f036b1e78b4918d53fcad76cc0"><div>
             <h3>
@@ -454,11 +509,11 @@
               </tfoot>
             </table>
           </div></section>
-          <section class="m-doc-details" id="aec4fce2b51671706c217e84721f20856"><div>
+          <section class="m-doc-details" id="a46de7d3baf1a174ec7976e04ef3b0db3"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#aec4fce2b51671706c217e84721f20856" class="m-doc-self">ws_sendframe_bin</a>(</span><span class="m-doc-wrap">int fd,
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a46de7d3baf1a174ec7976e04ef3b0db3" class="m-doc-self">ws_sendframe_bin</a>(</span><span class="m-doc-wrap">int fd,
               const char* msg,
-              size_t size,
+              uint64_t size,
               bool broadcast)</span></span>
             </h3>
             <p>Sends a WebSocket binary frame.</p>
@@ -514,7 +569,7 @@
                 </tr>
               </tfoot>
             </table>
-<aside class="m-note m-default"><h4>See also</h4><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a2e0dc474d59b4f6362baeb9c3f556523" class="m-doc">WS_<wbr />STATE_<wbr />CONNECTING</a></p><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a2fe743eb09e44700deb9f6bc1bc5e484" class="m-doc">WS_<wbr />STATE_<wbr />OPEN</a></p><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a0463873293d20536a4fa2445af3ca7e9" class="m-doc">WS_<wbr />STATE_<wbr />CLOSING</a></p><p><a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a02363560e73ebd3d01c09902d2290c4d" class="m-doc">WS_<wbr />STATE_<wbr />CLOSED</a></p></aside>
+<aside class="m-note m-default"><h4>See also</h4><p><a href="ws_8h.html#a2e0dc474d59b4f6362baeb9c3f556523" class="m-doc">WS_<wbr />STATE_<wbr />CONNECTING</a></p><p><a href="ws_8h.html#a2fe743eb09e44700deb9f6bc1bc5e484" class="m-doc">WS_<wbr />STATE_<wbr />OPEN</a></p><p><a href="ws_8h.html#a0463873293d20536a4fa2445af3ca7e9" class="m-doc">WS_<wbr />STATE_<wbr />CLOSING</a></p><p><a href="ws_8h.html#a02363560e73ebd3d01c09902d2290c4d" class="m-doc">WS_<wbr />STATE_<wbr />CLOSED</a></p></aside>
           </div></section>
           <section class="m-doc-details" id="a8ff8147bdaa2d128b6e719124767a635"><div>
             <h3>
@@ -622,10 +677,10 @@
             </table>
 <aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
           </div></section>
-          <section class="m-doc-details" id="a599cb8b142dbb31b4c26adb2ade0b649"><div>
+          <section class="m-doc-details" id="a73528e95e9ae952d31ae1609156d7a0a"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a599cb8b142dbb31b4c26adb2ade0b649" class="m-doc-self">do_pong</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
-              size_t frame_size)</span></span>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a73528e95e9ae952d31ae1609156d7a0a" class="m-doc-self">do_pong</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              uint64_t frame_size)</span></span>
             </h3>
             <p>Send a pong frame in response to a ping frame.</p>
             <table class="m-table m-fullwidth m-flat">
@@ -675,10 +730,10 @@
             </table>
 <aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
           </div></section>
-          <section class="m-doc-details" id="aaacae53e0d1550331b258e888f1128cc"><div>
+          <section class="m-doc-details" id="a2f0e43368d69f335be6d8757a61274b4"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#aaacae53e0d1550331b258e888f1128cc" class="m-doc-self">skip_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
-              size_t frame_size)</span></span>
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a2f0e43368d69f335be6d8757a61274b4" class="m-doc-self">skip_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              uint64_t frame_size)</span></span>
             </h3>
             <p>Skips <code>frame_size</code> bytes of the current frame.</p>
             <table class="m-table m-fullwidth m-flat">
@@ -704,14 +759,14 @@
             </table>
 <aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
           </div></section>
-          <section class="m-doc-details" id="ad9dd03049fbb3ea6a35c30f289b12573"><div>
+          <section class="m-doc-details" id="a098f247798339775cb132e74e933da76"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#ad9dd03049fbb3ea6a35c30f289b12573" class="m-doc-self">read_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
+              <span class="m-doc-wrap-bumper">static int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a098f247798339775cb132e74e933da76" class="m-doc-self">read_frame</a>(</span><span class="m-doc-wrap">struct <a href="structws__frame__data.html" class="m-doc">ws_<wbr />frame_<wbr />data</a>* wfd,
               int opcode,
               unsigned char** buf,
-              size_t* frame_length,
-              size_t* frame_size,
-              size_t* msg_idx,
+              uint64_t* frame_length,
+              uint64_t* frame_size,
+              uint64_t* msg_idx,
               uint8_t* masks,
               int is_fin)</span></span>
             </h3>
@@ -810,16 +865,41 @@
               <tfoot>
                 <tr>
                   <th>Returns</th>
-                  <td>Returns <code>vsock</code> if success and a negative number otherwise.</td>
+                  <td>Returns <code>vsock</code>.</td>
                 </tr>
               </tfoot>
             </table>
 <aside class="m-note m-info"><h4>Note</h4><p>This will be run on a different thread.</p></aside><aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
           </div></section>
-          <section class="m-doc-details" id="acca44489f52d8c7e4ffe0c83e17e971f"><div>
+          <section class="m-doc-details" id="a9d29beb177ed677d058b0abbd9d8a4eb"><div>
             <h3>
-              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#acca44489f52d8c7e4ffe0c83e17e971f" class="m-doc-self">ws_socket</a>(</span><span class="m-doc-wrap">struct <a href="structws__events.html" class="m-doc">ws_<wbr />events</a>* evs,
-              uint16_t port)</span></span>
+              <span class="m-doc-wrap-bumper">static void* </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a9d29beb177ed677d058b0abbd9d8a4eb" class="m-doc-self">ws_accept</a>(</span><span class="m-doc-wrap">void* data)</span></span>
+            </h3>
+            <p>Main loop that keeps accepting new connections.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">data</td>
+                  <td>Accept thread data: sock and port index.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns <code>data</code>.</td>
+                </tr>
+              </tfoot>
+            </table>
+<aside class="m-note m-info"><h4>Note</h4><p>This may be run on a different thread.</p></aside><aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
+          <section class="m-doc-details" id="ad0403b6d32c00c079e7d5d7dd81f79c4"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">int </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#ad0403b6d32c00c079e7d5d7dd81f79c4" class="m-doc-self">ws_socket</a>(</span><span class="m-doc-wrap">struct <a href="structws__events.html" class="m-doc">ws_<wbr />events</a>* evs,
+              uint16_t port,
+              int thread_loop)</span></span>
             </h3>
             <p>Main loop for the server.</p>
             <table class="m-table m-fullwidth m-flat">
@@ -835,15 +915,19 @@
                   <td>port</td>
                   <td>Server port.</td>
                 </tr>
+                <tr>
+                  <td>thread_loop</td>
+                  <td>If any value other than zero, runs the accept loop in another thread and immediately returns. If 0, runs in the same thread and blocks execution.</td>
+                </tr>
               </tbody>
               <tfoot>
                 <tr>
                   <th>Returns</th>
-                  <td>This function never returns.</td>
+                  <td>If <code>thread_loop</code> != 0, returns 0. Otherwise, never returns.</td>
                 </tr>
               </tfoot>
             </table>
-<aside class="m-note m-info"><h4>Note</h4><p>Note that this function can be called multiples times, from multiples different threads (depending on the <a href="INST_2usr_2local_2include_2wsserver_2ws_8h.html#a40ad70cc6e2125af9340a4bc26a83764" class="m-doc">MAX_<wbr />PORTS</a>) value. Each call <em>should</em> have a different port and can have different events configured.</p></aside>
+<aside class="m-note m-info"><h4>Note</h4><p>Note that this function can be called multiples times, from multiples different threads (depending on the <a href="ws_8h.html#a40ad70cc6e2125af9340a4bc26a83764" class="m-doc">MAX_<wbr />PORTS</a>) value. Each call <em>should</em> have a different port and can have different events configured.</p></aside>
           </div></section>
         </section>
       </div>

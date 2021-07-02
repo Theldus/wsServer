@@ -72,7 +72,7 @@ make
 <span class="kt">void</span> <span class="nf">onclose</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">);</span>
 
 <span class="cm">/* Client sent a text message. */</span>
-<span class="kt">void</span> <span class="nf">onmessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">msg</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">onmessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">msg</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">);</span>
 
 <span class="cm">/* fd is the File Descriptor returned by accepted connection. */</span></pre><p>this is all you need to worry about, nothing to think about return values in socket, accepting connections, and so on.</p><p>As a gift, each client is handled in a separate thread, so you will not have to worry about it.</p><section id="autotoc_md33"><h3><a href="#autotoc_md33">A complete example (file.c)</a></h3><p>A more complete example, including the html file, can be found in example/ folder, ;-).</p><pre class="m-code"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
@@ -95,7 +95,7 @@ make
     <span class="n">free</span><span class="p">(</span><span class="n">cli</span><span class="p">);</span>
 <span class="p">}</span>
 
-<span class="kt">void</span> <span class="nf">onmessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">msg</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">)</span>
+<span class="kt">void</span> <span class="nf">onmessage</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">msg</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="kt">char</span> <span class="o">*</span><span class="n">cli</span><span class="p">;</span>
     <span class="n">cli</span> <span class="o">=</span> <span class="n">ws_getaddress</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
@@ -118,8 +118,13 @@ make
     <span class="n">evs</span><span class="p">.</span><span class="n">onclose</span>   <span class="o">=</span> <span class="o">&amp;</span><span class="n">onclose</span><span class="p">;</span>
     <span class="n">evs</span><span class="p">.</span><span class="n">onmessage</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">onmessage</span><span class="p">;</span>
 
-    <span class="cm">/* Main loop, this function never returns. */</span>
-    <span class="n">ws_socket</span><span class="p">(</span><span class="o">&amp;</span><span class="n">evs</span><span class="p">,</span> <span class="mi">8080</span><span class="p">);</span>
+    <span class="cm">/*</span>
+<span class="cm">     * Main loop, this function never* returns.</span>
+<span class="cm">     *</span>
+<span class="cm">     * *If the third argument is != 0, a new thread is created</span>
+<span class="cm">     * to handle new connections.</span>
+<span class="cm">     */</span>
+    <span class="n">ws_socket</span><span class="p">(</span><span class="o">&amp;</span><span class="n">evs</span><span class="p">,</span> <span class="mi">8080</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">);</span>
 <span class="p">}</span></pre><p>to build the example above, just invoke: <code>make examples</code>.</p></section></section><section id="autotoc_md34"><h2><a href="#autotoc_md34">SSL/TLS Support</a></h2><p>wsServer does not currently support encryption. However, it is possible to use it in conjunction with <a href="https://www.stunnel.org/">Stunnel</a>, a proxy that adds TLS support to existing projects. Just follow <a href="md_doc_TLS.html" class="m-doc">these</a> four easy steps to get TLS support on wsServer.</p></section><section id="autotoc_md35"><h2><a href="#autotoc_md35">Contributing</a></h2><p>wsServer is always open to the community and willing to accept contributions, whether with issues, documentation, testing, new features, bugfixes, typos... welcome aboard. Make sure to read the <a href="md_doc_CODING_STYLE.html" class="m-doc">coding-style</a> guidelines before sending a PR.</p></section><section id="autotoc_md36"><h2><a href="#autotoc_md36">License and Authors</a></h2><p>wsServer is licensed under GPLv3 License. Written by Davidson Francis and <a href="https://github.com/Theldus/wsServer/graphs/contributors">others</a> contributors.</p></section>
