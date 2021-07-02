@@ -20,12 +20,14 @@ CFLAGS  +=  -Wall -Wextra -g -DVERBOSE_MODE -DAFL_FUZZ
 CFLAGS  +=  $(INCLUDE) -std=c99 -pthread -pedantic
 LIB      =  $(WSDIR)/libws.a
 
+.PHONY: all run_fuzzy clean
+
 # Examples
 all: ws_file run_fuzzy
 
 # ws_file
-ws_file:
-	$(CC) $(CFLAGS) $(LDFLAGS) *.c -o ws_file $(LIB)
+ws_file: ws_file.c $(LIB)
+	$(CC) $(CFLAGS) $(LDFLAGS) ws_file.c -o ws_file $(LIB)
 
 # Run fuzzing tests
 run_fuzzy: ws_file

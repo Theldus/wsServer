@@ -20,12 +20,14 @@ CFLAGS   =  -Wall -Wextra -O2
 CFLAGS  +=  $(INCLUDE) -std=c99 -pthread -pedantic
 LIB      =  $(WSDIR)/libws.a
 
+.PHONY: all clean
+
 # Examples
 all: send_receive
 
 # Send receive
-send_receive:
-	$(CC) $(CFLAGS) $(LDFLAGS) *.c -o send_receive $(LIB)
+send_receive: send_receive.c $(LIB)
+	$(CC) $(CFLAGS) $(LDFLAGS) send_receive.c -o send_receive $(LIB)
 
 # Clean
 clean:
