@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+ * Copyright (C) 2016-2021  Davidson Francis <davidsondfgl@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -256,7 +256,7 @@
 		bool broadcast);
 	extern int ws_get_state(int fd);
 	extern int ws_close_client(int fd);
-	extern int ws_socket(struct ws_events *evs, uint16_t port);
+	extern int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop);
 
 #ifdef AFL_FUZZ
 	extern int ws_file(struct ws_events *evs, const char *file);

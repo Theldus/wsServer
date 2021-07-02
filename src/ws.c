@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+ * Copyright (C) 2016-2021  Davidson Francis <davidsondfgl@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +55,18 @@ struct ws_port
 {
 	int port_number;         /**< Port number.      */
 	struct ws_events events; /**< Websocket events. */
+};
+
+/**
+ * @brief ws_accept data.
+ *
+ * This defines a set of data that is used inside of each
+ * accept routine, whether by the main routine or not.
+ */
+struct ws_accept
+{
+	int sock;        /**< Socket number.               */
+	int port_index;  /**< Port index in the port list. */
 };
 
 /**
@@ -1177,8 +1189,7 @@ static int next_frame(struct ws_frame_data *wfd, int idx)
  *
  * @param vsock Client connection index.
  *
- * @return Returns @p vsock if success and a negative
- * number otherwise.
+ * @return Returns @p vsock.
  *
  * @note This will be run on a different thread.
  *
@@ -1276,82 +1287,37 @@ closed:
 }
 
 /**
- * @brief Main loop for the server.
+ * @brief Main loop that keeps accepting new connections.
  *
- * @param evs  Events structure.
- * @param port Server port.
+ * @param data Accept thread data: sock and port index.
  *
- * @return This function never returns.
+ * @return Returns @p data.
  *
- * @note Note that this function can be called multiples times,
- * from multiples different threads (depending on the @ref MAX_PORTS)
- * value. Each call _should_ have a different port and can have
- * different events configured.
+ * @note This may be run on a different thread.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
-int ws_socket(struct ws_events *evs, uint16_t port)
+static void *ws_accept(void *data)
 {
-	int sock;                  /* Current socket.        */
-	int new_sock;              /* New opened connection. */
-	struct sockaddr_in server; /* Server.                */
-	struct sockaddr_in client; /* Client.                */
-	int len;                   /* Length of sockaddr.    */
-	pthread_t client_thread;   /* Client thread.         */
-	int i;                     /* Loop index.            */
-	int connection_index;
-	int p_index;
+	struct ws_accept *accept_data; /* Accept thread data.    */
+	struct sockaddr_in client;     /* Client.                */
+	pthread_t client_thread;       /* Client thread.         */
+	int connection_index;          /* Free connection slot.  */
+	int new_sock;                  /* New opened connection. */
+	int len;                       /* Length of sockaddr.    */
+	int i;                         /* Loop index.            */
 
 	connection_index = 0;
+	accept_data      = data;
+	len              = sizeof(struct sockaddr_in);
 
-	/* Checks if the event list is a valid pointer. */
-	if (evs == NULL)
-		panic("Invalid event list!");
-
-	pthread_mutex_lock(&mutex);
-	if (port_index >= MAX_PORTS)
-	{
-		pthread_mutex_unlock(&mutex);
-		panic("too much websocket ports opened !");
-	}
-	p_index = port_index;
-	port_index++;
-	pthread_mutex_unlock(&mutex);
-
-	/* Copy events. */
-	memcpy(&ports[p_index].events, evs, sizeof(struct ws_events));
-	ports[p_index].port_number = port;
-
-	/* Create socket. */
-	sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock < 0)
-		panic("Could not create socket");
-
-	/* Reuse previous address. */
-	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
-		panic("setsockopt(SO_REUSEADDR) failed");
-
-	/* Prepare the sockaddr_in structure. */
-	server.sin_family      = AF_INET;
-	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port        = htons(port);
-
-	/* Bind. */
-	if (bind(sock, (struct sockaddr *)&server, sizeof(server)) < 0)
-		panic("Bind failed");
-
-	/* Listen. */
-	listen(sock, MAX_CLIENTS);
-
-	/* Wait for incoming connections. */
-	printf("Waiting for incoming connections...\n");
-
-	len = sizeof(struct sockaddr_in);
-	memset(client_socks, -1, sizeof(client_socks));
-
-	/* Accept connections. */
 	while (1)
 	{
 		/* Accept. */
-		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t *)&len);
+		new_sock = accept(accept_data->sock, (struct sockaddr *)&client,
+			(socklen_t *)&len);
+
 		if (new_sock < 0)
 			panic("Error on accepting connections..");
 
@@ -1362,7 +1328,7 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 			if (client_socks[i].client_sock == -1)
 			{
 				client_socks[i].client_sock = new_sock;
-				client_socks[i].port_index  = p_index;
+				client_socks[i].port_index  = accept_data->port_index;
 				client_socks[i].state       = WS_STATE_CONNECTING;
 				client_socks[i].close_thrd  = false;
 				connection_index            = i;
@@ -1388,6 +1354,95 @@ int ws_socket(struct ws_events *evs, uint16_t port)
 		else
 			close(new_sock);
 	}
+	free(data);
+	return (data);
+}
+
+/**
+ * @brief Main loop for the server.
+ *
+ * @param evs  Events structure.
+ * @param port Server port.
+ * @param thread_loop If any value other than zero, runs
+ *                    the accept loop in another thread
+ *                    and immediately returns. If 0, runs
+ *                    in the same thread and blocks execution.
+ *
+ * @return If @p thread_loop != 0, returns 0. Otherwise, never
+ * returns.
+ *
+ * @note Note that this function can be called multiples times,
+ * from multiples different threads (depending on the @ref MAX_PORTS)
+ * value. Each call _should_ have a different port and can have
+ * different events configured.
+ */
+int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop)
+{
+	struct ws_accept *accept_data; /* Accept thread data.    */
+	struct sockaddr_in server;     /* Server.                */
+	pthread_t accept_thread;       /* Accept thread.         */
+
+	/* Checks if the event list is a valid pointer. */
+	if (evs == NULL)
+		panic("Invalid event list!");
+
+	/* Allocates our accept data. */
+	accept_data = malloc(sizeof(*accept_data));
+	if (!accept_data)
+		panic("Cannot allocate accept data, out of memory!\n");
+
+	pthread_mutex_lock(&mutex);
+	if (port_index >= MAX_PORTS)
+	{
+		pthread_mutex_unlock(&mutex);
+		panic("too much websocket ports opened !");
+	}
+	accept_data->port_index = port_index;
+	port_index++;
+	pthread_mutex_unlock(&mutex);
+
+	/* Copy events. */
+	memcpy(&ports[accept_data->port_index].events, evs, sizeof(struct ws_events));
+	ports[accept_data->port_index].port_number = port;
+
+	/* Create socket. */
+	accept_data->sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (accept_data->sock < 0)
+		panic("Could not create socket");
+
+	/* Reuse previous address. */
+	if (setsockopt(accept_data->sock, SOL_SOCKET, SO_REUSEADDR, &(int){1},
+		sizeof(int)) < 0)
+	{
+		panic("setsockopt(SO_REUSEADDR) failed");
+	}
+
+	/* Prepare the sockaddr_in structure. */
+	server.sin_family      = AF_INET;
+	server.sin_addr.s_addr = INADDR_ANY;
+	server.sin_port        = htons(port);
+
+	/* Bind. */
+	if (bind(accept_data->sock, (struct sockaddr *)&server, sizeof(server)) < 0)
+		panic("Bind failed");
+
+	/* Listen. */
+	listen(accept_data->sock, MAX_CLIENTS);
+
+	/* Wait for incoming connections. */
+	printf("Waiting for incoming connections...\n");
+	memset(client_socks, -1, sizeof(client_socks));
+
+	/* Accept connections. */
+	if (!thread_loop)
+		ws_accept(accept_data);
+	else
+	{
+		if (pthread_create(&accept_thread, NULL, ws_accept, accept_data))
+			panic("Could not create the client thread!");
+		pthread_detach(accept_thread);
+	}
+
 	return (0);
 }
 

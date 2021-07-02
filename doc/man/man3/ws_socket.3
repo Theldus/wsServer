@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+.\" Copyright (C) 2016-2021  Davidson Francis <davidsondfgl@gmail.com>
 .\"
 .\" This program is free software: you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,23 +14,31 @@
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program.  If not, see <http://www.gnu.org/licenses/>
 .\"
-.TH man 3 "07 Nov 2020" "1.0" "wsServer man page"
+.TH man 3 "01 Jul 2021" "1.0" "wsServer man page"
 .SH NAME
-ws_socket \- Start the WebSocket server 
+ws_socket \- Start the WebSocket server
 .SH SYNOPSIS
 .nf
 .B #include <ws.h>
 .sp
-.BI "int ws_socket(struct ws_events " *evs ", uint16_t " port ");
+.BI "int ws_socket(struct ws_events " *evs ", uint16_t " port ", int " tloop ");
 .fi
 .SH DESCRIPTION
 .BR ws_socket ()
 starts the websocket server for the configured events
-.I evs
-and port
-.I port
+.IR evs ,
+port number
+.IR port .
+and
+.IR tloop .
+The parameter
+.I tloop
+specifies if the accept loop should run on the same thread (if equals 0)
+or on a different thread (if != 0).
 .SH RETURN VALUE
-This function never returns
+If
+.I tloop
+is equals 0, this function blocks and never returns. Otherwise, returns 0.
 .SH NOTES
 .PP
 The structure
@@ -41,11 +49,14 @@ is defined as follows:
 	{
 		void (*onopen)(int fd);
 		void (*onclose)(int fd);
-		void (*onmessage)(int fd, const unsigned char * msg, size_t size);
+		void (*onmessage)(int fd, const unsigned char * msg,
+			uint64_t size, int type);
 	};
+.fi
+
 Each element corresponds to function pointers that are triggered when the
 events occur.
-.PP
+
 The events:
 .RS 2
 .IP \(em 2

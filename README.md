@@ -65,7 +65,7 @@ void onopen(int fd);
 void onclose(int fd);
 
 /* Client sent a text message. */
-void onmessage(int fd, const unsigned char *msg, size_t size, int type);
+void onmessage(int fd, const unsigned char *msg, uint64_t size, int type);
 
 /* fd is the File Descriptor returned by accepted connection. */
 ```
@@ -118,7 +118,7 @@ void onclose(int fd)
  * @param size Message size.
  * @param type Message type.
  */
-void onmessage(int fd, const unsigned char *msg, size_t size, int type)
+void onmessage(int fd, const unsigned char *msg, uint64_t size, int type)
 {
     char *cli;
     cli = ws_getaddress(fd);
@@ -141,8 +141,13 @@ int main()
     evs.onclose   = &onclose;
     evs.onmessage = &onmessage;
 
-    /* Main loop, this function never returns. */
-    ws_socket(&evs, 8080);
+    /*
+     * Main loop, this function never* returns.
+     *
+     * *If the third argument is != 0, a new thread is created
+     * to handle new connections.
+     */
+    ws_socket(&evs, 8080, 0);
 
     return (0);
 }
