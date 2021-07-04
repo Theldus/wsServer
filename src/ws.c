@@ -29,9 +29,9 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #else
-#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 typedef int socklen_t;
 #endif
 
