@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 #define _POSIX_C_SOURCE 200809L
-#include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -25,7 +24,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef _WIN32
+#include <arpa/inet.h>
 #include <sys/socket.h>
+#else
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+typedef int socklen_t;
+#endif
+
+/* Windows and macOS seems to not have MSG_NOSIGNAL */
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL 0
+#endif
+
 #include <unistd.h>
 
 #include <ws.h>
@@ -65,8 +79,8 @@ struct ws_port
  */
 struct ws_accept
 {
-	int sock;        /**< Socket number.               */
-	int port_index;  /**< Port index in the port list. */
+	int sock;       /**< Socket number.               */
+	int port_index; /**< Port index in the port list. */
 };
 
 /**
@@ -156,6 +170,24 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 	} while (0);
 
 /**
+ * @brief Shutdown and close a given socket.
+ *
+ * @param fd Socket file descriptor to be closed.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
+ */
+static void close_socket(int fd)
+{
+#ifndef _WIN32
+	shutdown(fd, SHUT_RDWR);
+	close(fd);
+#else
+	closesocket(fd);
+#endif
+}
+
+/**
  * @brief Send a given message @p buf on a socket @p sockfd.
  *
  * @param sockfd Target socket.
@@ -171,8 +203,7 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
  * However, it was reported (issue #22 on GitHub) that this was
  * happening, so just to be cautious, I will keep using this routine.
  */
-static ssize_t send_all(int sockfd, const void *buf, size_t len,
-	int flags)
+static ssize_t send_all(int sockfd, const void *buf, size_t len, int flags)
 {
 	const char *p;
 	ssize_t ret;
@@ -303,8 +334,7 @@ static void *close_timeout(void *p)
 
 	DEBUG("Timer expired, closing client %d\n", conn->client_sock);
 
-	shutdown(conn->client_sock, SHUT_RDWR);
-	close(conn->client_sock);
+	close_socket(conn->client_sock);
 	conn->client_sock = -1;
 	conn->state       = WS_STATE_CLOSED;
 quit:
@@ -1269,7 +1299,7 @@ closed:
 		/* Removes client socket from socks list. */
 		client_socks[connection_index].client_sock = -1;
 		client_socks[connection_index].state       = WS_STATE_CLOSED;
-		close(sock);
+		close_socket(sock);
 		pthread_cond_signal(&client_socks[connection_index].cnd_state_close);
 	}
 
@@ -1315,8 +1345,8 @@ static void *ws_accept(void *data)
 	while (1)
 	{
 		/* Accept. */
-		new_sock = accept(accept_data->sock, (struct sockaddr *)&client,
-			(socklen_t *)&len);
+		new_sock =
+			accept(accept_data->sock, (struct sockaddr *)&client, (socklen_t *)&len);
 
 		if (new_sock < 0)
 			panic("Error on accepting connections..");
@@ -1352,7 +1382,7 @@ static void *ws_accept(void *data)
 			pthread_detach(client_thread);
 		}
 		else
-			close(new_sock);
+			close_socket(new_sock);
 	}
 	free(data);
 	return (data);
@@ -1381,6 +1411,7 @@ int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop)
 	struct ws_accept *accept_data; /* Accept thread data.    */
 	struct sockaddr_in server;     /* Server.                */
 	pthread_t accept_thread;       /* Accept thread.         */
+	int reuse;                     /* Socket option.         */
 
 	/* Checks if the event list is a valid pointer. */
 	if (evs == NULL)
@@ -1405,14 +1436,33 @@ int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop)
 	memcpy(&ports[accept_data->port_index].events, evs, sizeof(struct ws_events));
 	ports[accept_data->port_index].port_number = port;
 
+#ifdef _WIN32
+	WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+		panic("WSAStartup failed!");
+
+	/**
+	 * Sets stdout to be non-buffered.
+	 *
+	 * According to the docs from MSDN (setvbuf page), Windows do not
+	 * really supports line buffering but full-buffering instead.
+	 *
+	 * Quote from the docs:
+	 * "... _IOLBF For some systems, this provides line buffering.
+	 *  However, for Win32, the behavior is the same as _IOFBF"
+	 */
+	setvbuf(stdout, NULL, _IONBF, 0);
+#endif
+
 	/* Create socket. */
 	accept_data->sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (accept_data->sock < 0)
 		panic("Could not create socket");
 
 	/* Reuse previous address. */
-	if (setsockopt(accept_data->sock, SOL_SOCKET, SO_REUSEADDR, &(int){1},
-		sizeof(int)) < 0)
+	reuse = 1;
+	if (setsockopt(accept_data->sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse,
+			sizeof(reuse)) < 0)
 	{
 		panic("setsockopt(SO_REUSEADDR) failed");
 	}
