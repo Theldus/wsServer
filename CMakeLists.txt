@@ -28,7 +28,7 @@ add_library(ws
     src/handshake/handshake.c)
 
 if(WIN32)
-	target_link_libraries(ws pthread ws2_32)
+	target_link_libraries(ws pthread ws2_32 -static)
 else()
 	target_link_libraries(ws pthread)
 endif(WIN32)
