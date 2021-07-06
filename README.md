@@ -1,3 +1,4 @@
+
 # wsServer
 
 wsServer - a very tiny WebSocket server library written in C
@@ -18,21 +19,18 @@ See Autobahn [report](https://theldus.github.io/wsServer/autobahn) and the
 
 ## Building
 
-wsServer only requires a C99-compatible compiler, and optionally Doxygen to build
-the docs. The build process comes in two flavors: pure makefile or CMake.
+wsServer only requires a C99-compatible compiler, such as GCC, Clang, TCC and others.
 
 ### Make
-The preferred way to build wsServer on Linux environments. This also automatically
-builds an example file or a ready-to-use fuzzy version (see [here](doc/FUZZING.md) for
-details):
+The preferred way to build wsServer on Linux environments:
 ```bash
 git clone https://github.com/Theldus/wsServer
 cd wsServer/
 make
 
 # Optionally, a user can also install wsServer into the system,
-# either on default paths or by providing PATH or DESTDIR env
-# vars to the makefile.
+# either on default paths or by providing PREFIX or DESTDIR env
+# vars to the Makefile.
 
 make install # Or make install DESTDIR=/my/folder/
 ```
@@ -50,7 +48,9 @@ make
 ./send_receive # Waiting for incoming connections...
 ```
 
-in both cases, a statically lib (libws.a) will be generated.
+### Windows support
+Windows has native support via MinGW, toolchain setup and build steps are detailed
+[here](https://github.com/Theldus/wsServer/blob/master/doc/BUILD_WINDOWS.md).
 
 ## Why to complicate if things can be simple?
 
