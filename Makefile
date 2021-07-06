@@ -55,8 +55,7 @@ C_SRC = $(wildcard $(SRC)/base64/*.c)    \
 OBJ = $(C_SRC:.c=.o)
 
 # Conflicts
-.PHONY: doc
-.PHONY: tests
+.PHONY: doc fuzzy
 
 # Paths
 INCDIR = $(PREFIX)/include
@@ -84,11 +83,11 @@ examples: libws.a
 	$(MAKE) -C example/
 
 # Fuzzing tests
-tests: libws.a
-	$(MAKE) -C tests/
+fuzzy: libws.a
+	$(MAKE) -C tests/fuzzy
 
 # Install rules
-install: all wsserver.pc
+install: libws.a wsserver.pc
 	@#Library
 	install -d $(DESTDIR)$(LIBDIR)
 	install -m 644 $(LIB) $(DESTDIR)$(LIBDIR)
@@ -147,4 +146,4 @@ clean:
 	@rm -f $(SRC)/*.o
 	@rm -f $(LIB)
 	@$(MAKE) clean -C example/
-	@$(MAKE) clean -C tests/
+	@$(MAKE) clean -C tests/fuzzy
