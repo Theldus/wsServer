@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 CC       = afl-gcc
-WSDIR    = $(CURDIR)/../
+WSDIR    = $(CURDIR)/../../
 INCLUDE  = -I $(WSDIR)/include
 CFLAGS  +=  -Wall -Wextra -g -DVERBOSE_MODE -DAFL_FUZZ
 CFLAGS  +=  $(INCLUDE) -std=c99 -pthread -pedantic
