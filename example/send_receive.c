@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 Davidson Francis <davidsondfgl@gmail.com>
+ * Copyright (C) 2016-2021 Davidson Francis <davidsondfgl@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,9 @@ void onopen(int fd)
 {
 	char *cli;
 	cli = ws_getaddress(fd);
+#ifndef DISABLE_VERBOSE
 	printf("Connection opened, client: %d | addr: %s\n", fd, cli);
+#endif
 	free(cli);
 }
 
@@ -55,7 +57,9 @@ void onclose(int fd)
 {
 	char *cli;
 	cli = ws_getaddress(fd);
+#ifndef DISABLE_VERBOSE
 	printf("Connection closed, client: %d | addr: %s\n", fd, cli);
+#endif
 	free(cli);
 }
 
@@ -77,8 +81,10 @@ void onmessage(int fd, const unsigned char *msg, uint64_t size, int type)
 {
 	char *cli;
 	cli = ws_getaddress(fd);
+#ifndef DISABLE_VERBOSE
 	printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s/%d\n",
 		msg, size, type, cli, fd);
+#endif
 	free(cli);
 
 	/**

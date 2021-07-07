@@ -24,6 +24,7 @@ LIB       =  libws.a
 MCSS_DIR ?= /usr/bin/
 MANPAGES  = $(CURDIR)/doc/man/man3
 AFL_FUZZ ?= no
+VERBOSE_EXAMPLES ?= yes
 
 # Prefix
 ifeq ($(PREFIX),)
@@ -71,7 +72,7 @@ PKGDIR = $(LIBDIR)/pkgconfig
 ifeq ($(AFL_FUZZ),no)
 all: libws.a examples
 else
-all: libws.a tests
+all: libws.a fuzzy
 endif
 
 # Library
@@ -81,6 +82,12 @@ libws.a: $(OBJ)
 # Examples
 examples: libws.a
 	$(MAKE) -C example/
+
+# Autobahn tests
+tests: examples
+	$(MAKE) all -C tests/ VERBOSE_EXAMPLES="$(VERBOSE_EXAMPLES)"
+tests_check:
+	$(MAKE) check_results -C tests/
 
 # Fuzzing tests
 fuzzy: libws.a
@@ -146,4 +153,5 @@ clean:
 	@rm -f $(SRC)/*.o
 	@rm -f $(LIB)
 	@$(MAKE) clean -C example/
+	@$(MAKE) clean -C tests/
 	@$(MAKE) clean -C tests/fuzzy

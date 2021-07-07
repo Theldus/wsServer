@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Davidson Francis <davidsondfgl@gmail.com>
+# Copyright (C) 2016-2021 Davidson Francis <davidsondfgl@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,27 +13,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-CC      ?= gcc
-WSDIR    = $(CURDIR)/../
-INCLUDE  = -I $(WSDIR)/include
-CFLAGS   =  -Wall -Wextra -O2
-CFLAGS  +=  $(INCLUDE) -std=c99 -pthread -pedantic
-LIB      =  $(WSDIR)/libws.a
+WSDIR   = $(CURDIR)/../
+EXAMPLE = $(WSDIR)/example/send_receive
+JSON    = $(CURDIR)/wsserver_autobahn/index.json
 
-# Check if verbose examples
-ifeq ($(VERBOSE_EXAMPLES), no)
-	CFLAGS += -DDISABLE_VERBOSE
-endif
-
-.PHONY: all clean
+# Conflicts
+.PHONY: all run_autobahn check_results clean
 
 # Examples
-all: send_receive
+all: run_autobahn
+	$(MAKE) check_results
 
-# Send receive
-send_receive: send_receive.c $(LIB)
-	$(CC) $(CFLAGS) $(LDFLAGS) send_receive.c -o send_receive $(LIB)
+# Run autobahn
+run_autobahn:
+	@bash run-autobahn.sh
+
+# Check results
+check_results:
+	@python validate_output.py
 
 # Clean
 clean:
-	@rm -f send_receive
+	@rm -rf wsserver_autobahn
