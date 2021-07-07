@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 #
 # Copyright (C) 2016-2021 Davidson Francis <davidsondfgl@gmail.com>
@@ -17,9 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
+set -e
+
 # Paths
-export CURDIR="$(cd "$(dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)"
-export WSDIR="$(readlink -f $CURDIR/../)"
+CURDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+export CURDIR
+
+WSDIR="$(readlink -f "$CURDIR"/../)"
+export WSDIR
 
 # AFL Fuzzing
 if [ ! -x "$(command -v wstest)" ]
@@ -40,14 +45,16 @@ then
 	exit 1
 fi
 
-echo -e "\n[+] Running Autobahn..."
+printf "\n[+] Running Autobahn...\n"
 
 # First spawn send_receive and get its pid
-$WSDIR/example/send_receive &
+"$WSDIR"/example/send_receive &
 SR=$!
 
 # Spawn Autobahn fuzzying client
+cd "$CURDIR"
 wstest -m fuzzingclient
+cd -
 
 # Kill send_receive
 kill $SR
