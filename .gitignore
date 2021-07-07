@@ -21,4 +21,5 @@ ws_file
 build/
 doc/doxygen/html
 doc/doxygen/xml
-tests/out/
+tests/wsserver_autobahn/
+tests/fuzzy/out/
