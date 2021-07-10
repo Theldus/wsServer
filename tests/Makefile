@@ -34,4 +34,4 @@ check_results:
 
 # Clean
 clean:
-	@rm -rf wsserver_autobahn
+	@rm -rf wsserver_autobahn/report
