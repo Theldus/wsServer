@@ -13,34 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.5.2)
-
-project(ws C)
-
-set(CMAKE_C_STANDARD 99)
-
-include_directories(include)
-
-add_library(ws
-    src/ws.c
-    src/base64/base64.c
-    src/sha1/sha1.c
-    src/handshake/handshake.c)
-
-if(WIN32)
-	target_link_libraries(ws pthread ws2_32 -static)
-else()
-	target_link_libraries(ws pthread)
-endif(WIN32)
-
-add_executable(send_receive
-    example/send_receive.c)
-target_link_libraries(send_receive ws)
-
-option(ENABLE_WSSERVER_TEST "Enable wsServer testing (requires Autobahn)" OFF)
 if(ENABLE_WSSERVER_TEST)
-	enable_testing()
-	# Disable verbose output of send_receive
-	target_compile_definitions(send_receive PRIVATE DISABLE_VERBOSE)
-	add_subdirectory(tests)
+
+	find_program(SHELL sh)
+
+	if(SHELL)
+		add_test(NAME Autobahn|Testsuite
+			COMMAND "${SHELL}" "${CMAKE_CURRENT_SOURCE_DIR}/run-autobahn.sh" "CMAKE"
+		)
+	else()
+		message(FATAL_ERROR "Unable to locate shell")
+	endif(SHELL)
+
 endif(ENABLE_WSSERVER_TEST)
