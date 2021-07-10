@@ -1,5 +1,5 @@
 {
-   "outdir": "./wsserver_autobahn",
+   "outdir": "./wsserver_autobahn/report",
    "servers": [
       {
          "agent": "wsServer", "url": "ws://localhost:8080"

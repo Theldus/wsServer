@@ -30,7 +30,7 @@ NC="\033[0m"
 ret = 0
 
 # Target file
-file = "wsserver_autobahn/index.json"
+file = "wsserver_autobahn/report/index.json"
 
 #
 # 'NOT PASSED' list
