@@ -26,12 +26,31 @@ services:
 env:
   - CTEST_OUTPUT_ON_FAILURE=1
 
-script:
-  - >
-    mkdir build &&
-    cd build &&
-    cmake ..
-    -DCMAKE_BUILD_TYPE=Release
-    -DENABLE_WSSERVER_TEST=On &&
-    make -j$(nproc) &&
-    make test
+jobs:
+  include:
+    - stage: "Build"
+      name: "Linux (AMD64) Build & Test"
+      script:
+        - >
+          mkdir build &&
+          cd build &&
+          cmake ..
+          -DCMAKE_BUILD_TYPE=Release
+          -DENABLE_WSSERVER_TEST=On &&
+          make -j$(nproc) &&
+          make test
+
+    - stage: "Build"
+      name: "Windows (via Wine) (AMD64) Build & Test"
+      before_script: sudo apt-get install mingw-w64 wine64 -y
+      script:
+        - >
+          wget https://git.io/JcAzE -O mingw-w64-x86_64.cmake &&
+          mkdir build &&
+          cd build &&
+          cmake ..
+          -DCMAKE_TOOLCHAIN_FILE=../mingw-w64-x86_64.cmake
+          -DCMAKE_BUILD_TYPE=Release
+          -DENABLE_WSSERVER_TEST=On &&
+          make -j$(nproc) &&
+          make test
