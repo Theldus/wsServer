@@ -26,19 +26,37 @@ export CURDIR
 WSDIR="$(readlink -f "$CURDIR"/../)"
 export WSDIR
 
-# AFL Fuzzing
-if [ ! -x "$(command -v wstest)" ]
+# Set send_receive path accordingly with where this
+# script was invoked
+if [ "$#" -gt 0 ] && [ "$1" = "CMAKE" ]
 then
-	echo "Autobahn|Testsuite not found!"
-	echo "You can install with something like:"
-	echo "	virtualenv ~/wstest"
-	echo "	source ~/wstest/bin/activate"
-	echo "	pip install autobahntestsuite"
-	exit 1
+	SR_BIN="$WSDIR/build/send_receive"
+else
+	SR_BIN="$WSDIR/example/send_receive"
+fi
+
+# AFL Fuzzing
+if [ -z "$TRAVIS" ]
+then
+	if [ ! -x "$(command -v wstest)" ]
+	then
+		echo "Autobahn|Testsuite not found!"
+		echo "You can install with something like:"
+		echo "	virtualenv ~/wstest"
+		echo "	source ~/wstest/bin/activate"
+		echo "	pip install autobahntestsuite"
+		exit 1
+	fi
+else
+	if [ ! -x "$(command -v docker)" ]
+	then
+		echo "Docker not found!!"
+		exit 1
+	fi
 fi
 
 # send_receive should exist
-if [ ! -f "$WSDIR/example/send_receive" ]
+if [ ! -f "$SR_BIN" ] && [ ! -f "$SR_BIN.exe" ]
 then
 	echo "send_receive not found! please build it first, before"
 	echo "proceeding!"
@@ -48,13 +66,39 @@ fi
 printf "\n[+] Running Autobahn...\n"
 
 # First spawn send_receive and get its pid
-"$WSDIR"/example/send_receive &
-SR=$!
+if [ -f "$SR_BIN" ]
+then
+	"$SR_BIN" &
+	SR=$!
+elif [ -f "$SR_BIN.exe" ]
+then
+	wine64 "$SR_BIN" &
+	SR=$!
+else
+	echo "Erro, send_receive[.exe] not found!"
+	exit 1
+fi
 
 # Spawn Autobahn fuzzying client
-cd "$CURDIR"
-wstest -m fuzzingclient
-cd -
+if [ -z "$TRAVIS" ]
+then
+	cd "$CURDIR"
+	wstest -m fuzzingclient --spec wsserver_autobahn/fuzzingclient.json
+	cd -
+else
+	# Run docker image
+	docker run -it --rm -v \
+		"${CURDIR}/wsserver_autobahn:/wsserver_autobahn" \
+		theldus/autobahn-testsuite:1.0
+fi
 
 # Kill send_receive
 kill $SR
+
+# If inside a CMake test, invoke the Python script too
+if [ "$#" -gt 0 ] && [ "$1" = "CMAKE" ]
+then
+	cd "$CURDIR"
+	python validate_output.py || python3 validate_output.py
+	cd -
+fi
