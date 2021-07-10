@@ -72,7 +72,7 @@ then
 	SR=$!
 elif [ -f "$SR_BIN.exe" ]
 then
-	wine64 "$SR_BIN" &
+	wine64-stable "$SR_BIN" &
 	SR=$!
 else
 	echo "Erro, send_receive[.exe] not found!"
