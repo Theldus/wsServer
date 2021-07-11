@@ -28,7 +28,7 @@ env:
 
 jobs:
   include:
-    - stage: "Build"
+    - os: linux
       name: "Linux (AMD64) Build & Test"
       script:
         - >
@@ -40,7 +40,7 @@ jobs:
           make -j$(nproc) &&
           make test
 
-    - stage: "Build"
+    - os: linux
       name: "Windows (via Wine) (AMD64) Build & Test"
       before_script: sudo apt-get install mingw-w64 wine64 -y
       script:
@@ -54,3 +54,12 @@ jobs:
           -DENABLE_WSSERVER_TEST=On &&
           make -j$(nproc) &&
           make test
+
+    - os: osx
+      name: "macOS (AMD64) (Build)"
+      script:
+        - >
+          mkdir build && cd build &&
+          cmake ..
+          -DCMAKE_BUILD_TYPE=Release &&
+          make -j2
