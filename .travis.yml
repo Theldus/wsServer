@@ -20,15 +20,13 @@ dist: focal
 
 language: c
 
-services:
-  - docker
-
 env:
   - CTEST_OUTPUT_ON_FAILURE=1
 
 jobs:
   include:
     - os: linux
+      services: docker
       name: "Linux (AMD64) Build & Test"
       script:
         - >
@@ -41,6 +39,7 @@ jobs:
           make test
 
     - os: linux
+      services: docker
       name: "Windows (via Wine) (AMD64) Build & Test"
       before_script: sudo apt-get install mingw-w64 wine64 -y
       script:
@@ -58,7 +57,7 @@ jobs:
     - os: osx
       name: "macOS (AMD64) (Build)"
     - os: freebsd
-      name: "FreBSD (AMD64) (Build)"
+      name: "FreeBSD (AMD64) (Build)"
 script:
   - >
     mkdir build && cd build &&
