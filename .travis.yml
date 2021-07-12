@@ -57,9 +57,11 @@ jobs:
 
     - os: osx
       name: "macOS (AMD64) (Build)"
-      script:
-        - >
-          mkdir build && cd build &&
-          cmake ..
-          -DCMAKE_BUILD_TYPE=Release &&
-          make -j2
+    - os: freebsd
+      name: "FreBSD (AMD64) (Build)"
+script:
+  - >
+    mkdir build && cd build &&
+    cmake ..
+    -DCMAKE_BUILD_TYPE=Release &&
+    make -j2
