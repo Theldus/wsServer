@@ -1,5 +1,7 @@
 
 # wsServer
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue)](https://opensource.org/licenses/GPL-3.0)
+[![Build Status for Windows, Linux, macOS and FreeBSD](https://app.travis-ci.com/Theldus/wsServer.svg?branch=master)](https://app.travis-ci.com/Theldus/wsServer)
 
 wsServer - a very tiny WebSocket server library written in C
 
@@ -13,6 +15,8 @@ The main features are:
 - Send/Receive Text and Binary messages
 - PING/PONG frames
 - Opening/Closing handshakes
+- Event based (onmessage, onopen, onclose)
+- Portability: Works fine on Windows, Linux (Android included), macOS and FreeBSD
 
 See Autobahn [report](https://theldus.github.io/wsServer/autobahn) and the
 [docs](doc/AUTOBAHN.md) for an 'in-depth' analysis.
