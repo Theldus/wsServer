@@ -11,6 +11,33 @@ server websocket implementations in conformance to the specification. With more 
 test cases, Autobahn extensively tests client and server implementations and also evaluates
 its performance.
 
+## Run tests
+Testing requires pre-installation of
+[Autobahn|Testsuite](https://github.com/crossbario/autobahn-testsuite). Alternatively, it is
+possible to use the Docker image used in the CI tests, in this case, export the environment
+variable 'TRAVIS', as `export TRAVIS=true`.
+
+After that, tests can be invoked via Makefile or CMake:
+### Makefile
+```bash
+# Ensure project is in clean state
+$ make clean
+# Build and execute tests
+$ make tests
+```
+### CMake
+```bash
+$ mkdir build && cd build/
+# Configure project and enable tests build
+$ cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DENABLE_WSSERVER_TEST=On
+# Build project
+$ make -j4
+# Execute tests
+$ make test
+```
+
 ## Tests results
 In order to see how well wsServer performs, the library was tested with Autobahn v0.10.9
 and the results can be seen [here](https://theldus.github.io/wsServer/autobahn).
