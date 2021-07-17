@@ -25,7 +25,9 @@ add_library(ws
     src/ws.c
     src/base64/base64.c
     src/sha1/sha1.c
-    src/handshake/handshake.c)
+    src/handshake/handshake.c
+    src/utf8/utf8.c
+)
 
 if(WIN32)
 	target_link_libraries(ws pthread ws2_32 -static)
@@ -44,3 +46,8 @@ if(ENABLE_WSSERVER_TEST)
 	target_compile_definitions(send_receive PRIVATE DISABLE_VERBOSE)
 	add_subdirectory(tests)
 endif(ENABLE_WSSERVER_TEST)
+
+option(VALIDATE_UTF8 "Enable UTF-8 validation (default ON)" ON)
+if(VALIDATE_UTF8)
+	target_compile_definitions(ws PRIVATE VALIDATE_UTF8)
+endif(VALIDATE_UTF8)

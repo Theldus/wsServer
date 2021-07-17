@@ -162,6 +162,10 @@
 	 */
 	#define WS_CLSE_PROTERR 1002
 	/**@}*/
+	/**
+	 * @brief Inconsistent message (invalid utf-8)
+	 */
+	#define WS_CLSE_INVUTF8 1007
 
 	/**
 	 * @name Connection states
