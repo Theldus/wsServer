@@ -26,6 +26,7 @@
 #include <string.h>
 #include <time.h>
 
+/* clang-format off */
 #ifndef _WIN32
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -36,6 +37,7 @@
 #include <windows.h>
 typedef int socklen_t;
 #endif
+/* clang-format on */
 
 /* Windows and macOS seems to not have MSG_NOSIGNAL */
 #ifndef MSG_NOSIGNAL
@@ -45,6 +47,7 @@ typedef int socklen_t;
 #include <unistd.h>
 
 #include <ws.h>
+#include <utf8.h>
 
 /**
  * @dir src/
@@ -1024,6 +1027,7 @@ static int next_frame(struct ws_frame_data *wfd, int idx)
 	uint64_t msg_idx_ctrl;   /* Current msg index.         */
 	uint64_t frame_length;   /* Frame length.              */
 	uint64_t frame_size;     /* Current frame size.        */
+	uint32_t utf8_state;     /* Current UTF-8 state.       */
 	uint8_t opcode;          /* Frame opcode.              */
 	uint8_t is_fin;          /* Is FIN frame flag.         */
 	uint8_t mask;            /* Mask.                      */
@@ -1039,6 +1043,7 @@ static int next_frame(struct ws_frame_data *wfd, int idx)
 	wfd->frame_size = 0;
 	wfd->frame_type = -1;
 	wfd->msg        = NULL;
+	utf8_state      = UTF8_ACCEPT;
 
 	/* Read until find a FIN or a unsupported frame. */
 	do
@@ -1145,6 +1150,40 @@ static int next_frame(struct ws_frame_data *wfd, int idx)
 			{
 				read_frame(wfd, opcode, &msg_data, &frame_length, &wfd->frame_size,
 					&msg_idx_data, masks_data, is_fin);
+
+#ifdef VALIDATE_UTF8
+				/* UTF-8 Validate partial (or not) frame. */
+				if (wfd->frame_type == WS_FR_OP_TXT)
+				{
+					if (is_fin)
+					{
+						if (is_utf8_len_state(
+								msg_data + (msg_idx_data - frame_length),
+								frame_length, utf8_state) != UTF8_ACCEPT)
+						{
+							DEBUG("Dropping invalid complete message!\n");
+							wfd->error = 1;
+							do_close(wfd, WS_CLSE_INVUTF8);
+						}
+					}
+
+					/* Check current state for a CONT or initial TXT frame. */
+					else
+					{
+						utf8_state = is_utf8_len_state(
+							msg_data + (msg_idx_data - frame_length), frame_length,
+							utf8_state);
+
+						/* We can be in any state, except reject. */
+						if (utf8_state == UTF8_REJECT)
+						{
+							DEBUG("Dropping invalid cont/initial frame!\n");
+							wfd->error = 1;
+							do_close(wfd, WS_CLSE_INVUTF8);
+						}
+					}
+				}
+#endif
 			}
 
 			/*
@@ -1182,6 +1221,16 @@ static int next_frame(struct ws_frame_data *wfd, int idx)
 				if (read_frame(wfd, opcode, &msg_ctrl, &frame_length, &frame_size,
 						&msg_idx_ctrl, masks_ctrl, is_fin) < 0)
 					break;
+
+#ifdef VALIDATE_UTF8
+				/* If there is a close reason, check if it is UTF-8 valid. */
+				if (frame_size > 2 && !is_utf8_len(msg_ctrl + 2, frame_size - 2))
+				{
+					DEBUG("Invalid close frame payload reason! (not UTF-8)\n");
+					wfd->error = 1;
+					break;
+				}
+#endif
 
 				/* Since we're aborting, we can scratch the 'data'-related
 				 * vars here. */

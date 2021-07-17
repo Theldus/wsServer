@@ -25,6 +25,7 @@ MCSS_DIR ?= /usr/bin/
 MANPAGES  = $(CURDIR)/doc/man/man3
 AFL_FUZZ ?= no
 VERBOSE_EXAMPLES ?= yes
+VALIDATE_UTF8 ?= yes
 
 # Prefix
 ifeq ($(PREFIX),)
@@ -47,10 +48,16 @@ ifeq ($(AFL_FUZZ), yes)
     $(info [+] AFL Fuzzing build enabled)
 endif
 
+# Check if UTF-8 validation is enabled
+ifeq ($(VALIDATE_UTF8), yes)
+	CFLAGS += -DVALIDATE_UTF8
+endif
+
 # Source
 C_SRC = $(wildcard $(SRC)/base64/*.c)    \
 		$(wildcard $(SRC)/handshake/*.c) \
 		$(wildcard $(SRC)/sha1/*.c)      \
+		$(wildcard $(SRC)/utf8/*.c)      \
 		$(wildcard $(SRC)/*.c)
 
 OBJ = $(C_SRC:.c=.o)
