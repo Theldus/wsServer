@@ -92,6 +92,10 @@
           <h2><a href="#func-members">Functions</a></h2>
           <dl class="m-doc">
             <dt>
+              <span class="m-doc-wrap-bumper">static void <a href="#ac5666fdda11f7e6d81137575cd464e69" class="m-doc">close_socket</a>(</span><span class="m-doc-wrap">int fd)</span>
+            </dt>
+            <dd>Shutdown and close a given socket.</dd>
+            <dt>
               <span class="m-doc-wrap-bumper">static auto <a href="#a6ed42308431aa20a520442aa164cbb43" class="m-doc">send_all</a>(</span><span class="m-doc-wrap">int sockfd,
               const void* buf,
               size_t len,
@@ -244,6 +248,24 @@
         </section>
         <section>
           <h2>Function documentation</h2>
+          <section class="m-doc-details" id="ac5666fdda11f7e6d81137575cd464e69"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">static void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#ac5666fdda11f7e6d81137575cd464e69" class="m-doc-self">close_socket</a>(</span><span class="m-doc-wrap">int fd)</span></span>
+            </h3>
+            <p>Shutdown and close a given socket.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">fd</td>
+                  <td>Socket file descriptor to be closed.</td>
+                </tr>
+              </tbody>
+            </table>
+<aside class="m-note m-warning"><h4>Attention</h4><p>This is part of the internal API and is documented just for completeness.</p></aside>
+          </div></section>
           <section class="m-doc-details" id="a6ed42308431aa20a520442aa164cbb43"><div>
             <h3>
               <span class="m-doc-wrap-bumper">static ssize_t </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a6ed42308431aa20a520442aa164cbb43" class="m-doc-self">send_all</a>(</span><span class="m-doc-wrap">int sockfd,
