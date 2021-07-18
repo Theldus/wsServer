@@ -8,7 +8,7 @@ wsServer - a very tiny WebSocket server library written in C
 ## Library
 
 wsServer is a tiny, lightweight WebSocket server library written in C that intends
-to be easy to use, fast, hackable, and [almost](doc/AUTOBAHN.md) compliant to the
+to be easy to use, fast, hackable, and compliant to the
 [RFC 6455](https://tools.ietf.org/html/rfc6455).
 
 The main features are:
@@ -23,7 +23,8 @@ See Autobahn [report](https://theldus.github.io/wsServer/autobahn) and the
 
 ## Building
 
-wsServer only requires a C99-compatible compiler, such as GCC, Clang, TCC and others.
+wsServer only requires a C99-compatible compiler (such as GCC, Clang, TCC and others) and
+not external libraries.
 
 ### Make
 The preferred way to build wsServer on Linux environments:
