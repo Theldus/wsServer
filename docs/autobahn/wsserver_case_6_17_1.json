@@ -1,13 +1,13 @@
 {
    "agent": "wsServer",
-   "behavior": "FAILED",
-   "behaviorClose": "FAILED",
+   "behavior": "OK",
+   "behaviorClose": "OK",
    "case": 139,
-   "closedByMe": true,
+   "closedByMe": false,
    "createStats": true,
    "createWirelog": true,
    "description": "Send a text message with payload which is not valid UTF-8 in one fragment.<br><br>Payload: 0xc0af",
-   "droppedByMe": true,
+   "droppedByMe": false,
    "duration": 0,
    "expectation": "The connection is failed immediately, since the payload is not valid UTF-8.",
    "expected": {
@@ -21,39 +21,38 @@
       "closedByWrongEndpointIsFatal": true,
       "requireClean": false
    },
-   "failedByMe": true,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: xAPA2BzbdagIgvhyzAPgxQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: JzMG4axfxe4+PjMl1xIpOsTJYaE=\r\n\r\n",
+   "failedByMe": false,
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: huDi3U4dlNVHRaWIo2vT5Q==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: Wn6iBn+2n0WMPs4V7pfic16gJ5A=\r\n\r\n",
    "id": "6.17.1",
    "isServer": false,
-   "localCloseCode": 1007,
-   "localCloseReason": "encountered invalid UTF-8 while processing text message at payload octet index 0",
+   "localCloseCode": 1000,
+   "localCloseReason": null,
    "received": [],
-   "remoteCloseCode": null,
+   "remoteCloseCode": 1007,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
-   "resultClose": "The connection was failed by the wrong endpoint",
+   "resultClose": "Connection was properly closed",
    "rxFrameStats": {
-      "1": 1
+      "8": 1
    },
    "rxOctetStats": {
       "4": 1,
       "129": 1
    },
-   "started": "2020-11-19T20:36:14.895Z",
+   "started": "2021-07-17T23:53:07.701Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
       "8": 1
    },
    "txOctetStats": {
-      "8": 1,
-      "88": 1,
+      "8": 2,
       "240": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
    "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
@@ -83,7 +82,7 @@
          1,
          true,
          0,
-         "b7adfaa3",
+         "a9d9b311",
          null,
          null,
          false
@@ -92,7 +91,7 @@
          "TO",
          [
             8,
-            "8182b7adfaa37702"
+            "8182a9d9b3116976"
          ],
          false
       ],
@@ -104,19 +103,31 @@
          "RO",
          [
             4,
-            "8102c0af"
+            "880203ef"
          ]
       ],
       [
-         "TF",
+         "RF",
          [
-            82,
-            "0x03ef656e636f756e746572656420696e76616c6964205554462d38207768696c652070726f63657373696e672074657874206d65737361676520617420706179 ..."
+            2,
+            "0x03ef"
          ],
          8,
          true,
          0,
-         "7986c3b9",
+         false,
+         null
+      ],
+      [
+         "TF",
+         [
+            2,
+            "0x03e8"
+         ],
+         8,
+         true,
+         0,
+         "7bcd9507",
          null,
          null,
          false
@@ -124,22 +135,10 @@
       [
          "TO",
          [
-            88,
-            "88d27986c3b97a69a6d71ae9b6d70de3b1dc1da6aad70fe7afd01da696ed3fabfb990eeeaad51ca6b3cb16e5a6ca0aefadde59f2a6c10da6aedc0af5a2de1ca6 ..."
+            8,
+            "88827bcd95077825"
          ],
          false
-      ],
-      [
-         "RF",
-         [
-            0,
-            ""
-         ],
-         1,
-         true,
-         0,
-         false,
-         null
       ]
    ]
 }

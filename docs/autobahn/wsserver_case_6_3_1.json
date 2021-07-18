@@ -1,13 +1,13 @@
 {
    "agent": "wsServer",
-   "behavior": "FAILED",
-   "behaviorClose": "FAILED",
+   "behavior": "OK",
+   "behaviorClose": "OK",
    "case": 72,
-   "closedByMe": true,
+   "closedByMe": false,
    "createStats": true,
    "createWirelog": true,
    "description": "Send invalid UTF-8 text message unfragmented.<br><br>MESSAGE:<br>cebae1bdb9cf83cebcceb5eda080656469746564",
-   "droppedByMe": true,
+   "droppedByMe": false,
    "duration": 0,
    "expectation": "The connection is failed immediately, since the payload is not valid UTF-8.",
    "expected": {
@@ -21,39 +21,39 @@
       "closedByWrongEndpointIsFatal": true,
       "requireClean": false
    },
-   "failedByMe": true,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: 2z5QK8f2NhXe48gfACed/g==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: goNRnADxvIZ4FPumihPEzkDpfx0=\r\n\r\n",
+   "failedByMe": false,
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: lwq+FEpn4gTSP2ludoD72A==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: rkcZ29LBA0dvaLnTBqUOA/5tFdo=\r\n\r\n",
    "id": "6.3.1",
    "isServer": false,
-   "localCloseCode": 1007,
-   "localCloseReason": "encountered invalid UTF-8 while processing text message at payload octet index 12",
+   "localCloseCode": 1000,
+   "localCloseReason": null,
    "received": [],
-   "remoteCloseCode": null,
+   "remoteCloseCode": 1007,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
-   "resultClose": "The connection was failed by the wrong endpoint",
+   "resultClose": "Connection was properly closed",
    "rxFrameStats": {
-      "1": 1
+      "8": 1
    },
    "rxOctetStats": {
-      "22": 1,
+      "4": 1,
       "129": 1
    },
-   "started": "2020-11-19T20:36:06.788Z",
+   "started": "2021-07-17T23:53:01.626Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
       "8": 1
    },
    "txOctetStats": {
+      "8": 1,
       "26": 1,
-      "89": 1,
       "240": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
    "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
@@ -83,7 +83,7 @@
          1,
          true,
          0,
-         "bfdf0dcb",
+         "8e867d53",
          null,
          null,
          false
@@ -92,7 +92,7 @@
          "TO",
          [
             26,
-            "8194bfdf0dcb7165ec7606108e050311b8261f5f68afd6ab68af"
+            "81948e867d53403c9cee3749fe9d3248c8be2e061837e7f21837"
          ],
          false
       ],
@@ -103,20 +103,32 @@
       [
          "RO",
          [
-            22,
-            "8114cebae1bdb9cf83cebcceb5eda080656469746564"
+            4,
+            "880203ef"
          ]
       ],
       [
-         "TF",
+         "RF",
          [
-            83,
-            "0x03ef656e636f756e746572656420696e76616c6964205554462d38207768696c652070726f63657373696e672074657874206d65737361676520617420706179 ..."
+            2,
+            "0x03ef"
          ],
          8,
          true,
          0,
-         "800ba806",
+         false,
+         null
+      ],
+      [
+         "TF",
+         [
+            2,
+            "0x03e8"
+         ],
+         8,
+         true,
+         0,
+         "0541be6c",
          null,
          null,
          false
@@ -124,22 +136,10 @@
       [
          "TO",
          [
-            89,
-            "88d3800ba80683e4cd68e364dd68f46eda63e42bc168f66ac46fe42bfd52c6269026f763c16ae52bd874ef68cd75f362c661a07fcd7ef42bc563f378c961e52b ..."
+            8,
+            "88820541be6c06a9"
          ],
          false
-      ],
-      [
-         "RF",
-         [
-            0,
-            ""
-         ],
-         1,
-         true,
-         0,
-         false,
-         null
       ]
    ]
 }

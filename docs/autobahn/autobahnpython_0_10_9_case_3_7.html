@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="https://github.com/crossbario/autobahn-testsuite" title="Autobahn WebSocket Testsuite"><img src="ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSocket Testsuite Report"></img></a></center>
       <center><a href="https://crossbar.io/autobahn/"           title="Autobahn WebSocket">          <img src="ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSocket">                 </img></a></center>
       <br/>
-      <p class="case case_ok">AutobahnPython/0.10.9 - <span style="font-size: 1.3em;"><b>Case 3.7</b></span> : Pass - <span style="font-size: 0.9em;"><b>0</b> ms @ 2020-11-19T20:36:23.831Z</a></p>
+      <p class="case case_ok">AutobahnPython/0.10.9 - <span style="font-size: 1.3em;"><b>Case 3.7</b></span> : Pass - <span style="font-size: 0.9em;"><b>0</b> ms @ 2021-07-17T23:53:16.329Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send Close with <b>RSV = 7</b>.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>The connection is failed immediately, since RSV must be 0.</p>
 
@@ -221,14 +221,14 @@ Upgrade: WebSocket
 Connection: Upgrade
 Pragma: no-cache
 Cache-Control: no-cache
-Sec-WebSocket-Key: BFJC8izc1IQG4O3VzHC8zw==
+Sec-WebSocket-Key: sEGsGuu9v4vbXm1id3Feog==
 Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Server: AutobahnPython/0.10.9
 X-Powered-By: AutobahnPython/0.10.9
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: 97SCSgjcLEuxTdN4IKShvWi7uzs=</pre>
+Sec-WebSocket-Accept: nzJYej6Pa3m2pcWco+3Pib2EAKY=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -279,8 +279,8 @@ Sec-WebSocket-Accept: 97SCSgjcLEuxTdN4IKShvWi7uzs=</pre>
          <pre class="wirelog_tx_octets">               312d302e31302e390d0a486f7374 ...</pre>
          <pre class="wirelog_rx_octets">001 RX OCTETS: 485454502f312e312031303120537769746368696e672050726f746f636f6c730d0a5365727665723a204175746f6261686e</pre>
          <pre class="wirelog_rx_octets">               507974686f6e2f302e31302e390d ...</pre>
-         <pre class="wirelog_tx_frame">002 TX FRAME : OPCODE=8, FIN=True, RSV=7, PAYLOAD-LEN=0, MASK=46f0b24e, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
-         <pre class="wirelog_tx_octets">003 TX OCTETS: f88046f0b24e</pre>
+         <pre class="wirelog_tx_frame">002 TX FRAME : OPCODE=8, FIN=True, RSV=7, PAYLOAD-LEN=0, MASK=b033d019, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
+         <pre class="wirelog_tx_octets">003 TX OCTETS: f880b033d019</pre>
          <pre class="wirelog_kill_after">004 FAIL CONNECTION AFTER 1.000000 sec</pre>
          <pre class="wirelog_tcp_closed_by_peer">005 TCP DROPPED BY PEER</pre>
       </div>

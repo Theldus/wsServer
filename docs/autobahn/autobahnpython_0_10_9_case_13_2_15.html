@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="https://github.com/crossbario/autobahn-testsuite" title="Autobahn WebSocket Testsuite"><img src="ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSocket Testsuite Report"></img></a></center>
       <center><a href="https://crossbar.io/autobahn/"           title="Autobahn WebSocket">          <img src="ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSocket">                 </img></a></center>
       <br/>
-      <p class="case case_failed">AutobahnPython/0.10.9 - <span style="font-size: 1.3em;"><b>Case 13.2.15</b></span> : Fail - <span style="font-size: 0.9em;"><b>1</b> ms @ 2020-11-19T20:36:43.061Z</a></p>
+      <p class="case case_failed">AutobahnPython/0.10.9 - <span style="font-size: 1.3em;"><b>Case 13.2.15</b></span> : Fail - <span style="font-size: 0.9em;"><b>1</b> ms @ 2021-07-17T23:53:34.813Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send 1000 compressed messages each of payload size 131072, auto-fragment to 256 octets. Use permessage-deflate client offers (requestNoContextTakeover, requestMaxWindowBits): [(True, 0)]</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>Receive echo'ed messages (with payload as sent). Timeout case after 480 secs.</p>
 
@@ -221,7 +221,7 @@ Upgrade: WebSocket
 Connection: Upgrade
 Pragma: no-cache
 Cache-Control: no-cache
-Sec-WebSocket-Key: wSQVJegMArQA7DLwg//qmw==
+Sec-WebSocket-Key: BwdlQpqhZYVLoeDbHlcyRQ==
 Sec-WebSocket-Extensions: permessage-deflate; client_no_context_takeover; client_max_window_bits; server_no_context_takeover
 Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
@@ -229,7 +229,7 @@ Server: AutobahnPython/0.10.9
 X-Powered-By: AutobahnPython/0.10.9
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: edir786HjIp+gfrJBkA1aBsameM=</pre>
+Sec-WebSocket-Accept: azXT9rZMJnxHtJQjTe6SfGVasJM=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>

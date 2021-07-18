@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="https://github.com/crossbario/autobahn-testsuite" title="Autobahn WebSocket Testsuite"><img src="ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSocket Testsuite Report"></img></a></center>
       <center><a href="https://crossbar.io/autobahn/"           title="Autobahn WebSocket">          <img src="ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSocket">                 </img></a></center>
       <br/>
-      <p class="case case_failed">wsServer - <span style="font-size: 1.3em;"><b>Case 13.1.11</b></span> : Fail - <span style="font-size: 0.9em;"><b>0</b> ms @ 2020-11-19T20:36:23.510Z</a></p>
+      <p class="case case_failed">wsServer - <span style="font-size: 1.3em;"><b>Case 13.1.11</b></span> : Fail - <span style="font-size: 0.9em;"><b>0</b> ms @ 2021-07-17T23:53:16.064Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send 1000 compressed messages each of payload size 8192, auto-fragment to 256 octets. Use permessage-deflate client offers (requestNoContextTakeover, requestMaxWindowBits): [(False, 0)]</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>Receive echo'ed messages (with payload as sent). Timeout case after 480 secs.</p>
 
@@ -221,13 +221,13 @@ Upgrade: WebSocket
 Connection: Upgrade
 Pragma: no-cache
 Cache-Control: no-cache
-Sec-WebSocket-Key: r86GYAwEjmE4rpmKX8DPTA==
+Sec-WebSocket-Key: 05ilbu/zNbf9uUZO8GjuzA==
 Sec-WebSocket-Extensions: permessage-deflate; client_no_context_takeover; client_max_window_bits
 Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Accept: WXWRcpwgugnr4y12vkY5raki75s=</pre>
+Sec-WebSocket-Accept: avjWPm75jkTPMSukC4ZojyMPqog=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>

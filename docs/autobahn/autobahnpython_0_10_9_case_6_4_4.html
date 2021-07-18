@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="https://github.com/crossbario/autobahn-testsuite" title="Autobahn WebSocket Testsuite"><img src="ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSocket Testsuite Report"></img></a></center>
       <center><a href="https://crossbar.io/autobahn/"           title="Autobahn WebSocket">          <img src="ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSocket">                 </img></a></center>
       <br/>
-      <p class="case case_ok">AutobahnPython/0.10.9 - <span style="font-size: 1.3em;"><b>Case 6.4.4</b></span> : Pass - <span style="font-size: 0.9em;"><b>1001</b> ms @ 2020-11-19T20:36:28.927Z</a></p>
+      <p class="case case_ok">AutobahnPython/0.10.9 - <span style="font-size: 1.3em;"><b>Case 6.4.4</b></span> : Pass - <span style="font-size: 0.9em;"><b>1001</b> ms @ 2021-07-17T23:53:21.410Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Same as Case 6.4.2, but we send message not in 3 frames, but in 3 chops of the same message frame.
 <br><br>MESSAGE PARTS:<br>
 PART1 = cebae1bdb9cf83cebcceb5f4<br>
@@ -226,14 +226,14 @@ Upgrade: WebSocket
 Connection: Upgrade
 Pragma: no-cache
 Cache-Control: no-cache
-Sec-WebSocket-Key: PkvsDbvdfuxfi+R2AkVt0g==
+Sec-WebSocket-Key: sAM/McD5jqEFz+o6g2i78g==
 Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Server: AutobahnPython/0.10.9
 X-Powered-By: AutobahnPython/0.10.9
 Upgrade: WebSocket
 Connection: Upgrade
-Sec-WebSocket-Accept: pVX+2nV7PT0FYeNVctpK1IMOnKc=</pre>
+Sec-WebSocket-Accept: jzQK65mZZ30SB5HzvvaJ3eSwKWk=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -285,11 +285,11 @@ Sec-WebSocket-Accept: pVX+2nV7PT0FYeNVctpK1IMOnKc=</pre>
          <pre class="wirelog_tx_octets">               312d302e31302e390d0a486f7374 ...</pre>
          <pre class="wirelog_rx_octets">001 RX OCTETS: 485454502f312e312031303120537769746368696e672050726f746f636f6c730d0a5365727665723a204175746f6261686e</pre>
          <pre class="wirelog_rx_octets">               507974686f6e2f302e31302e390d ...</pre>
-         <pre class="wirelog_tx_octets">002 TX OCTETS: 0195b6a4938f</pre>
-         <pre class="wirelog_tx_octets">003 TX OCTETS: 781e72320f6b10410a6a267b</pre>
+         <pre class="wirelog_tx_octets">002 TX OCTETS: 0195283641d2</pre>
+         <pre class="wirelog_tx_octets">003 TX OCTETS: e68ca06f91f9c21c94f8f426</pre>
          <pre class="wirelog_delay">004 DELAY 1.000000 sec for TAG A</pre>
          <pre class="wirelog_delay">005 DELAY TIMEOUT on TAG A</pre>
-         <pre class="wirelog_tx_octets">006 TX OCTETS: 26</pre>
+         <pre class="wirelog_tx_octets">006 TX OCTETS: b8</pre>
          <pre class="wirelog_delay">007 DELAY 1.000000 sec for TAG B</pre>
          <pre class="wirelog_tcp_closed_by_peer">008 TCP DROPPED BY PEER</pre>
       </div>

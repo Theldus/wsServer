@@ -35,8 +35,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: 1YER5GD9o1CF/XGmDYqjnQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnPython/0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: gUCiMeK1KRKpLgLxty82bF63CTw=\r\n\r\n",
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: DBrnOS3bdZ1mnq95qvY5QQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnPython/0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 1QO4rMJo3IOb/7kCu01kTxlgYZY=\r\n\r\n",
    "id": "5.20",
    "isServer": false,
    "localCloseCode": 1000,
@@ -73,7 +73,7 @@
       "58": 1,
       "197": 1
    },
-   "started": "2020-11-19T20:36:24.899Z",
+   "started": "2021-07-17T23:53:17.382Z",
    "trafficStats": null,
    "txFrameStats": {
       "0": 4,
@@ -116,7 +116,7 @@
          1,
          false,
          0,
-         "e1b9fc7d",
+         "61771fe8",
          null,
          null,
          true
@@ -125,7 +125,7 @@
          "TO",
          [
             15,
-            "0189e1b9fc7d87cb9d1a8cdc9209d0"
+            "018961771fe807057e8f0c12719c50"
          ],
          true
       ],
@@ -138,7 +138,7 @@
          0,
          false,
          0,
-         "cfdddbb9",
+         "930a5d86",
          null,
          null,
          true
@@ -152,7 +152,7 @@
          9,
          true,
          0,
-         "dfe080d9",
+         "c8857039",
          null,
          null,
          true
@@ -166,7 +166,7 @@
          "TO",
          [
             15,
-            "0089cfdddbb9a9afbadea2b8b5cdfd"
+            "0089930a5d86f5783ce1fe6f33f2a1"
          ],
          true
       ],
@@ -174,7 +174,7 @@
          "TO",
          [
             15,
-            "8989dfe080d9af8feebeb285a0e8fe"
+            "8989c8857039b8ea1e5ea5e05008e9"
          ],
          true
       ],
@@ -210,7 +210,7 @@
          0,
          false,
          0,
-         "892683be",
+         "6481a97a",
          null,
          null,
          true
@@ -219,7 +219,7 @@
          "TO",
          [
             15,
-            "0089892683beef54e2d9e443edcaba"
+            "00896481a97a02f3c81d09e4c70e57"
          ],
          true
       ],
@@ -232,7 +232,7 @@
          0,
          false,
          0,
-         "2dc8e5e3",
+         "1d805e72",
          null,
          null,
          true
@@ -246,7 +246,7 @@
          9,
          true,
          0,
-         "1885035e",
+         "debda70a",
          null,
          null,
          true
@@ -260,7 +260,7 @@
          0,
          true,
          0,
-         "0cc5facf",
+         "6ce0ef4e",
          null,
          null,
          true
@@ -273,7 +273,7 @@
          "TO",
          [
             15,
-            "00892dc8e5e34bba848440ad8b9719"
+            "00891d805e727bf23f1570e5300629"
          ],
          true
       ],
@@ -281,7 +281,7 @@
          "TO",
          [
             15,
-            "89891885035e68ea6d3975e0236c39"
+            "8989debda70aaed2c96db3d88738ff"
          ],
          true
       ],
@@ -289,7 +289,7 @@
          "TO",
          [
             15,
-            "80890cc5facf6ab79ba861a094bb39"
+            "80896ce0ef4e0a928e290185813a59"
          ],
          true
       ],
@@ -333,7 +333,7 @@
          8,
          true,
          0,
-         "f8a5e9ca",
+         "f662906a",
          null,
          null,
          false
@@ -342,7 +342,7 @@
          "TO",
          [
             8,
-            "8882f8a5e9cafb4d"
+            "8882f662906af58a"
          ],
          false
       ],

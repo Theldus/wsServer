@@ -1,13 +1,13 @@
 {
    "agent": "wsServer",
-   "behavior": "FAILED",
-   "behaviorClose": "WRONG CODE",
+   "behavior": "OK",
+   "behaviorClose": "OK",
    "case": 222,
    "closedByMe": true,
    "createStats": true,
    "createWirelog": true,
    "description": "Send a close frame with invalid UTF8 payload",
-   "droppedByMe": true,
+   "droppedByMe": false,
    "duration": 0,
    "expectation": "Clean close with protocol error or invalid utf8 code or dropped TCP.",
    "expected": {
@@ -21,28 +21,25 @@
       "closedByMe": true,
       "requireClean": false
    },
-   "failedByMe": true,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: pJK0LTbPpz4ZYD/0uBF+DQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: xtb1Df6VOzH5jINYmKnRbxaQC9U=\r\n\r\n",
+   "failedByMe": false,
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: 070EP831V51OiSTrKb7psw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 48gtcketYL3D58aW2twjGCn+FmQ=\r\n\r\n",
    "id": "7.5.1",
    "isServer": false,
    "localCloseCode": 1000,
    "localCloseReason": "cebae1bdb9cf83cebcceb5eda080656469746564",
    "received": [],
-   "remoteCloseCode": 1000,
-   "remoteCloseReason": "\u03ba\u1f79\u03c3\u03bc\u03b5\ud800edited",
+   "remoteCloseCode": null,
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
-   "result": "The close code should have been 1002,1007 or empty",
-   "resultClose": "The close code should have been 1002,1007 or empty",
-   "rxFrameStats": {
-      "8": 1
-   },
+   "result": "Actual events match at least one expected.",
+   "resultClose": "Connection was properly closed",
+   "rxFrameStats": {},
    "rxOctetStats": {
-      "24": 1,
       "129": 1
    },
-   "started": "2020-11-19T20:36:15.038Z",
+   "started": "2021-07-17T23:53:07.803Z",
    "trafficStats": null,
    "txFrameStats": {
       "8": 1
@@ -53,7 +50,7 @@
    },
    "wasClean": false,
    "wasCloseHandshakeTimeout": false,
-   "wasNotCleanReason": null,
+   "wasNotCleanReason": "peer dropped the TCP connection without previous WebSocket closing handshake",
    "wasOpenHandshakeTimeout": false,
    "wasServerConnectionDropTimeout": false,
    "wirelog": [
@@ -81,7 +78,7 @@
          8,
          true,
          0,
-         "3c4695e0",
+         "60147b8d",
          null,
          null,
          false
@@ -90,32 +87,13 @@
          "TO",
          [
             28,
-            "88963c4695e03fae5b5addfb2c2fbf88292e89ab35605922fc945922"
+            "889660147b8d63fcb53781a9c242e3dac743d5f9db0d057012f90570"
          ],
          false
       ],
       [
          "KL",
          1
-      ],
-      [
-         "RO",
-         [
-            24,
-            "881603e8cebae1bdb9cf83cebcceb5eda080656469746564"
-         ]
-      ],
-      [
-         "RF",
-         [
-            22,
-            "0x03e8cebae1bdb9cf83cebcceb5eda080656469746564"
-         ],
-         8,
-         true,
-         0,
-         false,
-         null
       ]
    ]
 }

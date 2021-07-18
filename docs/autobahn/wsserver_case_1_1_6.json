@@ -27,8 +27,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: LBMGV2cwBXqNNU+Hu+Y/Yg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: HD/cSBkqCWR3nw/0Cj2GR3tgNYA=\r\n\r\n",
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: SkHk3GUsIqxPrtFHTYw5wQ==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: fWNCU4dsUZ6kJcrPGs84J1xgdhc=\r\n\r\n",
    "id": "1.1.6",
    "isServer": false,
    "localCloseCode": 1000,
@@ -56,7 +56,7 @@
       "129": 1,
       "65536": 1
    },
-   "started": "2020-11-19T20:36:04.585Z",
+   "started": "2021-07-17T23:52:59.453Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -97,7 +97,7 @@
          1,
          true,
          0,
-         "6b6707ea",
+         "90886eed",
          null,
          null,
          false
@@ -106,7 +106,7 @@
          "TO",
          [
             65543,
-            "81feffff6b6707ea414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0414d2dc0 ..."
+            "81feffff90886eedbaa244c7baa244c7baa244c7baa244c7baa244c7baa244c7baa244c7baa244c7baa244c7baa244c7baa244c7baa244c7baa244c7baa244c7 ..."
          ],
          false
       ],
@@ -149,7 +149,7 @@
          8,
          true,
          0,
-         "057ebfc3",
+         "29a61d98",
          null,
          null,
          false
@@ -158,7 +158,7 @@
          "TO",
          [
             8,
-            "8882057ebfc30696"
+            "888229a61d982a4e"
          ],
          false
       ],

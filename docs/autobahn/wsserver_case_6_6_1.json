@@ -1,14 +1,14 @@
 {
    "agent": "wsServer",
-   "behavior": "FAILED",
-   "behaviorClose": "FAILED",
+   "behavior": "OK",
+   "behaviorClose": "OK",
    "case": 83,
-   "closedByMe": true,
+   "closedByMe": false,
    "createStats": true,
    "createWirelog": true,
    "description": "Send a text message with payload which is not valid UTF-8 in one fragment.<br><br>Payload: 0xce",
    "droppedByMe": false,
-   "duration": 1,
+   "duration": 0,
    "expectation": "The connection is failed immediately, since the payload is not valid UTF-8.",
    "expected": {
       "OK": []
@@ -21,30 +21,28 @@
       "closedByWrongEndpointIsFatal": true,
       "requireClean": false
    },
-   "failedByMe": true,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: NCxTu9004sFgnqSUb4/ing==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 3XNXWVlnSaupawuQb+Aqaa0WOFY=\r\n\r\n",
+   "failedByMe": false,
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: PgPQROYgmVFuFcM9HwfxVg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: STe1ewVChzudDQBsSYd1FsfNeq4=\r\n\r\n",
    "id": "6.6.1",
    "isServer": false,
-   "localCloseCode": 1007,
-   "localCloseReason": "UTF-8 text message payload ended within Unicode code point at payload octet index 1",
+   "localCloseCode": 1000,
+   "localCloseReason": null,
    "received": [],
    "remoteCloseCode": 1007,
-   "remoteCloseReason": "UTF-8 text message payload ended within Unicode code point at payload octet index 1",
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
-   "resultClose": "The connection was failed by the wrong endpoint",
+   "resultClose": "Connection was properly closed",
    "rxFrameStats": {
-      "1": 1,
       "8": 1
    },
    "rxOctetStats": {
-      "3": 1,
-      "87": 1,
+      "4": 1,
       "129": 1
    },
-   "started": "2020-11-19T20:36:14.804Z",
+   "started": "2021-07-17T23:53:07.640Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
@@ -52,7 +50,7 @@
    },
    "txOctetStats": {
       "7": 1,
-      "91": 1,
+      "8": 1,
       "240": 1
    },
    "wasClean": true,
@@ -85,7 +83,7 @@
          1,
          true,
          0,
-         "67f34ee4",
+         "b350841d",
          null,
          null,
          false
@@ -94,7 +92,7 @@
          "TO",
          [
             7,
-            "818167f34ee4a9"
+            "8181b350841d7d"
          ],
          false
       ],
@@ -105,17 +103,17 @@
       [
          "RO",
          [
-            3,
-            "8101ce"
+            4,
+            "880203ef"
          ]
       ],
       [
          "RF",
          [
-            1,
-            "0xce"
+            2,
+            "0x03ef"
          ],
-         1,
+         8,
          true,
          0,
          false,
@@ -124,13 +122,13 @@
       [
          "TF",
          [
-            85,
-            "0x03ef5554462d382074657874206d657373616765207061796c6f616420656e6465642077697468696e20556e69636f646520636f646520706f696e7420617420 ..."
+            2,
+            "0x03e8"
          ],
          8,
          true,
          0,
-         "c70ccb21",
+         "116607f3",
          null,
          null,
          false
@@ -138,29 +136,10 @@
       [
          "TO",
          [
-            91,
-            "88d5c70ccb21c4e39e758121f301b369b355e761ae52b46dac44e77caa58ab63aa45e769a545a268eb56ae78a348a92c9e4fae6fa445a22ca84ea369eb51a865 ..."
+            8,
+            "8882116607f3128e"
          ],
          false
-      ],
-      [
-         "RO",
-         [
-            87,
-            "885503ef5554462d382074657874206d657373616765207061796c6f616420656e6465642077697468696e20556e69636f646520636f646520706f696e742061 ..."
-         ]
-      ],
-      [
-         "RF",
-         [
-            85,
-            "0x03ef5554462d382074657874206d657373616765207061796c6f616420656e6465642077697468696e20556e69636f646520636f646520706f696e7420617420 ..."
-         ],
-         8,
-         true,
-         0,
-         false,
-         null
       ]
    ]
 }

@@ -1,14 +1,14 @@
 {
    "agent": "wsServer",
-   "behavior": "FAILED",
-   "behaviorClose": "FAILED",
+   "behavior": "OK",
+   "behaviorClose": "OK",
    "case": 74,
-   "closedByMe": true,
+   "closedByMe": false,
    "createStats": true,
    "createWirelog": true,
    "description": "Send invalid UTF-8 text message in 3 fragments (frames).\nFirst frame payload is valid, then wait, then 2nd frame which contains the payload making the sequence invalid, then wait, then 3rd frame with rest.\nNote that PART1 and PART3 are valid UTF-8 in themselves, PART2 is a 0x110000 encoded as in the UTF-8 integer encoding scheme, but the codepoint is invalid (out of range).\n<br><br>MESSAGE PARTS:<br>\nPART1 = cebae1bdb9cf83cebcceb5<br>\nPART2 = f4908080<br>\nPART3 = 656469746564<br>\n",
-   "droppedByMe": true,
-   "duration": 2001,
+   "droppedByMe": false,
+   "duration": 1001,
    "expectation": "The first frame is accepted, we expect to timeout on the first wait. The 2nd frame should be rejected immediately (fail fast on UTF-8). If we timeout, we expect the connection is failed at least then, since the complete message payload is not valid UTF-8.",
    "expected": {
       "NON-STRICT": [
@@ -36,51 +36,46 @@
       "closedByWrongEndpointIsFatal": true,
       "requireClean": false
    },
-   "failedByMe": true,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: FjCzps1bNrPDHPWEVnON2g==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: imKDGw1DrpzeZB9BdJPJ4mYXlYA=\r\n\r\n",
+   "failedByMe": false,
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: mKEyTDe/SKD5xarHE3rmXA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 1kTGqn2GrU4zZPA8kVzqjmCSHNI=\r\n\r\n",
    "id": "6.4.1",
    "isServer": false,
-   "localCloseCode": 1007,
-   "localCloseReason": "encountered invalid UTF-8 while processing text message at payload octet index 12",
+   "localCloseCode": 1000,
+   "localCloseReason": null,
    "received": [
       [
          "timeout",
          "A"
-      ],
-      [
-         "timeout",
-         "B"
       ]
    ],
-   "remoteCloseCode": null,
+   "remoteCloseCode": 1007,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
-   "resultClose": "The connection was failed by the wrong endpoint",
+   "resultClose": "Connection was properly closed",
    "rxFrameStats": {
-      "1": 1
+      "8": 1
    },
    "rxOctetStats": {
-      "23": 1,
+      "4": 1,
       "129": 1
    },
-   "started": "2020-11-19T20:36:06.790Z",
+   "started": "2021-07-17T23:53:01.628Z",
    "trafficStats": null,
    "txFrameStats": {
-      "0": 2,
+      "0": 1,
       "1": 1,
       "8": 1
    },
    "txOctetStats": {
+      "8": 1,
       "10": 1,
-      "12": 1,
       "17": 1,
-      "89": 1,
       "240": 1
    },
-   "wasClean": false,
+   "wasClean": true,
    "wasCloseHandshakeTimeout": false,
    "wasNotCleanReason": null,
    "wasOpenHandshakeTimeout": false,
@@ -110,7 +105,7 @@
          1,
          false,
          0,
-         "81c69675",
+         "06c16426",
          null,
          null,
          false
@@ -119,7 +114,7 @@
          "TO",
          [
             17,
-            "018b81c696754f7c77c8380915bb3d0823"
+            "018b06c16426c87b859bbf0ee7e8ba0fd1"
          ],
          false
       ],
@@ -141,7 +136,7 @@
          0,
          false,
          0,
-         "eb612b9f",
+         "a5153cdb",
          null,
          null,
          false
@@ -150,7 +145,7 @@
          "TO",
          [
             10,
-            "0084eb612b9f1ff1ab1f"
+            "0084a5153cdb5185bc5b"
          ],
          false
       ],
@@ -160,75 +155,45 @@
          "B"
       ],
       [
-         "CTE",
-         "B"
-      ],
-      [
-         "TF",
-         [
-            6,
-            "edited"
-         ],
-         0,
-         true,
-         0,
-         "666e18be",
-         null,
-         null,
-         false
-      ],
-      [
-         "TO",
-         [
-            12,
-            "8086666e18be030a71ca030a"
-         ],
-         false
-      ],
-      [
-         "KL",
-         1
-      ],
-      [
          "RO",
          [
-            23,
-            "8115cebae1bdb9cf83cebcceb5f4908080656469746564"
+            4,
+            "880203ef"
          ]
-      ],
-      [
-         "TF",
-         [
-            83,
-            "0x03ef656e636f756e746572656420696e76616c6964205554462d38207768696c652070726f63657373696e672074657874206d65737361676520617420706179 ..."
-         ],
-         8,
-         true,
-         0,
-         "93c7ca31",
-         null,
-         null,
-         false
-      ],
-      [
-         "TO",
-         [
-            89,
-            "88d393c7ca319028af5ff0a8bf5fe7a2b854f7e7a35fe5a6a658f7e79f65d5eaf211e4afa35df6e7ba43fca4af42e0aea456b3b3af49e7e7a754e0b4ab56f6e7 ..."
-         ],
-         false
       ],
       [
          "RF",
          [
-            0,
-            ""
+            2,
+            "0x03ef"
          ],
-         1,
+         8,
          true,
          0,
          false,
          null
+      ],
+      [
+         "TF",
+         [
+            2,
+            "0x03e8"
+         ],
+         8,
+         true,
+         0,
+         "842f78f1",
+         null,
+         null,
+         false
+      ],
+      [
+         "TO",
+         [
+            8,
+            "8882842f78f187c7"
+         ],
+         false
       ]
    ]
 }

@@ -26,8 +26,8 @@
       "requireClean": true
    },
    "failedByMe": false,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: ybSJNkNHpdm/DVz94n6nhA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: CMPa6Q58N/meW7vNODOkKHfSsBc=\r\n\r\n",
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: nZ6PhgBE5ZMzB38fuQTqUg==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 8hCs0COqBP/7dPaK+KgFQARfGrI=\r\n\r\n",
    "id": "2.4",
    "isServer": false,
    "localCloseCode": 1000,
@@ -53,7 +53,7 @@
       "127": 1,
       "129": 1
    },
-   "started": "2020-11-19T20:36:04.686Z",
+   "started": "2021-07-17T23:52:59.540Z",
    "trafficStats": null,
    "txFrameStats": {
       "8": 1,
@@ -94,7 +94,7 @@
          9,
          true,
          0,
-         "4906e23a",
+         "163c7d7e",
          null,
          null,
          false
@@ -103,7 +103,7 @@
          "TO",
          [
             131,
-            "89fd4906e23ab7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f81cc4b7f8 ..."
+            "89fd163c7d7ee8c28380e8c28380e8c28380e8c28380e8c28380e8c28380e8c28380e8c28380e8c28380e8c28380e8c28380e8c28380e8c28380e8c28380e8c2 ..."
          ],
          false
       ],
@@ -139,7 +139,7 @@
          8,
          true,
          0,
-         "ec6dedca",
+         "0a48d17d",
          null,
          null,
          false
@@ -148,7 +148,7 @@
          "TO",
          [
             8,
-            "8882ec6dedcaef85"
+            "88820a48d17d09a0"
          ],
          false
       ],

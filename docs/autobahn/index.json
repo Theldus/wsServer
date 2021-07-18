@@ -45,7 +45,7 @@
       "1.1.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 2,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_1_1_7.json"
       },
@@ -59,7 +59,7 @@
       "1.2.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 2,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_1_2_1.json"
       },
@@ -94,7 +94,7 @@
       "1.2.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 21,
+         "duration": 19,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_1_2_6.json"
       },
@@ -108,7 +108,7 @@
       "1.2.8": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 24,
+         "duration": 22,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_1_2_8.json"
       },
@@ -150,14 +150,14 @@
       "12.1.13": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 4,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_1_13.json"
       },
       "12.1.14": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_1_14.json"
       },
@@ -171,7 +171,7 @@
       "12.1.16": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 2,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_1_16.json"
       },
@@ -185,7 +185,7 @@
       "12.1.18": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_1_18.json"
       },
@@ -213,7 +213,7 @@
       "12.1.5": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_1_5.json"
       },
@@ -269,7 +269,7 @@
       "12.2.12": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_2_12.json"
       },
@@ -430,7 +430,7 @@
       "12.3.17": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_3_17.json"
       },
@@ -472,7 +472,7 @@
       "12.3.6": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_3_6.json"
       },
@@ -563,7 +563,7 @@
       "12.4.18": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_4_18.json"
       },
@@ -577,7 +577,7 @@
       "12.4.3": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_4_3.json"
       },
@@ -598,7 +598,7 @@
       "12.4.6": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_4_6.json"
       },
@@ -661,7 +661,7 @@
       "12.5.14": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_5_14.json"
       },
@@ -689,7 +689,7 @@
       "12.5.18": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_5_18.json"
       },
@@ -717,7 +717,7 @@
       "12.5.5": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_12_5_5.json"
       },
@@ -794,7 +794,7 @@
       "13.1.15": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_1_15.json"
       },
@@ -850,7 +850,7 @@
       "13.1.6": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_1_6.json"
       },
@@ -913,7 +913,7 @@
       "13.2.14": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_2_14.json"
       },
@@ -934,7 +934,7 @@
       "13.2.17": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_2_17.json"
       },
@@ -983,7 +983,7 @@
       "13.2.7": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_2_7.json"
       },
@@ -1018,7 +1018,7 @@
       "13.3.11": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_3_11.json"
       },
@@ -1088,7 +1088,7 @@
       "13.3.4": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_3_4.json"
       },
@@ -1165,7 +1165,7 @@
       "13.4.14": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_4_14.json"
       },
@@ -1214,7 +1214,7 @@
       "13.4.4": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_4_4.json"
       },
@@ -1228,7 +1228,7 @@
       "13.4.6": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_4_6.json"
       },
@@ -1242,7 +1242,7 @@
       "13.4.8": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_4_8.json"
       },
@@ -1284,7 +1284,7 @@
       "13.5.13": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_5_13.json"
       },
@@ -1312,7 +1312,7 @@
       "13.5.17": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_5_17.json"
       },
@@ -1368,7 +1368,7 @@
       "13.5.8": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_5_8.json"
       },
@@ -1480,7 +1480,7 @@
       "13.6.6": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_6_6.json"
       },
@@ -1501,7 +1501,7 @@
       "13.6.9": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_6_9.json"
       },
@@ -1585,7 +1585,7 @@
       "13.7.3": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_7_3.json"
       },
@@ -1606,7 +1606,7 @@
       "13.7.6": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_13_7_6.json"
       },
@@ -1648,7 +1648,7 @@
       "2.11": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 12,
+         "duration": 10,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_2_11.json"
       },
@@ -1662,7 +1662,7 @@
       "2.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_2_3.json"
       },
@@ -1676,14 +1676,14 @@
       "2.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_2_5.json"
       },
       "2.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 10,
+         "duration": 7,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_2_6.json"
       },
@@ -1711,7 +1711,7 @@
       "3.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_3_1.json"
       },
@@ -1730,9 +1730,9 @@
          "reportfile": "autobahnpython_0_10_9_case_3_3.json"
       },
       "3.4": {
-         "behavior": "NON-STRICT",
+         "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_3_4.json"
       },
@@ -1788,14 +1788,14 @@
       "4.1.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_4_1_5.json"
       },
       "4.2.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_4_2_1.json"
       },
@@ -1830,7 +1830,7 @@
       "5.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_5_1.json"
       },
@@ -1851,7 +1851,7 @@
       "5.12": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_5_12.json"
       },
@@ -1956,14 +1956,14 @@
       "5.8": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 5,
+         "duration": 3,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_5_8.json"
       },
       "5.9": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_5_9.json"
       },
@@ -1998,7 +1998,7 @@
       "6.10.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_10_2.json"
       },
@@ -2019,14 +2019,14 @@
       "6.11.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_11_2.json"
       },
       "6.11.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 5,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_11_3.json"
       },
@@ -2075,14 +2075,14 @@
       "6.12.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_12_5.json"
       },
       "6.12.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 2,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_12_6.json"
       },
@@ -2152,7 +2152,7 @@
       "6.14.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_14_2.json"
       },
@@ -2215,7 +2215,7 @@
       "6.16.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_16_1.json"
       },
@@ -2243,7 +2243,7 @@
       "6.17.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_17_2.json"
       },
@@ -2264,7 +2264,7 @@
       "6.17.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_17_5.json"
       },
@@ -2355,14 +2355,14 @@
       "6.2.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 4,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_2_3.json"
       },
       "6.2.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_2_4.json"
       },
@@ -2376,7 +2376,7 @@
       "6.20.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_20_2.json"
       },
@@ -2397,7 +2397,7 @@
       "6.20.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_20_5.json"
       },
@@ -2411,7 +2411,7 @@
       "6.20.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_20_7.json"
       },
@@ -2439,7 +2439,7 @@
       "6.21.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_21_4.json"
       },
@@ -2453,7 +2453,7 @@
       "6.21.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_6_21_6.json"
       },
@@ -2495,7 +2495,7 @@
       "6.22.12": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 2,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_22_12.json"
       },
@@ -2565,7 +2565,7 @@
       "6.22.21": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 4,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_22_21.json"
       },
@@ -2614,7 +2614,7 @@
       "6.22.28": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_22_28.json"
       },
@@ -2628,7 +2628,7 @@
       "6.22.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_22_3.json"
       },
@@ -2663,7 +2663,7 @@
       "6.22.34": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 4,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_22_34.json"
       },
@@ -2691,7 +2691,7 @@
       "6.22.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_22_7.json"
       },
@@ -2705,7 +2705,7 @@
       "6.22.9": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 4,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_22_9.json"
       },
@@ -2747,7 +2747,7 @@
       "6.23.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_23_6.json"
       },
@@ -2852,14 +2852,14 @@
       "6.6.11": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_6_11.json"
       },
       "6.6.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 2,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_6_2.json"
       },
@@ -2915,7 +2915,7 @@
       "6.7.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 2,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_7_1.json"
       },
@@ -2936,7 +2936,7 @@
       "6.7.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_7_4.json"
       },
@@ -2978,7 +2978,7 @@
       "6.9.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 5,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_6_9_4.json"
       },
@@ -3020,14 +3020,14 @@
       "7.1.6": {
          "behavior": "INFORMATIONAL",
          "behaviorClose": "INFORMATIONAL",
-         "duration": 10,
+         "duration": 7,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_7_1_6.json"
       },
       "7.13.1": {
          "behavior": "INFORMATIONAL",
          "behaviorClose": "INFORMATIONAL",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_7_13_1.json"
       },
@@ -3069,7 +3069,7 @@
       "7.3.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_7_3_5.json"
       },
@@ -3090,7 +3090,7 @@
       "7.7.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_7_7_1.json"
       },
@@ -3160,7 +3160,7 @@
       "7.7.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 3,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_7_7_7.json"
       },
@@ -3195,14 +3195,14 @@
       "7.9.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_7_9_3.json"
       },
       "7.9.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_7_9_4.json"
       },
@@ -3223,7 +3223,7 @@
       "7.9.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 2,
          "remoteCloseCode": null,
          "reportfile": "autobahnpython_0_10_9_case_7_9_7.json"
       },
@@ -3244,42 +3244,42 @@
       "9.1.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 5,
+         "duration": 2,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_1_1.json"
       },
       "9.1.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 7,
+         "duration": 5,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_1_2.json"
       },
       "9.1.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 22,
+         "duration": 19,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_1_3.json"
       },
       "9.1.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 77,
+         "duration": 68,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_1_4.json"
       },
       "9.1.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 141,
+         "duration": 136,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_1_5.json"
       },
       "9.1.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 275,
+         "duration": 273,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_1_6.json"
       },
@@ -3300,322 +3300,322 @@
       "9.2.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 18,
+         "duration": 16,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_2_3.json"
       },
       "9.2.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 74,
+         "duration": 62,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_2_4.json"
       },
       "9.2.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 124,
+         "duration": 113,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_2_5.json"
       },
       "9.2.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 240,
+         "duration": 225,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_2_6.json"
       },
       "9.3.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1711,
+         "duration": 1674,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_3_1.json"
       },
       "9.3.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 492,
+         "duration": 477,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_3_2.json"
       },
       "9.3.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 168,
+         "duration": 166,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_3_3.json"
       },
       "9.3.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 88,
+         "duration": 80,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_3_4.json"
       },
       "9.3.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 68,
+         "duration": 59,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_3_5.json"
       },
       "9.3.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 62,
+         "duration": 53,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_3_6.json"
       },
       "9.3.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 60,
+         "duration": 50,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_3_7.json"
       },
       "9.3.8": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 60,
+         "duration": 51,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_3_8.json"
       },
       "9.3.9": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 60,
+         "duration": 49,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_3_9.json"
       },
       "9.4.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1638,
+         "duration": 1619,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_4_1.json"
       },
       "9.4.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 456,
+         "duration": 439,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_4_2.json"
       },
       "9.4.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 141,
+         "duration": 132,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_4_3.json"
       },
       "9.4.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 62,
+         "duration": 54,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_4_4.json"
       },
       "9.4.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 45,
+         "duration": 35,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_4_5.json"
       },
       "9.4.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 35,
+         "duration": 31,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_4_6.json"
       },
       "9.4.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 31,
+         "duration": 28,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_4_7.json"
       },
       "9.4.8": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 32,
+         "duration": 26,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_4_8.json"
       },
       "9.4.9": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 31,
+         "duration": 25,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_4_9.json"
       },
       "9.5.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 739,
+         "duration": 726,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_5_1.json"
       },
       "9.5.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 381,
+         "duration": 367,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_5_2.json"
       },
       "9.5.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 202,
+         "duration": 195,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_5_3.json"
       },
       "9.5.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 113,
+         "duration": 106,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_5_4.json"
       },
       "9.5.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 66,
+         "duration": 62,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_5_5.json"
       },
       "9.5.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 41,
+         "duration": 37,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_5_6.json"
       },
       "9.6.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 743,
+         "duration": 724,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_6_1.json"
       },
       "9.6.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 382,
+         "duration": 370,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_6_2.json"
       },
       "9.6.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 204,
+         "duration": 194,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_6_3.json"
       },
       "9.6.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 112,
+         "duration": 109,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_6_4.json"
       },
       "9.6.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 68,
+         "duration": 63,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_6_5.json"
       },
       "9.6.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 45,
+         "duration": 38,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_6_6.json"
       },
       "9.7.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 168,
+         "duration": 161,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_7_1.json"
       },
       "9.7.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 189,
+         "duration": 163,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_7_2.json"
       },
       "9.7.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 197,
+         "duration": 170,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_7_3.json"
       },
       "9.7.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 213,
+         "duration": 211,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_7_4.json"
       },
       "9.7.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 328,
+         "duration": 313,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_7_5.json"
       },
       "9.7.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 494,
+         "duration": 478,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_7_6.json"
       },
       "9.8.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 176,
+         "duration": 156,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_8_1.json"
       },
       "9.8.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 179,
+         "duration": 171,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_8_2.json"
       },
       "9.8.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 187,
+         "duration": 171,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_8_3.json"
       },
       "9.8.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 223,
+         "duration": 204,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_8_4.json"
       },
       "9.8.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 287,
+         "duration": 277,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_8_5.json"
       },
       "9.8.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 425,
+         "duration": 365,
          "remoteCloseCode": 1000,
          "reportfile": "autobahnpython_0_10_9_case_9_8_6.json"
       }
@@ -3666,7 +3666,7 @@
       "1.1.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 2,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_1_1_7.json"
       },
@@ -3694,49 +3694,49 @@
       "1.2.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_1_2_3.json"
       },
       "1.2.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_1_2_4.json"
       },
       "1.2.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_1_2_5.json"
       },
       "1.2.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 21,
+         "duration": 20,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_1_2_6.json"
       },
       "1.2.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 22,
+         "duration": 19,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_1_2_7.json"
       },
       "1.2.8": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 23,
+         "duration": 22,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_1_2_8.json"
       },
       "10.1.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 3,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_10_1_1.json"
       },
@@ -3764,7 +3764,7 @@
       "12.1.12": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_1_12.json"
       },
@@ -3904,7 +3904,7 @@
       "12.2.14": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_2_14.json"
       },
@@ -3960,14 +3960,14 @@
       "12.2.5": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_2_5.json"
       },
       "12.2.6": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_2_6.json"
       },
@@ -4037,7 +4037,7 @@
       "12.3.15": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_3_15.json"
       },
@@ -4058,7 +4058,7 @@
       "12.3.18": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_3_18.json"
       },
@@ -4086,7 +4086,7 @@
       "12.3.5": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_3_5.json"
       },
@@ -4107,7 +4107,7 @@
       "12.3.8": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_3_8.json"
       },
@@ -4121,7 +4121,7 @@
       "12.4.1": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_4_1.json"
       },
@@ -4156,7 +4156,7 @@
       "12.4.14": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_4_14.json"
       },
@@ -4289,14 +4289,14 @@
       "12.5.15": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_5_15.json"
       },
       "12.5.16": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_5_16.json"
       },
@@ -4324,7 +4324,7 @@
       "12.5.3": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_5_3.json"
       },
@@ -4338,7 +4338,7 @@
       "12.5.5": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_5_5.json"
       },
@@ -4352,7 +4352,7 @@
       "12.5.7": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_12_5_7.json"
       },
@@ -4471,7 +4471,7 @@
       "13.1.6": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_1_6.json"
       },
@@ -4492,14 +4492,14 @@
       "13.1.9": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_1_9.json"
       },
       "13.2.1": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_2_1.json"
       },
@@ -4548,7 +4548,7 @@
       "13.2.16": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_2_16.json"
       },
@@ -4569,14 +4569,14 @@
       "13.2.2": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_2_2.json"
       },
       "13.2.3": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_2_3.json"
       },
@@ -4611,7 +4611,7 @@
       "13.2.8": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_2_8.json"
       },
@@ -4639,7 +4639,7 @@
       "13.3.11": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_3_11.json"
       },
@@ -4660,14 +4660,14 @@
       "13.3.14": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_3_14.json"
       },
       "13.3.15": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_3_15.json"
       },
@@ -4730,7 +4730,7 @@
       "13.3.7": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_3_7.json"
       },
@@ -4877,14 +4877,14 @@
       "13.5.1": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_5_1.json"
       },
       "13.5.10": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_5_10.json"
       },
@@ -4905,7 +4905,7 @@
       "13.5.13": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_5_13.json"
       },
@@ -4947,7 +4947,7 @@
       "13.5.2": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_5_2.json"
       },
@@ -5073,7 +5073,7 @@
       "13.6.2": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_6_2.json"
       },
@@ -5136,7 +5136,7 @@
       "13.7.10": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_7_10.json"
       },
@@ -5164,7 +5164,7 @@
       "13.7.14": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_7_14.json"
       },
@@ -5227,7 +5227,7 @@
       "13.7.6": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_7_6.json"
       },
@@ -5248,7 +5248,7 @@
       "13.7.9": {
          "behavior": "UNIMPLEMENTED",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_13_7_9.json"
       },
@@ -5269,7 +5269,7 @@
       "2.11": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 12,
+         "duration": 10,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_2_11.json"
       },
@@ -5339,21 +5339,21 @@
       "3.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_3_2.json"
       },
       "3.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_3_3.json"
       },
       "3.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 3,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_3_4.json"
       },
@@ -5367,7 +5367,7 @@
       "3.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_3_6.json"
       },
@@ -5402,21 +5402,21 @@
       "4.1.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_4_1_4.json"
       },
       "4.1.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_4_1_5.json"
       },
       "4.2.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_4_2_1.json"
       },
@@ -5444,21 +5444,21 @@
       "4.2.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_4_2_5.json"
       },
       "5.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_5_1.json"
       },
       "5.10": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_5_10.json"
       },
@@ -5479,14 +5479,14 @@
       "5.13": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_5_13.json"
       },
       "5.14": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": null,
          "reportfile": "wsserver_case_5_14.json"
       },
@@ -5577,7 +5577,7 @@
       "5.8": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 4,
+         "duration": 3,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_5_8.json"
       },
@@ -5610,24 +5610,24 @@
          "reportfile": "wsserver_case_6_1_3.json"
       },
       "6.10.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_10_1.json"
       },
       "6.10.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_10_2.json"
       },
       "6.10.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_10_3.json"
       },
       "6.11.1": {
@@ -5659,304 +5659,304 @@
          "reportfile": "wsserver_case_6_11_4.json"
       },
       "6.11.5": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_11_5.json"
       },
       "6.12.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_12_1.json"
       },
       "6.12.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_12_2.json"
       },
       "6.12.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_12_3.json"
       },
       "6.12.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_12_4.json"
       },
       "6.12.5": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_12_5.json"
       },
       "6.12.6": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 1,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_12_6.json"
       },
       "6.12.7": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_12_7.json"
       },
       "6.12.8": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_12_8.json"
       },
       "6.13.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_13_1.json"
       },
       "6.13.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_13_2.json"
       },
       "6.13.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 2,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_13_3.json"
       },
       "6.13.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 1,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_13_4.json"
       },
       "6.13.5": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_13_5.json"
       },
       "6.14.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_1.json"
       },
       "6.14.10": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_10.json"
       },
       "6.14.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_2.json"
       },
       "6.14.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_3.json"
       },
       "6.14.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_4.json"
       },
       "6.14.5": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_5.json"
       },
       "6.14.6": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
          "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_6.json"
       },
       "6.14.7": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 1,
          "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_7.json"
       },
       "6.14.8": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_8.json"
       },
       "6.14.9": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_14_9.json"
       },
       "6.15.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_15_1.json"
       },
       "6.16.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_16_1.json"
       },
       "6.16.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_16_2.json"
       },
       "6.16.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_16_3.json"
       },
       "6.17.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_17_1.json"
       },
       "6.17.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_17_2.json"
       },
       "6.17.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_17_3.json"
       },
       "6.17.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_17_4.json"
       },
       "6.17.5": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_17_5.json"
       },
       "6.18.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 2,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_18_1.json"
       },
       "6.18.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_18_2.json"
       },
       "6.18.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_18_3.json"
       },
       "6.18.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_18_4.json"
       },
       "6.18.5": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_18_5.json"
       },
       "6.19.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 0,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 1,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_19_1.json"
       },
       "6.19.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_19_2.json"
       },
       "6.19.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_19_3.json"
       },
       "6.19.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_19_4.json"
       },
       "6.19.5": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_19_5.json"
       },
       "6.2.1": {
@@ -5988,108 +5988,108 @@
          "reportfile": "wsserver_case_6_2_4.json"
       },
       "6.20.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_20_1.json"
       },
       "6.20.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_20_2.json"
       },
       "6.20.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_20_3.json"
       },
       "6.20.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_20_4.json"
       },
       "6.20.5": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_20_5.json"
       },
       "6.20.6": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_20_6.json"
       },
       "6.20.7": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_20_7.json"
       },
       "6.21.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_21_1.json"
       },
       "6.21.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_21_2.json"
       },
       "6.21.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 2,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_21_3.json"
       },
       "6.21.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 1,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_21_4.json"
       },
       "6.21.5": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 3,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_21_5.json"
       },
       "6.21.6": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_21_6.json"
       },
       "6.21.7": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_21_7.json"
       },
       "6.21.8": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_21_8.json"
       },
       "6.22.1": {
@@ -6102,14 +6102,14 @@
       "6.22.10": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_6_22_10.json"
       },
       "6.22.11": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_6_22_11.json"
       },
@@ -6137,7 +6137,7 @@
       "6.22.15": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_6_22_15.json"
       },
@@ -6228,7 +6228,7 @@
       "6.22.27": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_6_22_27.json"
       },
@@ -6270,7 +6270,7 @@
       "6.22.32": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 4,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_6_22_32.json"
       },
@@ -6284,7 +6284,7 @@
       "6.22.34": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 3,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_6_22_34.json"
       },
@@ -6380,45 +6380,45 @@
          "reportfile": "wsserver_case_6_23_7.json"
       },
       "6.3.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_3_1.json"
       },
       "6.3.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 1,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_3_2.json"
       },
       "6.4.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 2001,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 1001,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_4_1.json"
       },
       "6.4.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 2002,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 1001,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_4_2.json"
       },
       "6.4.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "NON-STRICT",
+         "behaviorClose": "OK",
          "duration": 2001,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_4_3.json"
       },
       "6.4.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "NON-STRICT",
+         "behaviorClose": "OK",
          "duration": 2001,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_4_4.json"
       },
       "6.5.1": {
@@ -6457,16 +6457,16 @@
          "reportfile": "wsserver_case_6_5_5.json"
       },
       "6.6.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
          "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_6_1.json"
       },
       "6.6.10": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
          "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_6_10.json"
       },
@@ -6485,16 +6485,16 @@
          "reportfile": "wsserver_case_6_6_2.json"
       },
       "6.6.3": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 1,
          "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_6_3.json"
       },
       "6.6.4": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
          "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_6_4.json"
       },
@@ -6506,9 +6506,9 @@
          "reportfile": "wsserver_case_6_6_5.json"
       },
       "6.6.6": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
          "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_6_6.json"
       },
@@ -6520,9 +6520,9 @@
          "reportfile": "wsserver_case_6_6_7.json"
       },
       "6.6.8": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
          "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_6_8.json"
       },
@@ -6536,7 +6536,7 @@
       "6.7.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_6_7_1.json"
       },
@@ -6562,17 +6562,17 @@
          "reportfile": "wsserver_case_6_7_4.json"
       },
       "6.8.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
-         "duration": 1,
-         "remoteCloseCode": null,
+         "behavior": "OK",
+         "behaviorClose": "OK",
+         "duration": 0,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_8_1.json"
       },
       "6.8.2": {
-         "behavior": "FAILED",
-         "behaviorClose": "FAILED",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": null,
+         "remoteCloseCode": 1007,
          "reportfile": "wsserver_case_6_8_2.json"
       },
       "6.9.1": {
@@ -6585,7 +6585,7 @@
       "6.9.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 4,
+         "duration": 1,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_6_9_2.json"
       },
@@ -6606,7 +6606,7 @@
       "7.1.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 4,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_7_1_1.json"
       },
@@ -6620,14 +6620,14 @@
       "7.1.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_7_1_3.json"
       },
       "7.1.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_7_1_4.json"
       },
@@ -6669,21 +6669,21 @@
       "7.3.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 0,
+         "duration": 1,
          "remoteCloseCode": 1002,
          "reportfile": "wsserver_case_7_3_2.json"
       },
       "7.3.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_7_3_3.json"
       },
       "7.3.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_7_3_4.json"
       },
@@ -6702,10 +6702,10 @@
          "reportfile": "wsserver_case_7_3_6.json"
       },
       "7.5.1": {
-         "behavior": "FAILED",
-         "behaviorClose": "WRONG CODE",
+         "behavior": "OK",
+         "behaviorClose": "OK",
          "duration": 0,
-         "remoteCloseCode": 1000,
+         "remoteCloseCode": null,
          "reportfile": "wsserver_case_7_5_1.json"
       },
       "7.7.1": {
@@ -6753,7 +6753,7 @@
       "7.7.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1002,
          "reportfile": "wsserver_case_7_7_3.json"
       },
@@ -6774,21 +6774,21 @@
       "7.7.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1008,
          "reportfile": "wsserver_case_7_7_6.json"
       },
       "7.7.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1009,
          "reportfile": "wsserver_case_7_7_7.json"
       },
       "7.7.8": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1010,
          "reportfile": "wsserver_case_7_7_8.json"
       },
@@ -6802,7 +6802,7 @@
       "7.9.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 2,
+         "duration": 0,
          "remoteCloseCode": 1002,
          "reportfile": "wsserver_case_7_9_1.json"
       },
@@ -6844,7 +6844,7 @@
       "7.9.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 0,
          "remoteCloseCode": 1002,
          "reportfile": "wsserver_case_7_9_7.json"
       },
@@ -6865,14 +6865,14 @@
       "9.1.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 1,
+         "duration": 3,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_1_1.json"
       },
       "9.1.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 6,
+         "duration": 5,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_1_2.json"
       },
@@ -6886,21 +6886,21 @@
       "9.1.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 67,
+         "duration": 71,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_1_4.json"
       },
       "9.1.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 125,
+         "duration": 135,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_1_5.json"
       },
       "9.1.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 242,
+         "duration": 272,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_1_6.json"
       },
@@ -6914,329 +6914,329 @@
       "9.2.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 6,
+         "duration": 4,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_2_2.json"
       },
       "9.2.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 21,
+         "duration": 15,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_2_3.json"
       },
       "9.2.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 69,
+         "duration": 62,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_2_4.json"
       },
       "9.2.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 126,
+         "duration": 117,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_2_5.json"
       },
       "9.2.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 264,
+         "duration": 245,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_2_6.json"
       },
       "9.3.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 643,
+         "duration": 609,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_3_1.json"
       },
       "9.3.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 198,
+         "duration": 196,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_3_2.json"
       },
       "9.3.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 88,
+         "duration": 86,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_3_3.json"
       },
       "9.3.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 56,
+         "duration": 57,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_3_4.json"
       },
       "9.3.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 45,
+         "duration": 49,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_3_5.json"
       },
       "9.3.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 44,
+         "duration": 47,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_3_6.json"
       },
       "9.3.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 46,
+         "duration": 47,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_3_7.json"
       },
       "9.3.8": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 40,
+         "duration": 46,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_3_8.json"
       },
       "9.3.9": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 42,
+         "duration": 47,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_3_9.json"
       },
       "9.4.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 619,
+         "duration": 593,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_4_1.json"
       },
       "9.4.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 214,
+         "duration": 177,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_4_2.json"
       },
       "9.4.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 78,
+         "duration": 64,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_4_3.json"
       },
       "9.4.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 48,
+         "duration": 34,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_4_4.json"
       },
       "9.4.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 33,
+         "duration": 27,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_4_5.json"
       },
       "9.4.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 29,
+         "duration": 24,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_4_6.json"
       },
       "9.4.7": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 32,
+         "duration": 25,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_4_7.json"
       },
       "9.4.8": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 32,
+         "duration": 24,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_4_8.json"
       },
       "9.4.9": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 27,
+         "duration": 26,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_4_9.json"
       },
       "9.5.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 711,
+         "duration": 694,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_5_1.json"
       },
       "9.5.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 403,
+         "duration": 353,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_5_2.json"
       },
       "9.5.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 199,
+         "duration": 186,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_5_3.json"
       },
       "9.5.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 114,
+         "duration": 103,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_5_4.json"
       },
       "9.5.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 67,
+         "duration": 60,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_5_5.json"
       },
       "9.5.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 42,
+         "duration": 38,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_5_6.json"
       },
       "9.6.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 812,
+         "duration": 687,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_6_1.json"
       },
       "9.6.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 394,
+         "duration": 356,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_6_2.json"
       },
       "9.6.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 207,
+         "duration": 189,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_6_3.json"
       },
       "9.6.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 115,
+         "duration": 102,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_6_4.json"
       },
       "9.6.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 67,
+         "duration": 60,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_6_5.json"
       },
       "9.6.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 46,
+         "duration": 36,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_6_6.json"
       },
       "9.7.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 104,
+         "duration": 91,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_7_1.json"
       },
       "9.7.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 108,
+         "duration": 96,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_7_2.json"
       },
       "9.7.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 113,
+         "duration": 98,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_7_3.json"
       },
       "9.7.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 127,
+         "duration": 114,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_7_4.json"
       },
       "9.7.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 163,
+         "duration": 157,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_7_5.json"
       },
       "9.7.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 307,
+         "duration": 301,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_7_6.json"
       },
       "9.8.1": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 99,
+         "duration": 89,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_8_1.json"
       },
       "9.8.2": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 104,
+         "duration": 96,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_8_2.json"
       },
       "9.8.3": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 105,
+         "duration": 95,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_8_3.json"
       },
       "9.8.4": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 122,
+         "duration": 113,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_8_4.json"
       },
       "9.8.5": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 162,
+         "duration": 140,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_8_5.json"
       },
       "9.8.6": {
          "behavior": "OK",
          "behaviorClose": "OK",
-         "duration": 292,
+         "duration": 274,
          "remoteCloseCode": 1000,
          "reportfile": "wsserver_case_9_8_6.json"
       }

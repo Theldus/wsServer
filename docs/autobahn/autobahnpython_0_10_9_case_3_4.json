@@ -1,6 +1,6 @@
 {
    "agent": "AutobahnPython/0.10.9",
-   "behavior": "NON-STRICT",
+   "behavior": "OK",
    "behaviorClose": "OK",
    "case": 31,
    "closedByMe": false,
@@ -8,7 +8,7 @@
    "createWirelog": true,
    "description": "Send small text message, then send again with <b>RSV = 4</b>, then send Ping. Octets are sent in octet-wise chops.",
    "droppedByMe": false,
-   "duration": 3,
+   "duration": 1,
    "expectation": "Echo for first message is received, but then connection is failed immediately, since RSV must be 0, when no extension defining RSV meaning has been negotiated. The Pong is not received.",
    "expected": {
       "NON-STRICT": [],
@@ -28,31 +28,40 @@
       "requireClean": false
    },
    "failedByMe": false,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: n2bk1EF5EX3wJERzwFPZUw==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnPython/0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: IgXZBoYHlvGroH22gYElpYm44Yw=\r\n\r\n",
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:9001\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: v1TvstyMlfgm6RJvk/uBHA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nServer: AutobahnPython/0.10.9\r\nX-Powered-By: AutobahnPython/0.10.9\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: 5rDNWYpW4gDLRlBhzW3zt02gEx8=\r\n\r\n",
    "id": "3.4",
    "isServer": false,
    "localCloseCode": null,
    "localCloseReason": null,
-   "received": [],
+   "received": [
+      [
+         "message",
+         "Hello, world!",
+         false
+      ]
+   ],
    "remoteCloseCode": null,
    "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
    "resultClose": "Connection was properly closed",
-   "rxFrameStats": {},
+   "rxFrameStats": {
+      "1": 1
+   },
    "rxOctetStats": {
+      "15": 1,
       "197": 1
    },
-   "started": "2020-11-19T20:36:23.822Z",
+   "started": "2021-07-17T23:53:16.324Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 2,
       "9": 1
    },
    "txOctetStats": {
-      "1": 30,
+      "1": 22,
       "240": 1
    },
    "wasClean": false,
@@ -85,7 +94,7 @@
          1,
          true,
          0,
-         "f0e5eb66",
+         "cfcd7ae0",
          null,
          1,
          false
@@ -107,7 +116,7 @@
          1,
          true,
          4,
-         "5699f162",
+         "b7cf07fd",
          null,
          1,
          false
@@ -121,7 +130,7 @@
          9,
          true,
          0,
-         "5caad80f",
+         "c2255e8d",
          null,
          1,
          false
@@ -142,7 +151,7 @@
          "TO",
          [
             1,
-            "f0"
+            "cf"
          ],
          true
       ],
@@ -150,7 +159,7 @@
          "TO",
          [
             1,
-            "e5"
+            "cd"
          ],
          true
       ],
@@ -158,7 +167,7 @@
          "TO",
          [
             1,
-            "eb"
+            "7a"
          ],
          true
       ],
@@ -166,23 +175,7 @@
          "TO",
          [
             1,
-            "66"
-         ],
-         true
-      ],
-      [
-         "TO",
-         [
-            1,
-            "b8"
-         ],
-         true
-      ],
-      [
-         "TO",
-         [
-            1,
-            "80"
+            "e0"
          ],
          true
       ],
@@ -198,7 +191,7 @@
          "TO",
          [
             1,
-            "0a"
+            "a8"
          ],
          true
       ],
@@ -206,7 +199,7 @@
          "TO",
          [
             1,
-            "9f"
+            "16"
          ],
          true
       ],
@@ -214,7 +207,7 @@
          "TO",
          [
             1,
-            "c9"
+            "8c"
          ],
          true
       ],
@@ -222,7 +215,7 @@
          "TO",
          [
             1,
-            "cb"
+            "a0"
          ],
          true
       ],
@@ -230,7 +223,7 @@
          "TO",
          [
             1,
-            "11"
+            "e1"
          ],
          true
       ],
@@ -238,7 +231,7 @@
          "TO",
          [
             1,
-            "9f"
+            "5a"
          ],
          true
       ],
@@ -254,7 +247,7 @@
          "TO",
          [
             1,
-            "87"
+            "a0"
          ],
          true
       ],
@@ -262,7 +255,7 @@
          "TO",
          [
             1,
-            "02"
+            "bf"
          ],
          true
       ],
@@ -270,7 +263,23 @@
          "TO",
          [
             1,
-            "d1"
+            "16"
+         ],
+         true
+      ],
+      [
+         "TO",
+         [
+            1,
+            "84"
+         ],
+         true
+      ],
+      [
+         "TO",
+         [
+            1,
+            "ee"
          ],
          true
       ],
@@ -294,73 +303,28 @@
          "TO",
          [
             1,
-            "56"
+            "b7"
          ],
          true
       ],
       [
-         "TO",
+         "RO",
          [
-            1,
-            "99"
-         ],
-         true
+            15,
+            "810d48656c6c6f2c20776f726c6421"
+         ]
       ],
       [
-         "TO",
+         "RF",
          [
-            1,
-            "f1"
+            13,
+            "Hello, world!"
          ],
-         true
-      ],
-      [
-         "TO",
-         [
-            1,
-            "62"
-         ],
-         true
-      ],
-      [
-         "TO",
-         [
-            1,
-            "1e"
-         ],
-         true
-      ],
-      [
-         "TO",
-         [
-            1,
-            "fc"
-         ],
-         true
-      ],
-      [
-         "TO",
-         [
-            1,
-            "9d"
-         ],
-         true
-      ],
-      [
-         "TO",
-         [
-            1,
-            "0e"
-         ],
-         true
-      ],
-      [
-         "TO",
-         [
-            1,
-            "39"
-         ],
-         true
+         1,
+         true,
+         0,
+         false,
+         null
       ]
    ]
 }

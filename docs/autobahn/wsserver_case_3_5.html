@@ -202,7 +202,7 @@ pre.wirelog_tcp_closed_by_peer {color: #fff; margin: 0; background-color: #000; 
       <center><a href="https://github.com/crossbario/autobahn-testsuite" title="Autobahn WebSocket Testsuite"><img src="ws_protocol_test_report.png"          border="0" width="820" height="46" alt="Autobahn WebSocket Testsuite Report"></img></a></center>
       <center><a href="https://crossbar.io/autobahn/"           title="Autobahn WebSocket">          <img src="ws_protocol_test_report_autobahn.png" border="0" width="300" height="68" alt="Autobahn WebSocket">                 </img></a></center>
       <br/>
-      <p class="case case_ok">wsServer - <span style="font-size: 1.3em;"><b>Case 3.5</b></span> : Pass - <span style="font-size: 0.9em;"><b>0</b> ms @ 2020-11-19T20:36:04.723Z</a></p>
+      <p class="case case_ok">wsServer - <span style="font-size: 1.3em;"><b>Case 3.5</b></span> : Pass - <span style="font-size: 0.9em;"><b>0</b> ms @ 2021-07-17T23:52:59.573Z</a></p>
       <p class="case_text_block case_desc"><b>Case Description</b><br/><br/>Send small binary message with <b>RSV = 5</b>.</p>
       <p class="case_text_block case_expect"><b>Case Expectation</b><br/><br/>The connection is failed immediately, since RSV must be 0.</p>
 
@@ -221,12 +221,12 @@ Upgrade: WebSocket
 Connection: Upgrade
 Pragma: no-cache
 Cache-Control: no-cache
-Sec-WebSocket-Key: L+H8nmQ0/k6UqvBaAIFk1Q==
+Sec-WebSocket-Key: V3W9G0sz0fdiqKFfJhDTqw==
 Sec-WebSocket-Version: 13</pre>
       <pre class="http_dump">HTTP/1.1 101 Switching Protocols
 Upgrade: websocket
 Connection: Upgrade
-Sec-WebSocket-Accept: BoOYpNYCgzp8fcP5q8D0J59nPx4=</pre>
+Sec-WebSocket-Accept: L67xUvEvQ9f6A9UCYql+L1fnS/U=</pre>
       <br/><hr/>
       <h2>Closing Behavior</h2>
       <table>
@@ -277,9 +277,9 @@ Sec-WebSocket-Accept: BoOYpNYCgzp8fcP5q8D0J59nPx4=</pre>
          <pre class="wirelog_tx_octets">               312d302e31302e390d0a486f7374 ...</pre>
          <pre class="wirelog_rx_octets">001 RX OCTETS: 485454502f312e312031303120537769746368696e672050726f746f636f6c730d0a557067726164653a20776562736f636b</pre>
          <pre class="wirelog_rx_octets">               65740d0a436f6e6e656374696f6e ...</pre>
-         <pre class="wirelog_tx_frame">002 TX FRAME : OPCODE=2, FIN=True, RSV=5, PAYLOAD-LEN=8, MASK=0a0dd82c, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
+         <pre class="wirelog_tx_frame">002 TX FRAME : OPCODE=2, FIN=True, RSV=5, PAYLOAD-LEN=8, MASK=554ac263, PAYLOAD-REPEAT-LEN=None, CHOPSIZE=None, SYNC=False</pre>
          <pre class="wirelog_tx_frame">               0x00fffefdfcfb00ff</pre>
-         <pre class="wirelog_tx_octets">003 TX OCTETS: d2880a0dd82c0af226d1f6f6d8d3</pre>
+         <pre class="wirelog_tx_octets">003 TX OCTETS: d288554ac26355b53c9ea9b1c29c</pre>
          <pre class="wirelog_kill_after">004 FAIL CONNECTION AFTER 1.000000 sec</pre>
          <pre class="wirelog_tcp_closed_by_peer">005 TCP DROPPED BY PEER</pre>
       </div>

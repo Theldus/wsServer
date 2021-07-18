@@ -1,14 +1,14 @@
 {
    "agent": "wsServer",
-   "behavior": "FAILED",
-   "behaviorClose": "FAILED",
+   "behavior": "OK",
+   "behaviorClose": "OK",
    "case": 90,
-   "closedByMe": true,
+   "closedByMe": false,
    "createStats": true,
    "createWirelog": true,
    "description": "Send a text message with payload which is not valid UTF-8 in one fragment.<br><br>Payload: 0xcebae1bdb9cf83ce",
    "droppedByMe": false,
-   "duration": 1,
+   "duration": 0,
    "expectation": "The connection is failed immediately, since the payload is not valid UTF-8.",
    "expected": {
       "OK": []
@@ -21,38 +21,36 @@
       "closedByWrongEndpointIsFatal": true,
       "requireClean": false
    },
-   "failedByMe": true,
-   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: G9ZH6XBjnn4Aun6i21K2CA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
-   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: IrME202/REtLAotiFgC7Tqh5G2c=\r\n\r\n",
+   "failedByMe": false,
+   "httpRequest": "GET / HTTP/1.1\r\nUser-Agent: AutobahnTestSuite/0.8.1-0.10.9\r\nHost: 127.0.0.1:8080\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nSec-WebSocket-Key: JQL5sSYyZFUqIPkW+z0zsA==\r\nSec-WebSocket-Version: 13\r\n\r\n",
+   "httpResponse": "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: XKtQ/W7j1yJ/I2+i3+L38lQaO+0=\r\n\r\n",
    "id": "6.6.8",
    "isServer": false,
-   "localCloseCode": 1007,
-   "localCloseReason": "UTF-8 text message payload ended within Unicode code point at payload octet index 8",
+   "localCloseCode": 1000,
+   "localCloseReason": null,
    "received": [],
    "remoteCloseCode": 1007,
-   "remoteCloseReason": "UTF-8 text message payload ended within Unicode code point at payload octet index 8",
+   "remoteCloseReason": null,
    "reportCompressionRatio": false,
    "reportTime": false,
    "result": "Actual events match at least one expected.",
-   "resultClose": "The connection was failed by the wrong endpoint",
+   "resultClose": "Connection was properly closed",
    "rxFrameStats": {
-      "1": 1,
       "8": 1
    },
    "rxOctetStats": {
-      "10": 1,
-      "87": 1,
+      "4": 1,
       "129": 1
    },
-   "started": "2020-11-19T20:36:14.815Z",
+   "started": "2021-07-17T23:53:07.648Z",
    "trafficStats": null,
    "txFrameStats": {
       "1": 1,
       "8": 1
    },
    "txOctetStats": {
+      "8": 1,
       "14": 1,
-      "91": 1,
       "240": 1
    },
    "wasClean": true,
@@ -85,7 +83,7 @@
          1,
          true,
          0,
-         "b436d291",
+         "e37e368a",
          null,
          null,
          false
@@ -94,7 +92,7 @@
          "TO",
          [
             14,
-            "8188b436d2917a8c332c0df9515f"
+            "8188e37e368a2dc4d7375ab1b544"
          ],
          false
       ],
@@ -105,17 +103,17 @@
       [
          "RO",
          [
-            10,
-            "8108cebae1bdb9cf83ce"
+            4,
+            "880203ef"
          ]
       ],
       [
          "RF",
          [
-            8,
-            "0xcebae1bdb9cf83ce"
+            2,
+            "0x03ef"
          ],
-         1,
+         8,
          true,
          0,
          false,
@@ -124,13 +122,13 @@
       [
          "TF",
          [
-            85,
-            "0x03ef5554462d382074657874206d657373616765207061796c6f616420656e6465642077697468696e20556e69636f646520636f646520706f696e7420617420 ..."
+            2,
+            "0x03e8"
          ],
          8,
          true,
          0,
-         "df607301",
+         "c390887f",
          null,
          null,
          false
@@ -138,29 +136,10 @@
       [
          "TO",
          [
-            91,
-            "88d5df607301dc8f2655994d4b21ab050b75ff0d1672ac011464ff101278b30f1265ff051d65ba045376b6141b68b140266fb6031c65ba40106ebb055371b009 ..."
+            8,
+            "8882c390887fc078"
          ],
          false
-      ],
-      [
-         "RO",
-         [
-            87,
-            "885503ef5554462d382074657874206d657373616765207061796c6f616420656e6465642077697468696e20556e69636f646520636f646520706f696e742061 ..."
-         ]
-      ],
-      [
-         "RF",
-         [
-            85,
-            "0x03ef5554462d382074657874206d657373616765207061796c6f616420656e6465642077697468696e20556e69636f646520636f646520706f696e7420617420 ..."
-         ],
-         8,
-         true,
-         0,
-         false,
-         null
       ]
    ]
 }
