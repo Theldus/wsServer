@@ -172,6 +172,9 @@ whether with issues, documentation, testing, new features, bugfixes, typos...
 welcome aboard. Make sure to read the [coding-style](doc/CODING_STYLE.md)
 guidelines before sending a PR.
 
+Was the project helpful to you? Have something to say about it? Leave your
+comments [here](https://github.com/Theldus/wsServer/discussions/30).
+
 ## License and Authors
 wsServer is licensed under GPLv3 License. Written by Davidson Francis and
 [others](https://github.com/Theldus/wsServer/graphs/contributors)
