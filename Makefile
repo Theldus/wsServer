@@ -157,6 +157,7 @@ clean:
 	@rm -f $(SRC)/base64/*.o
 	@rm -f $(SRC)/handshake/*.o
 	@rm -f $(SRC)/sha1/*.o
+	@rm -f $(SRC)/utf8/*.o
 	@rm -f $(SRC)/*.o
 	@rm -f $(LIB)
 	@$(MAKE) clean -C example/
