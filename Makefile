@@ -54,11 +54,11 @@ ifeq ($(VALIDATE_UTF8), yes)
 endif
 
 # Source
-C_SRC = $(wildcard $(SRC)/base64/*.c)    \
-		$(wildcard $(SRC)/handshake/*.c) \
-		$(wildcard $(SRC)/sha1/*.c)      \
-		$(wildcard $(SRC)/utf8/*.c)      \
-		$(wildcard $(SRC)/*.c)
+C_SRC = $(SRC)/base64/base64.c \
+	$(SRC)/handshake/handshake.c \
+	$(SRC)/sha1/sha1.c \
+	$(SRC)/utf8/utf8.c \
+	$(SRC)/ws.c
 
 OBJ = $(C_SRC:.c=.o)
 
@@ -154,11 +154,7 @@ doc:
 
 # Clean
 clean:
-	@rm -f $(SRC)/base64/*.o
-	@rm -f $(SRC)/handshake/*.o
-	@rm -f $(SRC)/sha1/*.o
-	@rm -f $(SRC)/utf8/*.o
-	@rm -f $(SRC)/*.o
+	@rm -f $(OBJ)
 	@rm -f $(LIB)
 	@$(MAKE) clean -C example/
 	@$(MAKE) clean -C tests/
