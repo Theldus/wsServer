@@ -25,6 +25,10 @@
 #ifndef WS_H
 #define WS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 	#include <stdbool.h>
 	#include <stdint.h>
 	#include <inttypes.h>
@@ -264,6 +268,10 @@
 
 #ifdef AFL_FUZZ
 	extern int ws_file(struct ws_events *evs, const char *file);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* WS_H */
