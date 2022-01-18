@@ -160,6 +160,17 @@ int main()
 
 to build the example above, just invoke: `make examples`.
 
+## WebSocket client: ToyWS
+Inside `extra/toyws` there is a companion project called ToyWS. ToyWS is a very
+simple & dumb WebSocket client made exclusively to work with wsServer. Extremely
+limited, its usage is highly discouraged with other servers other than wsServer
+and is only meant to be used in conjunction with wsServer.
+
+This mini-project only serves as an aid to wsServer and frees the user from
+using additional projects to use wsServer in its entirety.
+
+More info at: [extra/toyws/README.md](extra/toyws/README.md)
+
 ## SSL/TLS Support
 wsServer does not currently support encryption. However, it is possible to use it
 in conjunction with [Stunnel](https://www.stunnel.org/), a proxy that adds TLS
