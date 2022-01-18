@@ -43,6 +43,10 @@ add_executable(toyws_test
     extra/toyws/tws_test.c
     extra/toyws/toyws.c)
 
+if(WIN32)
+    target_link_libraries(toyws_test ws2_32 -static)
+endif(WIN32)
+
 option(ENABLE_WSSERVER_TEST "Enable wsServer testing (requires Autobahn)" OFF)
 if(ENABLE_WSSERVER_TEST)
 	enable_testing()
