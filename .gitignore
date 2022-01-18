@@ -18,6 +18,7 @@
 *.a
 send_receive
 ws_file
+toyws_test
 build/
 doc/doxygen/html
 doc/doxygen/xml
