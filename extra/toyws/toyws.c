@@ -22,9 +22,21 @@
 #include <inttypes.h>
 #include <unistd.h>
 
+#ifndef _WIN32
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#else
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+typedef unsigned long in_addr_t;
+#endif
+
+/* Windows and macOS seems to not have MSG_NOSIGNAL */
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL 0
+#endif
 
 #include "toyws.h"
 
@@ -79,26 +91,47 @@ int tws_connect(struct tws_ctx *ctx, const char *ip, uint16_t port)
 	int sock;
 	ssize_t ret;
 	in_addr_t ip_addr;
-	struct sockaddr_in s_addr;
+	struct sockaddr_in sock_addr;
 
 	memset(ctx, 0, sizeof(*ctx));
+
+#ifdef _WIN32
+	WSADATA wsaData;
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+	{
+		fprintf(stderr, "WSAStartup failed!");
+		return (-1);
+	}
+
+	/**
+	 * Sets stdout to be non-buffered.
+	 *
+	 * According to the docs from MSDN (setvbuf page), Windows do not
+	 * really supports line buffering but full-buffering instead.
+	 *
+	 * Quote from the docs:
+	 * "... _IOLBF For some systems, this provides line buffering.
+	 *  However, for Win32, the behavior is the same as _IOFBF"
+	 */
+	setvbuf(stdout, NULL, _IONBF, 0);
+#endif
 
 	/* Create socket. */
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
 		return (-1);
 
-	memset((void*)&s_addr, 0, sizeof(s_addr));
-	s_addr.sin_family = AF_INET;
+	memset((void*)&sock_addr, 0, sizeof(sock_addr));
+	sock_addr.sin_family = AF_INET;
 
 	if ((ip_addr = inet_addr(ip)) == INADDR_NONE)
 		return (-1);
 
-	s_addr.sin_addr.s_addr = ip_addr;
-	s_addr.sin_port = htons(port);
+	sock_addr.sin_addr.s_addr = ip_addr;
+	sock_addr.sin_port = htons(port);
 
 	/* Connect. */
-	if (connect(sock, (struct sockaddr *)&s_addr, sizeof(s_addr)) < 0)
+	if (connect(sock, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) < 0)
 		return (-1);
 
 	/* Do handhshake. */
@@ -114,7 +147,7 @@ int tws_connect(struct tws_ctx *ctx, const char *ip, uint16_t port)
 	ctx->amt_read = ret;
 	ctx->cur_pos  = (size_t)((ptrdiff_t)(p - (char *)ctx->frm)) + 4;
 	ctx->fd       = sock;
-	ctx->status   = ST_CONNECTED;
+	ctx->status   = TWS_ST_CONNECTED;
 
 	return (sock);
 }
@@ -126,11 +159,16 @@ int tws_connect(struct tws_ctx *ctx, const char *ip, uint16_t port)
  */
 void tws_close(struct tws_ctx *ctx)
 {
-	if (ctx->status == ST_DISCONNECTED)
+	if (ctx->status == TWS_ST_DISCONNECTED)
 		return;
+#ifndef _WIN32
 	shutdown(ctx->fd, SHUT_RDWR);
 	close(ctx->fd);
-	ctx->status = ST_DISCONNECTED;
+#else
+	closesocket(ctx->fd);
+	WSACleanup();
+#endif
+	ctx->status = TWS_ST_DISCONNECTED;
 }
 
 /**

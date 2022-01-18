@@ -30,8 +30,8 @@
 	#define MESSAGE_LENGTH 1024
 
 	/* Client status. */
-	#define ST_DISCONNECTED 0
-	#define ST_CONNECTED    1
+	#define TWS_ST_DISCONNECTED 0
+	#define TWS_ST_CONNECTED    1
 
 	/* Client context. */
 	struct tws_ctx
