@@ -39,6 +39,10 @@ add_executable(send_receive
     example/send_receive.c)
 target_link_libraries(send_receive ws)
 
+add_executable(toyws_test
+    extra/toyws/tws_test.c
+    extra/toyws/toyws.c)
+
 option(ENABLE_WSSERVER_TEST "Enable wsServer testing (requires Autobahn)" OFF)
 if(ENABLE_WSSERVER_TEST)
 	enable_testing()

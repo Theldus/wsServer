@@ -71,6 +71,9 @@ BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/man
 PKGDIR = $(LIBDIR)/pkgconfig
 
+# Extra paths
+TOYWS  = $(CURDIR)/extra/toyws
+
 # General objects
 %.o: %.c
 	$(CC) $< $(CFLAGS) -c -o $@
@@ -99,6 +102,10 @@ tests_check:
 # Fuzzing tests
 fuzzy: libws.a
 	$(MAKE) -C tests/fuzzy
+
+# ToyWS client
+toyws_test: $(TOYWS)/tws_test.o $(TOYWS)/toyws.o
+	$(CC) $^ $(CFLAGS) -I $(TOYWS) -o $@
 
 # Install rules
 install: libws.a wsserver.pc
@@ -156,6 +163,7 @@ doc:
 clean:
 	@rm -f $(OBJ)
 	@rm -f $(LIB)
+	@rm -f $(TOYWS)/toyws.o $(TOYWS)/tws_test.o toyws_test
 	@$(MAKE) clean -C example/
 	@$(MAKE) clean -C tests/
 	@$(MAKE) clean -C tests/fuzzy
