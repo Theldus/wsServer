@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021  Davidson Francis <davidsondfgl@gmail.com>
+ * Copyright (C) 2016-2022  Davidson Francis <davidsondfgl@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -298,6 +298,31 @@ static int set_client_state(int idx, int state)
 }
 
 /**
+ * @brief Close client connection (no close handshake, this should
+ * be done earlier), set appropriate state and destroy mutexes.
+ *
+ * @param conn_idx Connection index, -1 if should use @p fd.
+ * @param fd Optional fd parameter, used when there is no
+ *           @p conn_idx.
+ */
+static void close_client(int conn_idx, int fd)
+{
+	if (conn_idx == -1)
+		conn_idx = get_client_index(fd);
+
+	set_client_state(conn_idx, WS_STATE_CLOSED);
+
+	close_socket(client_socks[conn_idx].client_sock);
+
+	/* Destroy client mutexes and clear fd 'slot'. */
+	pthread_mutex_lock(&mutex);
+		client_socks[conn_idx].client_sock = -1;
+		pthread_cond_destroy(&client_socks[conn_idx].cnd_state_close);
+		pthread_mutex_destroy(&client_socks[conn_idx].mtx_state);
+	pthread_mutex_unlock(&mutex);
+}
+
+/**
  * @brief Close time-out thread.
  *
  * For a given client, this routine sleeps until
@@ -315,6 +340,7 @@ static void *close_timeout(void *p)
 {
 	struct ws_connection *conn = p;
 	struct timespec ts;
+	int state;
 
 	pthread_mutex_lock(&conn->mtx_state);
 
@@ -333,17 +359,17 @@ static void *close_timeout(void *p)
 			   ETIMEDOUT)
 		;
 
+	state = conn->state;
+	pthread_mutex_unlock(&conn->mtx_state);
+
 	/* If already closed. */
-	if (conn->state == WS_STATE_CLOSED)
+	if (state == WS_STATE_CLOSED)
 		goto quit;
 
 	DEBUG("Timer expired, closing client %d\n", conn->client_sock);
 
-	close_socket(conn->client_sock);
-	conn->client_sock = -1;
-	conn->state       = WS_STATE_CLOSED;
+	close_client(-1, conn->client_sock);
 quit:
-	pthread_mutex_unlock(&conn->mtx_state);
 	return (NULL);
 }
 
@@ -505,16 +531,24 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 	if (output != -1 && broadcast)
 	{
 		pthread_mutex_lock(&mutex);
+
 		cur_port_index = -1;
 		for (i = 0; i < MAX_CLIENTS; i++)
+		{
 			if (client_socks[i].client_sock == fd)
-				cur_port_index = client_socks[i].port_index, i = MAX_CLIENTS;
+			{
+				cur_port_index = client_socks[i].port_index;
+				break;
+			}
+		}
 
 		for (i = 0; i < MAX_CLIENTS; i++)
 		{
 			sock = client_socks[i].client_sock;
-			if ((sock > -1) && (sock != fd) &&
-				(client_socks[i].port_index == cur_port_index))
+			if (
+				(sock > -1) && (sock != fd) &&
+				(client_socks[i].port_index == cur_port_index) &&
+				get_client_state(i) == WS_STATE_OPEN)
 			{
 				if ((send_ret = SEND(sock, response, idx_response)) != -1)
 					output += send_ret;
@@ -1342,28 +1376,19 @@ static void *ws_establishconnection(void *vsock)
 	ports[p_index].events.onclose(sock);
 
 closed:
-	pthread_mutex_lock(&client_socks[connection_index].mtx_state);
-
 	clse_thrd = client_socks[connection_index].close_thrd;
-	if (client_socks[connection_index].state != WS_STATE_CLOSED)
-	{
-		/* Removes client socket from socks list. */
-		client_socks[connection_index].client_sock = -1;
-		client_socks[connection_index].state       = WS_STATE_CLOSED;
-		close_socket(sock);
-		pthread_cond_signal(&client_socks[connection_index].cnd_state_close);
-	}
-
-	pthread_mutex_unlock(&client_socks[connection_index].mtx_state);
 
 	/* Wait for timeout thread if necessary. */
 	if (clse_thrd)
+	{
+		pthread_cond_signal(&client_socks[connection_index].cnd_state_close);
 		pthread_join(client_socks[connection_index].thrd_tout, NULL);
+	}
 
-	/* Destroy mutex and condition var. */
-	pthread_cond_destroy(&client_socks[connection_index].cnd_state_close);
-	pthread_mutex_destroy(&client_socks[connection_index].mtx_state);
-	client_socks[connection_index].close_thrd = false;
+	/* Close connectin properly. */
+	if (get_client_state(connection_index) != WS_STATE_CLOSED)
+		close_client(connection_index, sock);
+
 	return (vsock);
 }
 
