@@ -60,7 +60,7 @@ typedef int socklen_t;
 /**
  * @brief Opened ports.
  */
-int port_index;
+static int port_index;
 
 /**
  * @brief Port entry in @ref ws_port structure.
@@ -91,7 +91,7 @@ struct ws_accept
 /**
  * @brief Ports list.
  */
-struct ws_port ports[MAX_PORTS];
+static struct ws_port ports[MAX_PORTS];
 
 /**
  * @brief Client socks.
@@ -107,12 +107,15 @@ struct ws_connection
 	pthread_cond_t cnd_state_close;
 	pthread_t thrd_tout;
 	bool close_thrd;
+
+	/* Send lock. */
+	pthread_mutex_t mtx_snd;
 };
 
 /**
  * @brief Clients list.
  */
-struct ws_connection client_socks[MAX_CLIENTS];
+static struct ws_connection client_socks[MAX_CLIENTS];
 
 /**
  * @brief WebSocket frame data
@@ -193,38 +196,6 @@ static void close_socket(int fd)
 }
 
 /**
- * @brief Send a given message @p buf on a socket @p sockfd.
- *
- * @param sockfd Target socket.
- * @param buf Message to be sent.
- * @param len Message length.
- * @param flags Send flags.
- *
- * @return Returns 0 if success (i.e: all message was sent),
- * -1 otherwise.
- *
- * @note Technically this shouldn't be necessary, since send() should
- * block until all content is sent, since _we_ don't use 'O_NONBLOCK'.
- * However, it was reported (issue #22 on GitHub) that this was
- * happening, so just to be cautious, I will keep using this routine.
- */
-static ssize_t send_all(int sockfd, const void *buf, size_t len, int flags)
-{
-	const char *p;
-	ssize_t ret;
-	p = buf;
-	while (len)
-	{
-		ret = send(sockfd, p, len, flags);
-		if (ret == -1)
-			return (-1);
-		p += ret;
-		len -= ret;
-	}
-	return (0);
-}
-
-/**
  * @brief For a given client @p fd, returns its
  * client index if exists, or -1 otherwise.
  *
@@ -298,6 +269,51 @@ static int set_client_state(int idx, int state)
 }
 
 /**
+ * @brief Send a given message @p buf on a socket @p sockfd.
+ *
+ * @param sockfd Target socket.
+ * @param buf Message to be sent.
+ * @param len Message length.
+ * @param flags Send flags.
+ * @param idx Client index, in order to serialize the messages
+ *            to the same client.
+ *
+ * @return Returns 0 if success (i.e: all message was sent),
+ * -1 otherwise.
+ *
+ * @note Technically this shouldn't be necessary, since send() should
+ * block until all content is sent, since _we_ don't use 'O_NONBLOCK'.
+ * However, it was reported (issue #22 on GitHub) that this was
+ * happening, so just to be cautious, I will keep using this routine.
+ */
+static ssize_t send_all(int sockfd, const void *buf, size_t len,
+	int flags, int idx)
+{
+	const char *p;
+	ssize_t ret;
+
+	/* Sanity check. */
+	if (idx < 0)
+		return (-1);
+
+	p = buf;
+	pthread_mutex_lock(&client_socks[idx].mtx_snd);
+		while (len)
+		{
+			ret = send(sockfd, p, len, flags);
+			if (ret == -1)
+			{
+				pthread_mutex_unlock(&client_socks[idx].mtx_snd);
+				return (-1);
+			}
+			p += ret;
+			len -= ret;
+		}
+	pthread_mutex_unlock(&client_socks[idx].mtx_snd);
+	return (0);
+}
+
+/**
  * @brief Close client connection (no close handshake, this should
  * be done earlier), set appropriate state and destroy mutexes.
  *
@@ -319,6 +335,7 @@ static void close_client(int conn_idx, int fd)
 		client_socks[conn_idx].client_sock = -1;
 		pthread_cond_destroy(&client_socks[conn_idx].cnd_state_close);
 		pthread_mutex_destroy(&client_socks[conn_idx].mtx_state);
+		pthread_mutex_destroy(&client_socks[conn_idx].mtx_snd);
 	pthread_mutex_unlock(&mutex);
 }
 
@@ -526,7 +543,7 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 	}
 
 	response[idx_response] = '\0';
-	output                 = SEND(fd, response, idx_response);
+	output                 = SEND(fd, response, idx_response, get_client_index(fd));
 
 	if (output != -1 && broadcast)
 	{
@@ -550,7 +567,7 @@ int ws_sendframe(int fd, const char *msg, uint64_t size, bool broadcast, int typ
 				(client_socks[i].port_index == cur_port_index) &&
 				get_client_state(i) == WS_STATE_OPEN)
 			{
-				if ((send_ret = SEND(sock, response, idx_response)) != -1)
+				if ((send_ret = SEND(sock, response, idx_response, i)) != -1)
 					output += send_ret;
 				else
 				{
@@ -728,7 +745,8 @@ static int do_handshake(struct ws_frame_data *wfd, int p_index)
 		response);
 
 	/* Send handshake. */
-	if (SEND(wfd->sock, response, strlen(response)) < 0)
+	if (SEND(wfd->sock, response, strlen(response),
+		get_client_index(wfd->sock)) < 0)
 	{
 		free(response);
 		DEBUG("As error has occurred while handshaking!\n");
@@ -1443,6 +1461,8 @@ static void *ws_accept(void *data)
 					panic("Error on allocating close mutex");
 				if (pthread_cond_init(&client_socks[i].cnd_state_close, NULL))
 					panic("Error on allocating condition var\n");
+				if (pthread_mutex_init(&client_socks[i].mtx_snd, NULL))
+					panic("Error on allocating send mutex");
 				break;
 			}
 		}
