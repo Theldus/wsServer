@@ -23,10 +23,10 @@ include_directories(include)
 
 add_library(ws
     src/ws.c
-    src/base64/base64.c
-    src/sha1/sha1.c
-    src/handshake/handshake.c
-    src/utf8/utf8.c
+    src/base64.c
+    src/sha1.c
+    src/handshake.c
+    src/utf8.c
 )
 
 if(WIN32)

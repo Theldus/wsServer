@@ -54,10 +54,10 @@ ifeq ($(VALIDATE_UTF8), yes)
 endif
 
 # Source
-C_SRC = $(SRC)/base64/base64.c \
-	$(SRC)/handshake/handshake.c \
-	$(SRC)/sha1/sha1.c \
-	$(SRC)/utf8/utf8.c \
+C_SRC = $(SRC)/base64.c \
+	$(SRC)/handshake.c \
+	$(SRC)/sha1.c \
+	$(SRC)/utf8.c \
 	$(SRC)/ws.c
 
 OBJ = $(C_SRC:.c=.o)
