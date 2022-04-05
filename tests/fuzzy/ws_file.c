@@ -37,39 +37,39 @@
 /**
  * @brief Called when a client connects to the server.
  *
- * @param fd File Descriptor belonging to the client. The @p fd parameter
- * is used in order to send messages and retrieve informations
- * about the client.
+ * @param client Client connection. The @p client parameter is used
+ * in order to send messages and retrieve informations about the
+ * client.
  */
-void onopen(int fd)
+void onopen(ws_cli_conn_t *client)
 {
 	char *cli;
-	cli = ws_getaddress(fd);
-	printf("Connection opened, client: %d | addr: %s\n", fd, cli);
+	cli = ws_getaddress(client);
+	printf("Connection opened, addr: %s\n", cli);
 	free(cli);
 }
 
 /**
  * @brief Called when a client disconnects to the server.
  *
- * @param fd File Descriptor belonging to the client. The @p fd parameter
- * is used in order to send messages and retrieve informations
- * about the client.
+ * @param client Client connection. The @p client parameter is used
+ * in order to send messages and retrieve informations about the
+ * client.
  */
-void onclose(int fd)
+void onclose(ws_cli_conn_t *client)
 {
 	char *cli;
-	cli = ws_getaddress(fd);
-	printf("Connection closed, client: %d | addr: %s\n", fd, cli);
+	cli = ws_getaddress(client);
+	printf("Connection closed, addr: %s\n", cli);
 	free(cli);
 }
 
 /**
  * @brief Called when a client connects to the server.
  *
- * @param fd File Descriptor belonging to the client. The
- * @p fd parameter is used in order to send messages and
- * retrieve informations about the client.
+ * @param client Client connection. The @p client parameter is used
+ * in order to send messages and retrieve informations about the
+ * client.
  *
  * @param msg Received message, this message can be a text
  * or binary message.
@@ -78,11 +78,12 @@ void onclose(int fd)
  *
  * @param type Message type.
  */
-void onmessage(int fd, const unsigned char *msg, uint64_t size, int type)
+void onmessage(ws_cli_conn_t *client,
+	const unsigned char *msg, uint64_t size, int type)
 {
-	printf("I receive a message: (%.*s) (size: %" PRId64 ", type: %d)\n", (int)size,
-		msg, size, type);
-	ws_sendframe(fd, (char *)msg, size, true, type);
+	printf("I receive a message: (%.*s) (size: %" PRId64 ", type: %d)\n",
+		(int)size, msg, size, type);
+	ws_sendframe(NULL, (char *)msg, size, type);
 }
 
 /**

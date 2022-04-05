@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021  Davidson Francis <davidsondfgl@gmail.com>
+ * Copyright (C) 2016-2022  Davidson Francis <davidsondfgl@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,13 +41,6 @@ extern "C" {
 	 * @brief Max clients connected simultaneously.
 	 */
 	#define MAX_CLIENTS    8
-
-	/**
-	 * @brief Max number of `ws_server` instances running
-	 * at the same time.
-	 */
-	#define MAX_PORTS      16
-	/**@}*/
 
 	/**
 	 * @name Key and message configurations.
@@ -222,14 +215,15 @@ extern "C" {
 	/**@}*/
 
 	#ifndef AFL_FUZZ
-	#define CLI_SOCK(sock) (sock)
-	#define SEND(fd,buf,len,idx) send_all((fd), (buf), (len), MSG_NOSIGNAL, (idx))
-	#define RECV(fd,buf,len) recv((fd), (buf), (len), 0)
+	#define SEND(client,buf,len) send_all((client), (buf), (len), MSG_NOSIGNAL)
+	#define RECV(fd,buf,len) recv((fd)->client_sock, (buf), (len), 0)
 	#else
-	#define CLI_SOCK(sock) (fileno(stdout))
-	#define SEND(fd,buf,len,idx) write(fileno(stdout), (buf), (len))
-	#define RECV(fd,buf,len) read((fd), (buf), (len))
+	#define SEND(client,buf,len) write(fileno(stdout), (buf), (len))
+	#define RECV(fd,buf,len) read((fd)->client_sock, (buf), (len))
 	#endif
+
+	/* Opaque client connection type. */
+	typedef struct ws_connection ws_cli_conn_t;
 
 	/**
 	 * @brief events Web Socket events types.
@@ -239,31 +233,35 @@ extern "C" {
 		/**
 		 * @brief On open event, called when a new client connects.
 		 */
-		void (*onopen)(int);
+		void (*onopen)(ws_cli_conn_t *client);
 
 		/**
 		 * @brief On close event, called when a client disconnects.
 		 */
-		void (*onclose)(int);
+		void (*onclose)(ws_cli_conn_t *client);
 
 		/**
 		 * @brief On message event, called when a client sends a text
 		 * or binary message.
 		 */
-		void (*onmessage)(int, const unsigned char *, uint64_t, int);
+		void (*onmessage)(ws_cli_conn_t *client,
+			const unsigned char *msg, uint64_t msg_size, int type);
 	};
 
 	/* Forward declarations. */
+
+	/* Internal usage. */
 	extern int get_handshake_accept(char *wsKey, unsigned char **dest);
 	extern int get_handshake_response(char *hsrequest, char **hsresponse);
-	extern char *ws_getaddress(int fd);
+
+	/* External usage. */
+	extern char *ws_getaddress(ws_cli_conn_t *client);
 	extern int ws_sendframe(
-		int fd, const char *msg, uint64_t size, bool broadcast, int type);
-	extern int ws_sendframe_txt(int fd, const char *msg, bool broadcast);
-	extern int ws_sendframe_bin(int fd, const char *msg, uint64_t size,
-		bool broadcast);
-	extern int ws_get_state(int fd);
-	extern int ws_close_client(int fd);
+		ws_cli_conn_t *cli, const char *msg, uint64_t size, int type);
+	extern int ws_sendframe_txt(ws_cli_conn_t *cli, const char *msg);
+	extern int ws_sendframe_bin(ws_cli_conn_t *cli, const char *msg, uint64_t size);
+	extern int ws_get_state(ws_cli_conn_t *cli);
+	extern int ws_close_client(ws_cli_conn_t *cli);
 	extern int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop);
 
 #ifdef AFL_FUZZ
