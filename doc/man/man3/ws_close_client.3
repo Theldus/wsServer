@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+.\" Copyright (C) 2016-2022  Davidson Francis <davidsondfgl@gmail.com>
 .\"
 .\" This program is free software: you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,19 +14,19 @@
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program.  If not, see <http://www.gnu.org/licenses/>
 .\"
-.TH man 3 "20 Dec 2020" "1.0" "wsServer man page"
+.TH man 3 "04 Apr 2022" "1.0" "wsServer man page"
 .SH NAME
 ws_close_connection \- Close the client connection.
 .SH SYNOPSIS
 .nf
 .B #include <ws.h>
 .sp
-.BI "int ws_close_client(int " fd ");
+.BI "int ws_close_client(ws_cli_conn_t " *client ");
 .fi
 .SH DESCRIPTION
 .BR ws_close_client ()
 for a given client
-.I fd
+.I client
 , closes the client connection with normal close code (1000) and no
 reason string.
 .SH RETURN VALUE
