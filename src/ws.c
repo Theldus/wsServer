@@ -88,7 +88,7 @@ static struct ws_connection client_socks[MAX_CLIENTS];
 /**
  * @Brief Client validity macro
  */
-#define CLIENT_VALID(cli) \
+#define CLIENT_VALID(cli)                          \
 	((cli) != NULL && (cli) >= &client_socks[0] && \
 		(cli) <= &client_socks[MAX_CLIENTS - 1])
 
@@ -238,8 +238,8 @@ static int set_client_state(ws_cli_conn_t *client, int state)
  * However, it was reported (issue #22 on GitHub) that this was
  * happening, so just to be cautious, I will keep using this routine.
  */
-static ssize_t send_all(ws_cli_conn_t *client, const void *buf,
-	size_t len, int flags)
+static ssize_t send_all(
+	ws_cli_conn_t *client, const void *buf, size_t len, int flags)
 {
 	const char *p;
 	ssize_t ret;
@@ -249,6 +249,7 @@ static ssize_t send_all(ws_cli_conn_t *client, const void *buf,
 		return (-1);
 
 	p = buf;
+	/* clang-format off */
 	pthread_mutex_lock(&client->mtx_snd);
 		while (len)
 		{
@@ -262,6 +263,7 @@ static ssize_t send_all(ws_cli_conn_t *client, const void *buf,
 			len -= ret;
 		}
 	pthread_mutex_unlock(&client->mtx_snd);
+	/* clang-format on */
 	return (0);
 }
 
@@ -281,12 +283,14 @@ static void close_client(ws_cli_conn_t *client)
 	close_socket(client->client_sock);
 
 	/* Destroy client mutexes and clear fd 'slot'. */
+	/* clang-format off */
 	pthread_mutex_lock(&mutex);
 		client->client_sock = -1;
 		pthread_cond_destroy(&client->cnd_state_close);
 		pthread_mutex_destroy(&client->mtx_state);
 		pthread_mutex_destroy(&client->mtx_snd);
 	pthread_mutex_unlock(&mutex);
+	/* clang-format on */
 }
 
 /**
@@ -396,8 +400,7 @@ char *ws_getaddress(ws_cli_conn_t *client)
 
 	addr_size = sizeof(struct sockaddr_in);
 
-	if (getpeername(client->client_sock, (struct sockaddr *)&addr,
-		&addr_size) < 0)
+	if (getpeername(client->client_sock, (struct sockaddr *)&addr, &addr_size) < 0)
 	{
 		return (NULL);
 	}
@@ -444,42 +447,42 @@ int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type
 	ws_cli_conn_t *cli;      /* Client.            */
 
 	frame[0] = (WS_FIN | type);
-	length   = (uint64_t)size;
+	length = (uint64_t)size;
 
 	/* Split the size between octets. */
 	if (length <= 125)
 	{
-		frame[1]        = length & 0x7F;
+		frame[1] = length & 0x7F;
 		idx_first_rData = 2;
 	}
 
 	/* Size between 126 and 65535 bytes. */
 	else if (length >= 126 && length <= 65535)
 	{
-		frame[1]        = 126;
-		frame[2]        = (length >> 8) & 255;
-		frame[3]        = length & 255;
+		frame[1] = 126;
+		frame[2] = (length >> 8) & 255;
+		frame[3] = length & 255;
 		idx_first_rData = 4;
 	}
 
 	/* More than 65535 bytes. */
 	else
 	{
-		frame[1]        = 127;
-		frame[2]        = (unsigned char)((length >> 56) & 255);
-		frame[3]        = (unsigned char)((length >> 48) & 255);
-		frame[4]        = (unsigned char)((length >> 40) & 255);
-		frame[5]        = (unsigned char)((length >> 32) & 255);
-		frame[6]        = (unsigned char)((length >> 24) & 255);
-		frame[7]        = (unsigned char)((length >> 16) & 255);
-		frame[8]        = (unsigned char)((length >> 8) & 255);
-		frame[9]        = (unsigned char)(length & 255);
+		frame[1] = 127;
+		frame[2] = (unsigned char)((length >> 56) & 255);
+		frame[3] = (unsigned char)((length >> 48) & 255);
+		frame[4] = (unsigned char)((length >> 40) & 255);
+		frame[5] = (unsigned char)((length >> 32) & 255);
+		frame[6] = (unsigned char)((length >> 24) & 255);
+		frame[7] = (unsigned char)((length >> 16) & 255);
+		frame[8] = (unsigned char)((length >> 8) & 255);
+		frame[9] = (unsigned char)(length & 255);
 		idx_first_rData = 10;
 	}
 
 	/* Add frame bytes. */
 	idx_response = 0;
-	response     = malloc(sizeof(unsigned char) * (idx_first_rData + length + 1));
+	response = malloc(sizeof(unsigned char) * (idx_first_rData + length + 1));
 	if (!response)
 		return (-1);
 
@@ -511,9 +514,7 @@ int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type
 		for (i = 0; i < MAX_CLIENTS; i++)
 		{
 			cli = &client_socks[i];
-			if (
-				(cli->client_sock > -1) &&
-				get_client_state(cli) == WS_STATE_OPEN)
+			if ((cli->client_sock > -1) && get_client_state(cli) == WS_STATE_OPEN)
 			{
 				if ((send_ret = SEND(cli, response, idx_response)) != -1)
 					output += send_ret;
@@ -604,11 +605,11 @@ int ws_close_client(ws_cli_conn_t *client)
 	 * msg_ctrl buffer from wfd and avoid a race condition
 	 * if this is invoked asynchronously.
 	 */
-	cc           = WS_CLSE_NORMAL;
+	cc = WS_CLSE_NORMAL;
 	clse_code[0] = (cc >> 8);
 	clse_code[1] = (cc & 0xFF);
-	if (ws_sendframe(client, (const char *)clse_code, sizeof(char) * 2,
-			WS_FR_OP_CLSE) < 0)
+	if (ws_sendframe(
+			client, (const char *)clse_code, sizeof(char) * 2, WS_FR_OP_CLSE) < 0)
 	{
 		DEBUG("An error has occurred while sending closing frame!\n");
 		return (-1);
@@ -668,7 +669,7 @@ static int do_handshake(struct ws_frame_data *wfd)
 		return (-1);
 	}
 	wfd->amt_read = n;
-	wfd->cur_pos  = (size_t)((ptrdiff_t)(p - (char *)wfd->frm)) + 4;
+	wfd->cur_pos = (size_t)((ptrdiff_t)(p - (char *)wfd->frm)) + 4;
 
 	/* Get response. */
 	if (get_handshake_response((char *)wfd->frm, &response) < 0)
@@ -725,7 +726,8 @@ static int do_close(struct ws_frame_data *wfd, int close_code)
 	if (wfd->frame_size == 0 || wfd->frame_size > 2)
 		goto send;
 
-	/* Parse close code and check if valid, if not, we issue an protocol error. */
+	/* Parse close code and check if valid, if not, we issue an protocol error.
+	 */
 	if (wfd->frame_size == 1)
 		cc = wfd->msg_ctrl[0];
 	else
@@ -741,8 +743,8 @@ static int do_close(struct ws_frame_data *wfd, int close_code)
 		wfd->msg_ctrl[0] = (cc >> 8);
 		wfd->msg_ctrl[1] = (cc & 0xFF);
 
-		if (ws_sendframe(wfd->client, (const char *)wfd->msg_ctrl,
-				sizeof(char) * 2, WS_FR_OP_CLSE) < 0)
+		if (ws_sendframe(wfd->client, (const char *)wfd->msg_ctrl, sizeof(char) * 2,
+				WS_FR_OP_CLSE) < 0)
 		{
 			DEBUG("An error has occurred while sending closing frame!\n");
 			return (-1);
@@ -752,8 +754,8 @@ static int do_close(struct ws_frame_data *wfd, int close_code)
 
 	/* Send the data inside wfd->msg_ctrl. */
 send:
-	if (ws_sendframe(wfd->client, (const char *)wfd->msg_ctrl,
-			wfd->frame_size, WS_FR_OP_CLSE) < 0)
+	if (ws_sendframe(wfd->client, (const char *)wfd->msg_ctrl, wfd->frame_size,
+			WS_FR_OP_CLSE) < 0)
 	{
 		DEBUG("An error has occurred while sending closing frame!\n");
 		return (-1);
@@ -778,8 +780,8 @@ send:
  */
 static int do_pong(struct ws_frame_data *wfd, uint64_t frame_size)
 {
-	if (ws_sendframe(wfd->client, (const char *)wfd->msg_ctrl, frame_size,
-			WS_FR_OP_PONG) < 0)
+	if (ws_sendframe(
+			wfd->client, (const char *)wfd->msg_ctrl, frame_size, WS_FR_OP_PONG) < 0)
 	{
 		wfd->error = 1;
 		DEBUG("An error has occurred while ponging!\n");
@@ -813,7 +815,7 @@ static inline int next_byte(struct ws_frame_data *wfd)
 			return (-1);
 		}
 		wfd->amt_read = (size_t)n;
-		wfd->cur_pos  = 0;
+		wfd->cur_pos = 0;
 	}
 	return (wfd->frm[wfd->cur_pos++]);
 }
@@ -956,7 +958,7 @@ static int read_frame(struct ws_frame_data *wfd,
 				wfd->error = 1;
 				return (-1);
 			}
-			msg  = tmp;
+			msg = tmp;
 			*buf = msg;
 		}
 
@@ -987,7 +989,7 @@ static int read_frame(struct ws_frame_data *wfd,
 				wfd->error = 1;
 				return (-1);
 			}
-			msg  = tmp;
+			msg = tmp;
 			*buf = msg;
 		}
 		msg[*msg_idx] = '\0';
@@ -1023,17 +1025,17 @@ static int next_frame(struct ws_frame_data *wfd)
 	uint8_t mask;            /* Mask.                      */
 	int cur_byte;            /* Current frame byte.        */
 
-	msg_data        = NULL;
-	msg_ctrl        = wfd->msg_ctrl;
-	is_fin          = 0;
-	frame_length    = 0;
-	frame_size      = 0;
-	msg_idx_data    = 0;
-	msg_idx_ctrl    = 0;
+	msg_data = NULL;
+	msg_ctrl = wfd->msg_ctrl;
+	is_fin = 0;
+	frame_length = 0;
+	frame_size = 0;
+	msg_idx_data = 0;
+	msg_idx_ctrl = 0;
 	wfd->frame_size = 0;
 	wfd->frame_type = -1;
-	wfd->msg        = NULL;
-	utf8_state      = UTF8_ACCEPT;
+	wfd->msg = NULL;
+	utf8_state = UTF8_ACCEPT;
 
 	/* Read until find a FIN or a unsupported frame. */
 	do
@@ -1108,8 +1110,8 @@ static int next_frame(struct ws_frame_data *wfd)
 			if (get_client_state(wfd->client) == WS_STATE_CLOSING &&
 				opcode != WS_FR_OP_CLSE)
 			{
-				DEBUG(
-					"Unexpected frame received, expected CLOSE (%d), received: (%d)",
+				DEBUG("Unexpected frame received, expected CLOSE (%d), "
+					  "received: (%d)",
 					WS_FR_OP_CLSE, opcode);
 				wfd->error = 1;
 				break;
@@ -1119,9 +1121,9 @@ static int next_frame(struct ws_frame_data *wfd)
 			if (opcode != WS_FR_OP_CONT && !is_control_frame(opcode))
 				wfd->frame_type = opcode;
 
-			mask         = next_byte(wfd);
+			mask = next_byte(wfd);
 			frame_length = mask & 0x7F;
-			frame_size   = 0;
+			frame_size = 0;
 			msg_idx_ctrl = 0;
 
 			/*
@@ -1130,7 +1132,8 @@ static int next_frame(struct ws_frame_data *wfd)
 			 */
 			if (is_control_frame(opcode) && (!is_fin || frame_length > 125))
 			{
-				DEBUG("Control frame bigger than 125 octets or not a FIN frame!\n");
+				DEBUG("Control frame bigger than 125 octets or not a FIN "
+					  "frame!\n");
 				wfd->error = 1;
 				break;
 			}
@@ -1178,8 +1181,8 @@ static int next_frame(struct ws_frame_data *wfd)
 			}
 
 			/*
-			 * We _never_ send a PING frame, so it's not expected to receive a PONG
-			 * frame. However, the specs states that a client could send an
+			 * We _never_ send a PING frame, so it's not expected to receive a
+			 * PONG frame. However, the specs states that a client could send an
 			 * unsolicited PONG frame. The server just have to ignore the
 			 * frame.
 			 *
@@ -1238,7 +1241,7 @@ static int next_frame(struct ws_frame_data *wfd)
 			DEBUG("Unsupported frame opcode: %d\n", opcode);
 			/* We should consider as error receive an unknown frame. */
 			wfd->frame_type = opcode;
-			wfd->error      = 1;
+			wfd->error = 1;
 		}
 
 	} while (!is_fin && !wfd->error);
@@ -1274,7 +1277,7 @@ static void *ws_establishconnection(void *vclient)
 	ws_cli_conn_t *client;    /* Client structure.       */
 	int clse_thrd;            /* Time-out close thread.  */
 
-	client  = vclient;
+	client = vclient;
 
 	/* Prepare frame data. */
 	memset(&wfd, 0, sizeof(wfd));
@@ -1294,8 +1297,7 @@ static void *ws_establishconnection(void *vclient)
 		if ((wfd.frame_type == WS_FR_OP_TXT || wfd.frame_type == WS_FR_OP_BIN) &&
 			!wfd.error)
 		{
-			cli_events.onmessage(
-				client, wfd.msg, wfd.frame_size, wfd.frame_type);
+			cli_events.onmessage(client, wfd.msg, wfd.frame_size, wfd.frame_type);
 		}
 
 		/* Close event. */
@@ -1366,13 +1368,12 @@ static void *ws_accept(void *data)
 	int i;                     /* Loop index.            */
 
 	sock = *(int *)data;
-	len  = sizeof(struct sockaddr_in);
+	len = sizeof(struct sockaddr_in);
 
 	while (1)
 	{
 		/* Accept. */
-		new_sock =
-			accept(sock, (struct sockaddr *)&client, (socklen_t *)&len);
+		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t *)&len);
 
 		if (new_sock < 0)
 			panic("Error on accepting connections..");
@@ -1384,8 +1385,8 @@ static void *ws_accept(void *data)
 			if (client_socks[i].client_sock == -1)
 			{
 				client_socks[i].client_sock = new_sock;
-				client_socks[i].state       = WS_STATE_CONNECTING;
-				client_socks[i].close_thrd  = false;
+				client_socks[i].state = WS_STATE_CONNECTING;
+				client_socks[i].close_thrd = false;
 
 				if (pthread_mutex_init(&client_socks[i].mtx_state, NULL))
 					panic("Error on allocating close mutex");
@@ -1401,8 +1402,8 @@ static void *ws_accept(void *data)
 		/* Client socket added to socks list ? */
 		if (i != MAX_CLIENTS)
 		{
-			if (pthread_create(&client_thread, NULL, ws_establishconnection,
-					&client_socks[i]))
+			if (pthread_create(
+					&client_thread, NULL, ws_establishconnection, &client_socks[i]))
 				panic("Could not create the client thread!");
 
 			pthread_detach(client_thread);
@@ -1478,9 +1479,9 @@ int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop)
 	}
 
 	/* Prepare the sockaddr_in structure. */
-	server.sin_family      = AF_INET;
+	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port        = htons(port);
+	server.sin_port = htons(port);
 
 	/* Bind. */
 	if (bind(*sock, (struct sockaddr *)&server, sizeof(server)) < 0)
@@ -1495,10 +1496,10 @@ int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop)
 
 	/* Accept connections. */
 	if (!thread_loop)
-		ws_accept((void*)sock);
+		ws_accept((void *)sock);
 	else
 	{
-		if (pthread_create(&accept_thread, NULL, ws_accept, (void*)sock))
+		if (pthread_create(&accept_thread, NULL, ws_accept, (void *)sock))
 			panic("Could not create the client thread!");
 		pthread_detach(accept_thread);
 	}
@@ -1540,8 +1541,8 @@ int ws_file(struct ws_events *evs, const char *file)
 
 	/* Set client settings. */
 	client_socks[0].client_sock = sock;
-	client_socks[0].state       = WS_STATE_CONNECTING;
-	client_socks[0].close_thrd  = false;
+	client_socks[0].state = WS_STATE_CONNECTING;
+	client_socks[0].close_thrd = false;
 
 	/* Initialize mutexes. */
 	if (pthread_mutex_init(&client_socks[0].mtx_state, NULL))

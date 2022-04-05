@@ -2,7 +2,7 @@
 BasedOnStyle: Microsoft
 AlignAfterOpenBracket: DontAlign
 AlignConsecutiveMacros: 'true'
-AlignConsecutiveAssignments: 'true'
+AlignConsecutiveAssignments: 'false'
 AlignEscapedNewlines: Left
 AlignTrailingComments: 'true'
 AllowAllParametersOfDeclarationOnNextLine: 'true'
