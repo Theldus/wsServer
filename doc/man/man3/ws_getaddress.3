@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+.\" Copyright (C) 2016-2022  Davidson Francis <davidsondfgl@gmail.com>
 .\"
 .\" This program is free software: you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,19 +14,19 @@
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program.  If not, see <http://www.gnu.org/licenses/>
 .\"
-.TH man 3 "07 Nov 2020" "1.0" "wsServer man page"
+.TH man 3 "04 Apr 2022" "1.0" "wsServer man page"
 .SH NAME
 ws_getaddress \- Gets the client IP address
 .SH SYNOPSIS
 .nf
 .B #include <ws.h>
 .sp
-.BI "char* ws_getaddress(int " "fd" );
+.BI "char* ws_getaddress(ws_cli_conn_t " "*client" );
 .fi
 .SH DESCRIPTION
 .BR ws_getaddress ()
 obtains the client IP address as a string for a given
-.I fd
+.I client
 passed as parameter.
 .SH RETURN VALUE
 Returns a string containing the client IP address or null if error.

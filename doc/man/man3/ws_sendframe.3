@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+.\" Copyright (C) 2016-2022  Davidson Francis <davidsondfgl@gmail.com>
 .\"
 .\" This program is free software: you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,26 +14,24 @@
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program.  If not, see <http://www.gnu.org/licenses/>
 .\"
-.TH man 3 "07 Nov 2020" "1.0" "wsServer man page"
+.TH man 3 "04 Apr 2022" "1.0" "wsServer man page"
 .SH NAME
 ws_sendframe \- Creates and send a masked WebSocket frame with some payload data.
 .SH SYNOPSIS
 .nf
 .B #include <ws.h>
 .sp
-.BI "int ws_sendframe(int " fd ", const char " *msg ", ssize_t " size ", bool " broadcast ", int " type ");
+.BI "int ws_sendframe(ws_cli_conn_t " *client ", const char " *msg ", ssize_t " size ", int " type ");
 .fi
 .SH DESCRIPTION
 .BR ws_sendframe ()
 sends a given message
 .I msg
 to the client
-.I fd
+.I client
 with the size
 .I size
-with optional
-.I broadcast
-(true/false), for a given frame
+for a given frame
 .I type.
 This routine is intended to be used to create a websocket frame for
 a given type and sending to the client. For higher level routines,
@@ -57,6 +55,10 @@ are:
 .BR WS_FR_OP_BIN
 and
 .BR WS_FR_OP_PONG.
+.PP
+If the parameter
+.I client
+is NULL, a broadcast message will be sent instead.
 .SH SEE ALSO
 .BR ws_sendframe_txt (3),
 .BR ws_sendframe_bin (3)

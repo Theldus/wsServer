@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (C) 2016-2021  Davidson Francis <davidsondfgl@gmail.com>
+.\" Copyright (C) 2016-2022  Davidson Francis <davidsondfgl@gmail.com>
 .\"
 .\" This program is free software: you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program.  If not, see <http://www.gnu.org/licenses/>
 .\"
-.TH man 3 "01 Jul 2021" "1.0" "wsServer man page"
+.TH man 3 "04 Apr 2022" "1.0" "wsServer man page"
 .SH NAME
 ws_socket \- Start the WebSocket server
 .SH SYNOPSIS
@@ -47,9 +47,10 @@ is defined as follows:
 .nf
 	struct ws_events
 	{
-		void (*onopen)(int fd);
-		void (*onclose)(int fd);
-		void (*onmessage)(int fd, const unsigned char * msg,
+		void (*onopen)(ws_cli_conn_t *client);
+		void (*onclose)(ws_cli_conn_t *client);
+		void (*onmessage)(ws_cli_conn_t *client,
+			const unsigned char * msg,
 			uint64_t size, int type);
 	};
 .fi
