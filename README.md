@@ -24,7 +24,7 @@ See Autobahn [report](https://theldus.github.io/wsServer/autobahn) and the
 ## Building
 
 wsServer only requires a C99-compatible compiler (such as GCC, Clang, TCC and others) and
-not external libraries.
+no external libraries.
 
 ### Make
 The preferred way to build wsServer on Linux environments:
@@ -64,15 +64,14 @@ types of events defined:
 
 ```c
 /* New client. */
-void onopen(int fd);
+void onopen(ws_cli_conn_t *client);
 
 /* Client disconnected. */
-void onclose(int fd);
+void onclose(ws_cli_conn_t *client);
 
 /* Client sent a text message. */
-void onmessage(int fd, const unsigned char *msg, uint64_t size, int type);
-
-/* fd is the File Descriptor returned by accepted connection. */
+void onmessage(ws_cli_conn_t *client, const unsigned char *msg,
+    uint64_t size, int type);
 ```
 
 this is all you need to worry about, nothing to think about return values in socket,
@@ -94,51 +93,52 @@ folder, ;-).
 
 /**
  * @brief This function is called whenever a new connection is opened.
- * @param fd The new client file descriptor.
+ * @param client Client connection.
  */
-void onopen(int fd)
+void onopen(ws_cli_conn_t *client)
 {
     char *cli;
     cli = ws_getaddress(fd);
-    printf("Connection opened, client: %d | addr: %s\n", fd, cli);
+    printf("Connection opened, addr: %s\n", cli);
     free(cli);
 }
 
 /**
  * @brief This function is called whenever a connection is closed.
- * @param fd The client file descriptor.
+ * @param client Client connection.
  */
-void onclose(int fd)
+void onclose(ws_cli_conn_t *client)
 {
     char *cli;
     cli = ws_getaddress(fd);
-    printf("Connection closed, client: %d | addr: %s\n", fd, cli);
+    printf("Connection closed, addr: %s\n", cli);
     free(cli);
 }
 
 /**
  * @brief Message events goes here.
- * @param fd   Client file descriptor.
- * @param msg  Message content.
- * @param size Message size.
- * @param type Message type.
+ * @param client Client connection.
+ * @param msg    Message content.
+ * @param size   Message size.
+ * @param type   Message type.
  */
-void onmessage(int fd, const unsigned char *msg, uint64_t size, int type)
+void onmessage(ws_cli_conn_t *client,
+    const unsigned char *msg, uint64_t size, int type)
 {
     char *cli;
     cli = ws_getaddress(fd);
-    printf("I receive a message: %s (%zu), from: %s/%d\n", msg,
-        size, cli, fd);
+    printf("I receive a message: %s (%zu), from: %s\n", msg,
+        size, cli);
 
     sleep(2);
-    ws_sendframe_txt(fd, "hello", false);
+    ws_sendframe_txt(client, "hello");
     sleep(2);
-    ws_sendframe_txt(fd, "world", false);
+    ws_sendframe_txt(client, "world");
 
     free(cli);
 }
 
-int main()
+int main(void)
 {
     /* Register events. */
     struct ws_events evs;
@@ -158,7 +158,7 @@ int main()
 }
 ```
 
-to build the example above, just invoke: `make examples`.
+the example above can be built with: `make examples`.
 
 ## WebSocket client: ToyWS
 Inside `extra/toyws` there is a companion project called ToyWS. ToyWS is a very
