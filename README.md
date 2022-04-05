@@ -100,7 +100,6 @@ void onopen(ws_cli_conn_t *client)
     char *cli;
     cli = ws_getaddress(fd);
     printf("Connection opened, addr: %s\n", cli);
-    free(cli);
 }
 
 /**
@@ -112,7 +111,6 @@ void onclose(ws_cli_conn_t *client)
     char *cli;
     cli = ws_getaddress(fd);
     printf("Connection closed, addr: %s\n", cli);
-    free(cli);
 }
 
 /**
@@ -134,8 +132,6 @@ void onmessage(ws_cli_conn_t *client,
     ws_sendframe_txt(client, "hello");
     sleep(2);
     ws_sendframe_txt(client, "world");
-
-    free(cli);
 }
 
 int main(void)

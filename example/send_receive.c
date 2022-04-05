@@ -43,7 +43,6 @@ void onopen(ws_cli_conn_t *client)
 #ifndef DISABLE_VERBOSE
 	printf("Connection opened, addr: %s\n", cli);
 #endif
-	free(cli);
 }
 
 /**
@@ -60,7 +59,6 @@ void onclose(ws_cli_conn_t *client)
 #ifndef DISABLE_VERBOSE
 	printf("Connection closed, addr: %s\n", cli);
 #endif
-	free(cli);
 }
 
 /**
@@ -86,7 +84,6 @@ void onmessage(ws_cli_conn_t *client,
 	printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s\n",
 		msg, size, type, cli);
 #endif
-	free(cli);
 
 	/**
 	 * Mimicks the same frame type received and re-send it again

@@ -78,6 +78,9 @@ struct ws_connection
 
 	/* Send lock. */
 	pthread_mutex_t mtx_snd;
+
+	/* IP address. */
+	char ip[INET6_ADDRSTRLEN];
 };
 
 /**
@@ -380,6 +383,29 @@ out:
 }
 
 /**
+ * @brief Sets the IP address relative to a client connection opened
+ * by the server and save inside the client structure.
+ *
+ * @param client Client connection.
+ */
+static void set_client_address(ws_cli_conn_t *client)
+{
+	struct sockaddr_in addr;
+	socklen_t addr_size;
+
+	if (!CLIENT_VALID(client))
+		return;
+
+	addr_size = sizeof(struct sockaddr_in);
+
+	if (getpeername(client->client_sock, (struct sockaddr *)&addr, &addr_size) < 0)
+		return;
+
+	memset(client->ip, 0, sizeof(client->ip));
+	inet_ntop(AF_INET, &addr.sin_addr, client->ip, INET_ADDRSTRLEN);
+}
+
+/**
  * @brief Gets the IP address relative to a client connection opened
  * by the server.
  *
@@ -387,34 +413,14 @@ out:
  *
  * @return Pointer the ip address, or NULL if fails.
  *
- * @note It is up the caller to free the returned string.
+ * @note The returned string is static, no need to free up memory.
  */
 char *ws_getaddress(ws_cli_conn_t *client)
 {
-	struct sockaddr_in addr;
-	socklen_t addr_size;
-	char *ip;
-
 	if (!CLIENT_VALID(client))
 		return (NULL);
 
-	addr_size = sizeof(struct sockaddr_in);
-
-	if (getpeername(client->client_sock, (struct sockaddr *)&addr, &addr_size) < 0)
-	{
-		return (NULL);
-	}
-
-	ip = malloc(sizeof(char) * INET_ADDRSTRLEN);
-	if (!ip)
-		return (NULL);
-
-	if (!inet_ntop(AF_INET, &addr.sin_addr, ip, INET_ADDRSTRLEN))
-	{
-		free(ip);
-		return (NULL);
-	}
-	return (ip);
+	return (client->ip);
 }
 
 /**
@@ -1387,6 +1393,7 @@ static void *ws_accept(void *data)
 				client_socks[i].client_sock = new_sock;
 				client_socks[i].state = WS_STATE_CONNECTING;
 				client_socks[i].close_thrd = false;
+				set_client_address(&client_socks[i]);
 
 				if (pthread_mutex_init(&client_socks[i].mtx_state, NULL))
 					panic("Error on allocating close mutex");
