@@ -46,7 +46,6 @@ void onopen(ws_cli_conn_t *client)
 	char *cli;
 	cli = ws_getaddress(client);
 	printf("Connection opened, addr: %s\n", cli);
-	free(cli);
 }
 
 /**
@@ -61,7 +60,6 @@ void onclose(ws_cli_conn_t *client)
 	char *cli;
 	cli = ws_getaddress(client);
 	printf("Connection closed, addr: %s\n", cli);
-	free(cli);
 }
 
 /**

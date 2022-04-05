@@ -28,6 +28,9 @@ ws_getaddress \- Gets the client IP address
 obtains the client IP address as a string for a given
 .I client
 passed as parameter.
+.SH NOTES
+.PP
+The returned string is static, no need to free up memory.
 .SH RETURN VALUE
 Returns a string containing the client IP address or null if error.
 .SH AUTHOR
