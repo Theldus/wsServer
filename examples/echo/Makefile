@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Davidson Francis <davidsondfgl@gmail.com>
+# Copyright (C) 2016-2022 Davidson Francis <davidsondfgl@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 CC      ?= gcc
-WSDIR    = $(CURDIR)/../
+WSDIR    = $(CURDIR)/../../
 INCLUDE  = -I $(WSDIR)/include
 CFLAGS   =  -Wall -Wextra -O2
 CFLAGS  +=  $(INCLUDE) -std=c99 -pthread -pedantic
@@ -28,12 +28,12 @@ endif
 .PHONY: all clean
 
 # Examples
-all: send_receive
+all: echo
 
-# Send receive
-send_receive: send_receive.c $(LIB)
-	$(CC) $(CFLAGS) $(LDFLAGS) send_receive.c -o send_receive $(LIB)
+# Echo
+echo: echo.c $(LIB)
+	$(CC) $(CFLAGS) $(LDFLAGS) echo.c -o echo $(LIB)
 
 # Clean
 clean:
-	@rm -f send_receive
+	@rm -f echo

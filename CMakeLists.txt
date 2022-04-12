@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2021  Davidson Francis <davidsondfgl@gmail.com>
+# Copyright (C) 2016-2022  Davidson Francis <davidsondfgl@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,10 +35,6 @@ else()
 	target_link_libraries(ws pthread)
 endif(WIN32)
 
-add_executable(send_receive
-    example/send_receive.c)
-target_link_libraries(send_receive ws)
-
 add_executable(toyws_test
     extra/toyws/tws_test.c
     extra/toyws/toyws.c)
@@ -47,11 +43,14 @@ if(WIN32)
     target_link_libraries(toyws_test ws2_32 -static)
 endif(WIN32)
 
+# Examples files
+add_subdirectory(examples)
+
 option(ENABLE_WSSERVER_TEST "Enable wsServer testing (requires Autobahn)" OFF)
 if(ENABLE_WSSERVER_TEST)
 	enable_testing()
-	# Disable verbose output of send_receive
-	target_compile_definitions(send_receive PRIVATE DISABLE_VERBOSE)
+	# Disable verbose output of echo
+	target_compile_definitions(echo PRIVATE DISABLE_VERBOSE)
 	add_subdirectory(tests)
 endif(ENABLE_WSSERVER_TEST)
 

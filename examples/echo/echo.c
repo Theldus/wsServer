@@ -22,11 +22,11 @@
 #include <ws.h>
 
 /**
- * @dir example/
+ * @dir examples/
  * @brief wsServer examples folder
  *
- * @file send_receive.c
- * @brief Simple send/receiver example.
+ * @file echo.c
+ * @brief Simple echo example.
  */
 
 /**

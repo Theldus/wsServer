@@ -55,8 +55,8 @@ $ mkdir build && cd build/
 $ cmake .. -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles"
 $ mingw32-make -j4
 ```
-And that's it, the static library (libws.a) and the example file
-(send_receive.exe) are located in the build/ folder.
+And that's it, the static library (libws.a) and the examples files are located in the 
+build/examples folder.
 
-The example can be run with: `./send_receive.exe`, and the test webpage can be
-found at wsServer/example.
+The `echo` example can be run with: `./examples/echo/echo.exe`, and the test webpage can be
+found at `wsServer/examples/echo`.

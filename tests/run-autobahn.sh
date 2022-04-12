@@ -26,13 +26,13 @@ export CURDIR
 WSDIR="$(readlink -f "$CURDIR"/../)"
 export WSDIR
 
-# Set send_receive path accordingly with where this
+# Set echo path accordingly with where this
 # script was invoked
 if [ "$#" -gt 0 ] && [ "$1" = "CMAKE" ]
 then
-	SR_BIN="$WSDIR/build/send_receive"
+	ECHO_BIN="$WSDIR/build/examples/echo/echo"
 else
-	SR_BIN="$WSDIR/example/send_receive"
+	ECHO_BIN="$WSDIR/examples/echo/echo"
 fi
 
 # AFL Fuzzing
@@ -55,27 +55,27 @@ else
 	fi
 fi
 
-# send_receive should exist
-if [ ! -f "$SR_BIN" ] && [ ! -f "$SR_BIN.exe" ]
+# echo should exist
+if [ ! -f "$ECHO_BIN" ] && [ ! -f "$ECHO_BIN.exe" ]
 then
-	echo "send_receive not found! please build it first, before"
+	echo "echo not found! please build it first, before"
 	echo "proceeding!"
 	exit 1
 fi
 
 printf "\n[+] Running Autobahn...\n"
 
-# First spawn send_receive and get its pid
-if [ -f "$SR_BIN" ]
+# First spawn echo and get its pid
+if [ -f "$ECHO_BIN" ]
 then
-	"$SR_BIN" &
+	"$ECHO_BIN" &
 	SR=$!
-elif [ -f "$SR_BIN.exe" ]
+elif [ -f "$ECHO_BIN.exe" ]
 then
-	wine64-stable "$SR_BIN" &
+	wine64-stable "$ECHO_BIN" &
 	SR=$!
 else
-	echo "Erro, send_receive[.exe] not found!"
+	echo "Error, echo[.exe] not found!"
 	exit 1
 fi
 
@@ -92,7 +92,7 @@ else
 		theldus/autobahn-testsuite:1.0
 fi
 
-# Kill send_receive
+# Kill echo
 kill $SR
 
 # If inside a CMake test, invoke the Python script too

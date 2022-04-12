@@ -50,7 +50,7 @@ cd wsServer/
 mkdir build && cd build/
 cmake ..
 make
-./send_receive # Waiting for incoming connections...
+./examples/echo/echo # Waiting for incoming connections...
 ```
 
 ### Windows support

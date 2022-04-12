@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2020 Davidson Francis <davidsondfgl@gmail.com>
+# Copyright (C) 2016-2022 Davidson Francis <davidsondfgl@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ libws.a: $(OBJ)
 
 # Examples
 examples: libws.a
-	$(MAKE) -C example/
+	$(MAKE) -C examples/
 
 # Autobahn tests
 tests: examples
@@ -164,6 +164,6 @@ clean:
 	@rm -f $(OBJ)
 	@rm -f $(LIB)
 	@rm -f $(TOYWS)/toyws.o $(TOYWS)/tws_test.o toyws_test
-	@$(MAKE) clean -C example/
+	@$(MAKE) clean -C examples/
 	@$(MAKE) clean -C tests/
 	@$(MAKE) clean -C tests/fuzzy
