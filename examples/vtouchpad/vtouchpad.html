@@ -1,0 +1,227 @@
+<!--
+Copyright (C) 2022  Davidson Francis <davidsondfgl@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
+-->
+<html>
+<head>
+	<script>
+		let ws;
+		let x = 0;
+		let y = 0;
+		let move_counter = 0;
+		let is_connected = false;
+		const THRESHOLD  = 1;
+		const DEBUG      = true;
+		const DELIMITER  = ";";
+
+		function get_touch(e) {
+			const evt = (typeof e.originalEvent === 'undefined') ?
+				e : e.originalEvent;
+			const touch = evt.touches[0] || evt.changedTouches[0];
+			return (touch);
+		}
+
+		function is_touch_device() {
+			return (('ontouchstart' in window) ||
+				(navigator.maxTouchPoints > 0) ||
+				(navigator.msMaxTouchPoints > 0));
+		}
+
+		function fix_num(n) {
+			return (n == NaN ? 0 : Math.round(n));
+		}
+
+		window.addEventListener("load", function () {
+
+			/* Mouse events. */
+			const touch = document.getElementById('touch');
+			touch.addEventListener('mousemove', e => {
+				if (is_touch_device())
+					return;
+				mouse_move(e.offsetX, e.offsetY);
+			});
+			touch.addEventListener('mousedown', e => {
+				mouse_down(e);
+			});
+			touch.addEventListener('mouseup', e => {
+				mouse_up(e);
+			});
+			touch.addEventListener('mouseenter', e => {
+				x = e.offsetX;
+				y = e.offsetY;
+			});
+
+
+			/* Touch events. */
+			touch.addEventListener('touchmove', e => {
+				const touch = get_touch(e);
+				mouse_move(fix_num(touch.pageX), fix_num(touch.pageY));
+			});
+			touch.addEventListener('touchstart', e => {
+				const touch = get_touch(e);
+				x = fix_num(touch.pageX);
+				y = fix_num(touch.pageY);
+			});
+
+
+			/* Button left. */
+			const btn_left = document.getElementById('btn_left');
+			btn_left.addEventListener('mousedown', e => {
+				mouse_down(e, "mouse_btn_left_down");
+			});
+			btn_left.addEventListener('mouseup', e => {
+				mouse_up(e, "mouse_btn_left_up");
+			});
+
+			/* Button right. */
+			const btn_right = document.getElementById('btn_right');
+			btn_right.addEventListener('mousedown', e => {
+				mouse_down(e, "mouse_btn_right_down");
+			});
+			btn_right.addEventListener('mouseup', e => {
+				mouse_up(e, "mouse_btn_right_up");
+			});
+
+			/* Connect button. */
+			document.getElementById("bt_conn").onclick = function(){
+				const addr = document.getElementById("srv_addr").value;
+				toggle_connection(addr);
+			};
+		});
+
+		function toggle_connection(addr) {
+			if (is_connected) {
+				is_connected = false;
+				ws.close();
+				document.getElementById("bt_conn").value = "Disconnect!";
+				return;
+			}
+			ws = new WebSocket(addr);
+			ws.onopen = function(e) {
+				is_connected = true;
+				document.getElementById("bt_conn").value = "Disconnect!";
+			};
+			ws.onclose = function(e) {
+				is_connected = false;
+				document.getElementById("bt_conn").value = "Connect!";
+			};
+		}
+
+		function mouse_move(offX, offY) {
+			if (!is_connected)
+				return;
+
+			/* Do not trigger too much events.. we do not need
+			 * to do 'micro movements' */
+			move_counter++;
+			if (move_counter != THRESHOLD)
+				return;
+			move_counter = 0;
+			
+			const movX = offX - x;
+			const movY = offY - y;
+			x = offX;
+			y = offY;
+
+			ws.send("mouse_move" + DELIMITER + movX + DELIMITER + movY);
+			if (DEBUG)
+				console.log(movX + " / " + movY);
+		}
+
+		function mouse_down(e, btn) {
+			let event;
+			if (!is_connected)
+				return;
+
+			if (!btn) {
+				if (e.button == 0)
+					event = "mouse_btn_left_down";
+				else if (e.button == 2)
+					event = "mouse_btn_right_down";
+				else
+					return;
+			}
+			else
+				event = btn;
+
+			if (DEBUG)
+				console.log(event);
+			ws.send(event);
+		}
+		function mouse_up(e, btn) {
+			let event;
+			if (!is_connected)
+				return;
+
+			if (!btn) {
+				if (e.button == 0)
+					event = "mouse_btn_left_up";
+				else if (e.button == 2)
+					event = "mouse_btn_right_up";
+				else
+					return;
+			}
+			else
+				event = btn;
+
+			if (DEBUG)
+				console.log(event);
+			ws.send(event);
+		}
+
+	</script>
+	<style type="text/css">
+		body {
+			margin: 0 !important;
+			padding: 0 !important;
+			overscroll-behavior-y: contain;
+		}
+		#header { padding-top:  10px; padding-left: 5px; }
+		#touch {
+			background-image: linear-gradient(white, gray);
+			border: solid;
+			border-radius: 5px;
+			width: 80%;
+			height: 78%;
+			margin: 0 auto;
+		}
+		#wrapper { margin: 0 auto; width: 99%; text-align: center; }
+		#btn_left, #btn_right {
+			background-image: linear-gradient(white, gray);
+			border: solid;
+			border-radius: 5px;
+			width: 40%;
+			height: 11%;
+			display: inline-block;
+			margin-right: 10px;
+			margin-top: 10px;
+		}
+		#btn_right {
+			margin-right: 0;
+		}
+	</style>
+</head>
+<body oncontextmenu="return false;">
+	<div id="header">
+		Server: <input type="text" id="srv_addr" value="ws://192.168.100.4:8080">
+		<input type="button" id="bt_conn" name="bt_conn" value="Connect!"><br /><br />
+	</div>
+
+	<div id="touch"></div>
+	<div id="wrapper">
+		<div id="btn_left"></div><div id="btn_right"></div>
+	</div>
+</body>
+</html>
