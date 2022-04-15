@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>tests/fuzzy/ws_file.c file | wsServer | a very tiny WebSocket server library written in C</title>
+  <title>examples/vtouchpad/vtouchpad.c file | wsServer | a very tiny WebSocket server library written in C</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i%7CSource+Code+Pro:400,400i,600" />
   <link rel="stylesheet" href="m-dark+documentation.compiled.css" />
   <link rel="icon" href="favicon-dark.png" type="image/png" />
@@ -50,9 +50,9 @@
     <div class="m-row">
       <div class="m-col-l-10 m-push-l-1">
         <h1>
-          <span class="m-breadcrumb"><a href="dir_59425e443f801f1f2fd8bbe4959a3ccf.html">tests</a>/</span><span class="m-breadcrumb"><a href="dir_5078da55ae4dfd5ff290573b738d64a0.html">fuzzy</a>/</span>ws_file.c <span class="m-thin">file</span>
+          <span class="m-breadcrumb"><a href="dir_d28a4824dc47e487b107a5db32ef43c4.html">examples</a>/</span><span class="m-breadcrumb"><a href="dir_7ec1322b59fa0ccbc0dd27ff9dc62547.html">vtouchpad</a>/</span>vtouchpad.c <span class="m-thin">file</span>
         </h1>
-        <p>Read a given stream of frames from a file and parse them.</p>
+        <p>Main file.</p>
         <div class="m-block m-default">
           <h3>Contents</h3>
           <ul>
@@ -68,34 +68,63 @@
           <h2><a href="#func-members">Functions</a></h2>
           <dl class="m-doc">
             <dt>
+              <span class="m-doc-wrap-bumper">auto <a href="#a531ce701f60e6aac34cebff29c310119" class="m-doc">parse_event</a>(</span><span class="m-doc-wrap">const char* ev,
+              int* error) -&gt; struct <a href="structmouse__event.html" class="m-doc">mouse_<wbr />event</a></span>
+            </dt>
+            <dd>Given a string <code>ev</code> containing a single event, parses it as expected.</dd>
+            <dt>
               <span class="m-doc-wrap-bumper">void <a href="#acad817bd7c7f16e077c8f4a411cf60c3" class="m-doc">onopen</a>(</span><span class="m-doc-wrap"><a href="ws_8h.html#a2b6c39132c2b4a8c28bc7a5fd9a4782e" class="m-doc">ws_<wbr />cli_<wbr />conn_<wbr />t</a>* client)</span>
             </dt>
-            <dd>Called when a client connects to the server.</dd>
+            <dd>On open event, just signals that a new client has been connected.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">void <a href="#a75da9864e55abf37e022f421340398e1" class="m-doc">onclose</a>(</span><span class="m-doc-wrap"><a href="ws_8h.html#a2b6c39132c2b4a8c28bc7a5fd9a4782e" class="m-doc">ws_<wbr />cli_<wbr />conn_<wbr />t</a>* client)</span>
             </dt>
-            <dd>Called when a client disconnects to the server.</dd>
+            <dd>On close event, just signals that a client has been disconnected.</dd>
             <dt>
               <span class="m-doc-wrap-bumper">void <a href="#a2864d75de905dbfa15b7b19b327cc449" class="m-doc">onmessage</a>(</span><span class="m-doc-wrap"><a href="ws_8h.html#a2b6c39132c2b4a8c28bc7a5fd9a4782e" class="m-doc">ws_<wbr />cli_<wbr />conn_<wbr />t</a>* client,
               const unsigned char* msg,
               uint64_t size,
               int type)</span>
             </dt>
-            <dd>Called when a client connects to the server.</dd>
-            <dt id="a3c04138a5bfe5d72780bb7e82a18e627">
-              <span class="m-doc-wrap-bumper">auto <a href="#a3c04138a5bfe5d72780bb7e82a18e627" class="m-doc-self">main</a>(</span><span class="m-doc-wrap">int argc,
-              char** argv) -&gt; int</span>
-            </dt>
-            <dd>Main routine.</dd>
+            <dd>For each new event, parses the string as expected all call the appropriate routines.</dd>
           </dl>
         </section>
         <section>
           <h2>Function documentation</h2>
+          <section class="m-doc-details" id="a531ce701f60e6aac34cebff29c310119"><div>
+            <h3>
+              <span class="m-doc-wrap-bumper">struct <a href="structmouse__event.html" class="m-doc">mouse_<wbr />event</a> </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a531ce701f60e6aac34cebff29c310119" class="m-doc-self">parse_event</a>(</span><span class="m-doc-wrap">const char* ev,
+              int* error)</span></span>
+            </h3>
+            <p>Given a string <code>ev</code> containing a single event, parses it as expected.</p>
+            <table class="m-table m-fullwidth m-flat">
+              <thead>
+                <tr><th colspan="2">Parameters</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 1%">ev</td>
+                  <td>String representing the event.</td>
+                </tr>
+                <tr>
+                  <td>error</td>
+                  <td>Set to 1 if an error was found, 0 otherwise.</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Returns</th>
+                  <td>Returns a <a href="structmouse__event.html" class="m-doc">mouse_<wbr />event</a> structure.</td>
+                </tr>
+              </tfoot>
+            </table>
+<p>The event can be (D stands to &#x27;delimiter&#x27;, currently &#x27;;&#x27;): (Mouse Movement): mouse_move D off_X D off_Y, where the offset is an integer type that represents the amount of pixels the mouse have to move. Example: mouse_move;10;-20.</p><p>Negative offsets represents movement to the left and to the top. Positive offsets are the opposite.</p><p>(Mouse Button Press): Represents if a mouse button has been pressed or released.</p><p>Valid events are: a) mouse_btn_left_down (left button press) b) mouse_btn_left_up (left button release) c) mouse_btn_right_down d) mouse_btn_right_up</p>
+          </div></section>
           <section class="m-doc-details" id="acad817bd7c7f16e077c8f4a411cf60c3"><div>
             <h3>
               <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#acad817bd7c7f16e077c8f4a411cf60c3" class="m-doc-self">onopen</a>(</span><span class="m-doc-wrap"><a href="ws_8h.html#a2b6c39132c2b4a8c28bc7a5fd9a4782e" class="m-doc">ws_<wbr />cli_<wbr />conn_<wbr />t</a>* client)</span></span>
             </h3>
-            <p>Called when a client connects to the server.</p>
+            <p>On open event, just signals that a new client has been connected.</p>
             <table class="m-table m-fullwidth m-flat">
               <thead>
                 <tr><th colspan="2">Parameters</th></tr>
@@ -103,7 +132,7 @@
               <tbody>
                 <tr>
                   <td style="width: 1%">client</td>
-                  <td>Client connection. The <code>client</code> parameter is used in order to send messages and retrieve informations about the client.</td>
+                  <td>Client connection.</td>
                 </tr>
               </tbody>
             </table>
@@ -112,7 +141,7 @@
             <h3>
               <span class="m-doc-wrap-bumper">void </span><span class="m-doc-wrap"><span class="m-doc-wrap-bumper"><a href="#a75da9864e55abf37e022f421340398e1" class="m-doc-self">onclose</a>(</span><span class="m-doc-wrap"><a href="ws_8h.html#a2b6c39132c2b4a8c28bc7a5fd9a4782e" class="m-doc">ws_<wbr />cli_<wbr />conn_<wbr />t</a>* client)</span></span>
             </h3>
-            <p>Called when a client disconnects to the server.</p>
+            <p>On close event, just signals that a client has been disconnected.</p>
             <table class="m-table m-fullwidth m-flat">
               <thead>
                 <tr><th colspan="2">Parameters</th></tr>
@@ -120,7 +149,7 @@
               <tbody>
                 <tr>
                   <td style="width: 1%">client</td>
-                  <td>Client connection. The <code>client</code> parameter is used in order to send messages and retrieve informations about the client.</td>
+                  <td>Client connection.</td>
                 </tr>
               </tbody>
             </table>
@@ -132,7 +161,7 @@
               uint64_t size,
               int type)</span></span>
             </h3>
-            <p>Called when a client connects to the server.</p>
+            <p>For each new event, parses the string as expected all call the appropriate routines.</p>
             <table class="m-table m-fullwidth m-flat">
               <thead>
                 <tr><th colspan="2">Parameters</th></tr>
@@ -140,19 +169,19 @@
               <tbody>
                 <tr>
                   <td style="width: 1%">client</td>
-                  <td>Client connection. The <code>client</code> parameter is used in order to send messages and retrieve informations about the client.</td>
+                  <td>Client connection. (ignored)</td>
                 </tr>
                 <tr>
                   <td>msg</td>
-                  <td>Received message, this message can be a text or binary message.</td>
+                  <td>Received message/event.</td>
                 </tr>
                 <tr>
                   <td>size</td>
-                  <td>Message size (in bytes).</td>
+                  <td>Message size (in bytes). (ignored)</td>
                 </tr>
                 <tr>
                   <td>type</td>
-                  <td>Message type.</td>
+                  <td>Message type. (ignored)</td>
                 </tr>
               </tbody>
             </table>

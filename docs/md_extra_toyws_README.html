@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ToyWS | wsServer | a very tiny WebSocket server library written in C</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i%7CSource+Code+Pro:400,400i,600" />
+  <link rel="stylesheet" href="m-dark+documentation.compiled.css" />
+  <link rel="icon" href="favicon-dark.png" type="image/png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#22272e" />
+  <style>
+    li {margin-top: 10px;}
+  </style>
+</head>
+<body>
+<header><nav id="navigation">
+  <div class="m-container">
+    <div class="m-row">
+      <a href="index.html" id="m-navbar-brand" class="m-col-t-8 m-col-m-none m-left-m">wsServer <span class="m-thin">| a very tiny WebSocket server library written in C</span></a>
+      <div class="m-col-t-4 m-hide-m m-text-right m-nopadr">
+        <a href="#search" class="m-doc-search-icon" title="Search" onclick="return showSearch()"><svg style="height: 0.9rem;" viewBox="0 0 16 16">
+          <path id="m-doc-search-icon-path" d="m6 0c-3.31 0-6 2.69-6 6 0 3.31 2.69 6 6 6 1.49 0 2.85-0.541 3.89-1.44-0.0164 0.338 0.147 0.759 0.5 1.15l3.22 3.79c0.552 0.614 1.45 0.665 2 0.115 0.55-0.55 0.499-1.45-0.115-2l-3.79-3.22c-0.392-0.353-0.812-0.515-1.15-0.5 0.895-1.05 1.44-2.41 1.44-3.89 0-3.31-2.69-6-6-6zm0 1.56a4.44 4.44 0 0 1 4.44 4.44 4.44 4.44 0 0 1-4.44 4.44 4.44 4.44 0 0 1-4.44-4.44 4.44 4.44 0 0 1 4.44-4.44z"/>
+        </svg></a>
+        <a id="m-navbar-show" href="#navigation" title="Show navigation"></a>
+        <a id="m-navbar-hide" href="#" title="Hide navigation"></a>
+      </div>
+      <div id="m-navbar-collapse" class="m-col-t-12 m-show-m m-col-m-none m-right-m">
+        <div class="m-row">
+          <ol class="m-col-t-6 m-col-m-none">
+            <li><a href="pages.html">Pages</a></li>
+            <li><a href="namespaces.html">Namespaces</a></li>
+          </ol>
+          <ol class="m-col-t-6 m-col-m-none" start="3">
+            <li><a href="annotated.html">Classes</a></li>
+            <li><a href="files.html">Files</a></li>
+            <li class="m-show-m"><a href="#search" class="m-doc-search-icon" title="Search" onclick="return showSearch()"><svg style="height: 0.9rem;" viewBox="0 0 16 16">
+              <use href="#m-doc-search-icon-path" />
+            </svg></a></li>
+            <li class="m-show-m"><a target="_blank" href="https://github.com/Theldus/wsServer" class="m-doc-search-icon" title="GitHub Page">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            </a></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav></header>
+<main><article>
+  <div class="m-container m-container-inflatable">
+    <div class="m-row">
+      <div class="m-col-l-10 m-push-l-1">
+        <h1>
+          ToyWS
+        </h1>
+<p>Since there is some demand to support a client, &#x27;ToyWS&#x27; is a response to those requests: ToyWS is a toy WebSocket client, meaning that it&#x27;s quite simple and made to work (guaranteed) only with wsServer.</p><p>Limitations:</p><ul><li>Fixed handshake header</li><li>Fixed frame mask (it should be random)</li><li>No PING/PONG frame support</li><li>No close handshake support: although it can identify CLOSE frames, it does not send the response, only aborts the connection.</li><li>No support for CONT frames, that is, the entire content of a frame (TXT or BIN) must be contained within a single frame.</li><li>Possibly other things too.</li></ul><p>Although extremely limited, ToyWS was designed for those who want to <em>also</em> have a C client that is lightweight and compatible with wsServer, thus, freeing the need for a browser and/or third-party libraries to test and use wsServer.</p><p>Maybe this client will evolve into something more complete and general in the future, but that&#x27;s not in the roadmap at the moment.</p><section id="autotoc_md42"><h2><a href="#autotoc_md42">API</a></h2><p>The API is quite simple and is summarized in 4 routines, to connect, disconnect, send and receive frame, as follows:</p><pre class="m-code"><span class="kt">int</span> <span class="nf">tws_connect</span><span class="p">(</span><span class="k">struct</span> <span class="n">tws_ctx</span> <span class="o">*</span><span class="n">ctx</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">ip</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">port</span><span class="p">);</span></pre><p>Connect to a given <code>ip</code> address and <code>port</code>.</p><p><strong>Return</strong>: Returns a positive number if success, otherwise, a negative number.</p><p><strong>Note:</strong> <code>struct <a href="structtws__ctx.html" class="m-doc">tws_<wbr />ctx</a> *ctx</code> is for internal usage and initialized within this function. There is no need to access this structure or modify its values, ToyWS just needs it to maintain the consistent client state.</p><hr/><pre class="m-code"><span class="kt">void</span> <span class="nf">tws_close</span><span class="p">(</span><span class="k">struct</span> <span class="n">tws_ctx</span> <span class="o">*</span><span class="n">ctx</span><span class="p">);</span></pre><p>Close the connection for the given <code>ctx</code>.</p><hr/><pre class="m-code"><span class="kt">int</span> <span class="nf">tws_sendframe</span><span class="p">(</span><span class="k">struct</span> <span class="n">tws_ctx</span> <span class="o">*</span><span class="n">ctx</span><span class="p">,</span> <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">msg</span><span class="p">,</span> <span class="kt">uint64_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">);</span></pre><p>Send a frame of type <code>type</code> with content <code>msg</code> and size <code>size</code> for a given context <code>ctx</code>.</p><p>Valid frame types are:</p><ul><li>FRM_TXT</li><li>FRM_BIN</li></ul><p><strong>Return</strong>: Returns 0 if success, otherwise, a negative number.</p><hr/><pre class="m-code"><span class="kt">int</span> <span class="nf">tws_receiveframe</span><span class="p">(</span><span class="k">struct</span> <span class="n">tws_ctx</span> <span class="o">*</span><span class="n">ctx</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">buff</span><span class="p">,</span> <span class="kt">size_t</span> <span class="o">*</span><span class="n">buff_size</span><span class="p">,</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">frm_type</span><span class="p">);</span></pre><p>Receive a frame and save it on <code>buff</code>.</p><p><strong>Parameters:</strong></p><p>**<code>buff</code>:**</p><p>Pointer to the target buffer. If NULL, ToyWS will allocate a new buffer that is capable to hold the frame and save into <code>buff</code>.</p><p>If already exists: the function will try to fill the buffer with the frame content, if the frame size is bigger than <code>buff_size</code>, the function will reallocate <code>buff</code> and update <code>buff_size</code> with the new size.</p><p>**<code>buff_size</code>:**</p><p>Current buffer size. <strong>Must</strong> point the a valid memory region. If <code>*buff</code> points to NULL, <code>*buff_size</code> must be equals to 0.</p><p>**<code>frm_type</code>:**</p><p>Frame type read. The frame type received will be reflected into the contents of this pointer.</p><p><strong>Return</strong>: Returns 0 if success, a negative number otherwise.</p><p><strong>Note</strong>:</p><ul><li>This routine is blocking, that is, it will only return if it manages to read a frame or if there is an error during the reading (such as invalid (or unsupported) frame or server disconnection).</li><li>At the end of everything, don&#x27;t forget to free the buffer!. Once its size is relocated, a single call to &#x27;free&#x27; is sufficient.</li></ul></section><section id="autotoc_md46"><h2><a href="#autotoc_md46">Example</a></h2><p>The example below illustrates the usage (also available at (<a href="tws__test_8c.html" class="m-doc">extra/toyws/tws_<wbr />test.c</a>)):</p><pre class="m-code"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;toyws.h&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">tws_ctx</span> <span class="n">ctx</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">msg</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;Hello&quot;</span><span class="p">;</span>
+
+    <span class="cm">/* Buffer/frame params. */</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">buff</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">frm_type</span><span class="p">;</span>
+    <span class="kt">size_t</span> <span class="n">buff_size</span><span class="p">;</span>
+
+    <span class="n">buff</span>      <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">buff_size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">frm_type</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">tws_connect</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ctx</span><span class="p">,</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8080</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Unable to connect!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="cm">/* Send message. */</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Send: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">tws_sendframe</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ctx</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">msg</span><span class="p">),</span> <span class="n">FRM_TXT</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">?</span>
+            <span class="s">&quot;Success&quot;</span> <span class="o">:</span> <span class="s">&quot;Failed&quot;</span><span class="p">));</span>
+
+    <span class="cm">/* Blocks until receive a single message. */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">tws_receiveframe</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ctx</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">buff</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">buff_size</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">frm_type</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;Unable to receive message!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;I received: (%s) (type: %s)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">buff</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">frm_type</span> <span class="o">==</span> <span class="n">FRM_TXT</span> <span class="o">?</span> <span class="s">&quot;Text&quot;</span> <span class="o">:</span> <span class="s">&quot;Binary&quot;</span><span class="p">));</span>
+
+    <span class="n">tws_close</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ctx</span><span class="p">);</span>
+
+    <span class="n">free</span><span class="p">(</span><span class="n">buff</span><span class="p">);</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span></pre></section>
+      </div>
+    </div>
+  </div>
+</article></main>
+<div class="m-doc-search" id="search">
+  <a href="#!" onclick="return hideSearch()"></a>
+  <div class="m-container">
+    <div class="m-row">
+      <div class="m-col-m-8 m-push-m-2">
+        <div class="m-doc-search-header m-text m-small">
+          <div><span class="m-label m-default">Tab</span> / <span class="m-label m-default">T</span> to search, <span class="m-label m-default">Esc</span> to close</div>
+          <div id="search-symbolcount">&hellip;</div>
+        </div>
+        <div class="m-doc-search-content">
+          <form>
+            <input type="search" name="q" id="search-input" placeholder="Loading &hellip;" disabled="disabled" autofocus="autofocus" autocomplete="off" spellcheck="false" />
+          </form>
+          <noscript class="m-text m-danger m-text-center">Unlike everything else in the docs, the search functionality <em>requires</em> JavaScript.</noscript>
+          <div id="search-help" class="m-text m-dim m-text-center">
+            <p class="m-noindent">Search for symbols, directories, files, pages or
+            modules. You can omit any prefix from the symbol or file path; adding a
+            <code>:</code> or <code>/</code> suffix lists all members of given symbol or
+            directory.</p>
+            <p class="m-noindent">Use <span class="m-label m-dim">&darr;</span>
+            / <span class="m-label m-dim">&uarr;</span> to navigate through the list,
+            <span class="m-label m-dim">Enter</span> to go.
+            <span class="m-label m-dim">Tab</span> autocompletes common prefix, you can
+            copy a link to the result using <span class="m-label m-dim">⌘</span>
+            <span class="m-label m-dim">L</span> while <span class="m-label m-dim">⌘</span>
+            <span class="m-label m-dim">M</span> produces a Markdown link.</p>
+          </div>
+          <div id="search-notfound" class="m-text m-warning m-text-center">Sorry, nothing was found.</div>
+          <ul id="search-results"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="search-v1.js"></script>
+<script src="searchdata-v1.js" async="async"></script>
+<footer><nav>
+  <div class="m-container">
+    <div class="m-row">
+      <div class="m-col-l-10 m-push-l-1">
+        <p>wsServer | a very tiny WebSocket server library written in C. Created with <a href="https://doxygen.org/">Doxygen</a> 1.8.20 and <a href="https://mcss.mosra.cz/">m.css</a>.</p>
+      </div>
+    </div>
+  </div>
+</nav></footer>
+</body>
+</html>

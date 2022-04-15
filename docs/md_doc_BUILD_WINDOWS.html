@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ws_frame_data struct | wsServer | a very tiny WebSocket server library written in C</title>
+  <title>Building on Windows | wsServer | a very tiny WebSocket server library written in C</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i,600,600i%7CSource+Code+Pro:400,400i,600" />
   <link rel="stylesheet" href="m-dark+documentation.compiled.css" />
   <link rel="icon" href="favicon-dark.png" type="image/png" />
@@ -50,62 +50,13 @@
     <div class="m-row">
       <div class="m-col-l-10 m-push-l-1">
         <h1>
-          ws_frame_data <span class="m-thin">struct</span>
-          <div class="m-doc-include m-code m-inverted m-text-right"><span class="cp">#include</span> <a class="cpf" href="ws_8c.html">&lt;src/ws.c&gt;</a></div>
+          Building on Windows
         </h1>
-        <p>WebSocket frame data.</p>
-        <div class="m-block m-default">
-          <h3>Contents</h3>
-          <ul>
-            <li>
-              Reference
-              <ul>
-                <li><a href="#pub-attribs">Public variables</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-        <section id="pub-attribs">
-          <h2><a href="#pub-attribs">Public variables</a></h2>
-          <dl class="m-doc">
-            <dt id="ae8f6ad34d02fc7c0554d6ff3f4f63af3">
-              unsigned char <a href="#ae8f6ad34d02fc7c0554d6ff3f4f63af3" class="m-doc-self">frm</a>
-            </dt>
-            <dd>Frame read.</dd>
-            <dt id="a66bfb3d8607490b574b64d84624bd3b9">
-              unsigned char* <a href="#a66bfb3d8607490b574b64d84624bd3b9" class="m-doc-self">msg</a>
-            </dt>
-            <dd>Processed message at the moment.</dd>
-            <dt id="a162deddb20403276b90bcd4afe48f2df">
-              unsigned char <a href="#a162deddb20403276b90bcd4afe48f2df" class="m-doc-self">msg_ctrl</a>
-            </dt>
-            <dd>Control frame payload.</dd>
-            <dt id="a4af5b1b924e319af21ad5aa6d9ef6a2f">
-              size_t <a href="#a4af5b1b924e319af21ad5aa6d9ef6a2f" class="m-doc-self">cur_pos</a>
-            </dt>
-            <dd>Current byte position.</dd>
-            <dt id="a1dd2a305e64aedfa31f21bc64ea8652a">
-              size_t <a href="#a1dd2a305e64aedfa31f21bc64ea8652a" class="m-doc-self">amt_read</a>
-            </dt>
-            <dd>Amount of read bytes.</dd>
-            <dt id="a3773fc9e095d5d752b6570a919847c1f">
-              int <a href="#a3773fc9e095d5d752b6570a919847c1f" class="m-doc-self">frame_type</a>
-            </dt>
-            <dd>Frame type, like text or binary.</dd>
-            <dt id="a65ea1b5a09a66903cc093b295a877d7d">
-              uint64_t <a href="#a65ea1b5a09a66903cc093b295a877d7d" class="m-doc-self">frame_size</a>
-            </dt>
-            <dd>Frame size.</dd>
-            <dt id="abbf83869d6b4551ff4ccb119aa1cbfa1">
-              int <a href="#abbf83869d6b4551ff4ccb119aa1cbfa1" class="m-doc-self">error</a>
-            </dt>
-            <dd>Error flag, set when a read was not possible.</dd>
-            <dt id="ac5082dd0e3000266d666387c1655cc47">
-              <a href="ws_8h.html#a2b6c39132c2b4a8c28bc7a5fd9a4782e" class="m-doc">ws_<wbr />cli_<wbr />conn_<wbr />t</a>* <a href="#ac5082dd0e3000266d666387c1655cc47" class="m-doc-self">client</a>
-            </dt>
-            <dd>Client connection structure.</dd>
-          </dl>
-        </section>
+<section id="autotoc_md6"><h2><a href="#autotoc_md6">Introduction</a></h2><p>Unlike Linux, Windows does not have by default a package manager or native build tools, which makes the process a little more laborious, but the sections below clarify in detail what must be done to natively build the library.</p></section><section id="autotoc_md7"><h2><a href="#autotoc_md7">MSYS2 Setup</a></h2><p>MSYS2 is a set of tools and libraries that provide an easy-to-use development environment and is, in my opinion, the most straightforward way to use C in Windows environments.</p><p>The <a href="https://www.msys2.org/">home page</a> already illustrates the basic step-by-step for the initial setup of MSYS2 but below is a very brief description of what to do:</p><p>(note: if you already have MinGW and CMake properly installed, you can skip this section entirely)</p><section id="autotoc_md8"><h3><a href="#autotoc_md8">1) Download and install MSYS2</a></h3><p>From the homepage (informed above) download the latest version available, or if you prefer, use the same version tested here: <a href="https://github.com/msys2/msys2-installer/releases/download/2021-06-04/msys2-x86_64-20210604.exe">msys2-x86_<wbr />64-20210604.exe</a>.</p></section><section id="autotoc_md9"><h3><a href="#autotoc_md9">2) Update packages</a></h3><p>MSYS2 uses Pacman, a package manager, that is, a program responsible for managing programs, libraries, and their dependencies installed on a machine. Very well known among Arch Linux users, it is very useful to have it on MSYS2.</p><p>1) First, it is necessary to update the package database and base packages. If it hasn&#x27;t already opened, run &#x27;MSYS2 MSYS&#x27; from the Start menu and run <code>pacman -Syu</code>.</p><p>2) To proceed with the update, the terminal needs to be closed and opened again. After that, continue the update with: <code>pacman -Su</code>.</p></section><section id="autotoc_md10"><h3><a href="#autotoc_md10">3) Install packages</a></h3><p>In addition to the base packages, some packages need to be installed to have a minimal development environment:</p><p>1) Basic packages and GCC toolchain: <code>pacman -S --needed base-devel mingw-w64-x86_64-toolchain</code>. 2) CMake and Git: <code>pacman -S mingw-w64-x86_64-cmake git</code>.</p></section></section><section id="autotoc_md11"><h2><a href="#autotoc_md11">wsServer build</a></h2><p>With MSYS2 up and running, you have everything you need to download, compile and run the wsServer and its examples.</p><p>To do this, run &#x27;MSYS2 MinGW 64bit&#x27; from the Start menu and:</p><pre class="m-code">$ git clone https://github.com/Theldus/wsServer.git
+$ <span class="nb">cd</span> wsServer
+$ mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build/
+$ cmake .. -DCMAKE_BUILD_TYPE<span class="o">=</span>Release -G <span class="s2">&quot;MinGW Makefiles&quot;</span>
+$ mingw32-make -j4</pre><p>And that&#x27;s it, the static library (libws.a) and the examples files are located in the build/examples folder.</p><p>The <code>echo</code> example can be run with: <code>./examples/echo/echo.exe</code>, and the test webpage can be found at <code>wsServer/examples/echo</code>.</p></section>
       </div>
     </div>
   </div>
