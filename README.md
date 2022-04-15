@@ -80,9 +80,9 @@ accepting connections, and so on.
 As a gift, each client is handled in a separate thread, so you will not have to
 worry about it.
 
-### A complete example (file.c)
+### A complete example
 
-A more complete example, including the html file, can be found in example/
+More examples, including the respective html files, can be found in examples/
 folder, ;-).
 
 ```c
