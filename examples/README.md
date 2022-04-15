@@ -4,10 +4,10 @@ that might happen when using wsServer.
 
 **The examples:**
 
-- [echo](examples/echo): A simple echo server that broadcasts incoming messages
+- [echo](echo): A simple echo server that broadcasts incoming messages
 to all connected clients.
 
-- [vtouchpad](examples/vtouchpad): A 'virtual touchpad' that remotely controls
+- [vtouchpad](vtouchpad): A 'virtual touchpad' that remotely controls
 a computer's mouse.
 
 If you have other examples and/or small demos that might be useful for
