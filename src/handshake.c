@@ -24,7 +24,7 @@
 #include <string.h>
 
 /**
- * @dir src/handshake
+ * @dir src/
  * @brief Handshake routines directory
  *
  * @file handshake.c

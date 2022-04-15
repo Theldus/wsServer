@@ -89,7 +89,7 @@ struct ws_connection
 static struct ws_connection client_socks[MAX_CLIENTS];
 
 /**
- * @Brief Client validity macro
+ * @brief Client validity macro
  */
 #define CLIENT_VALID(cli)                          \
 	((cli) != NULL && (cli) >= &client_socks[0] && \
@@ -230,8 +230,6 @@ static int set_client_state(ws_cli_conn_t *client, int state)
  * @param buf Message to be sent.
  * @param len Message length.
  * @param flags Send flags.
- * @param idx Client index, in order to serialize the messages
- *            to the same client.
  *
  * @return Returns 0 if success (i.e: all message was sent),
  * -1 otherwise.
@@ -777,6 +775,8 @@ send:
  * ordinary frame with PONG opcode.
  *
  * @param wfd Websocket frame data.
+ *
+ * @param frame_size Pong frame size.
  *
  * @return Returns 0 if success and a negative number
  * otherwise.

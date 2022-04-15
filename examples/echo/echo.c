@@ -24,7 +24,11 @@
 /**
  * @dir examples/
  * @brief wsServer examples folder
- *
+ */
+
+/*
+ * @dir examples/echo
+ * @brief Echo example directory.
  * @file echo.c
  * @brief Simple echo example.
  */

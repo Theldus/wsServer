@@ -28,6 +28,14 @@
 #include "vtouchpad.h"
 
 /**
+ * @dir examples/vtouchpad
+ * @brief Touchpad example directory
+ *
+ * @file mouse_win.c
+ * @brief Mouse windows implementation.
+ */
+
+/**
  * Stub structure.
  */
 struct mouse { int stub; };
@@ -59,9 +67,9 @@ void *mouse_free(mouse_t *mouse)
  * @brief Moves the mouse pointed by @p mouse to the
  * offsets @p x_off and @p y_off.
  *
- * @param mouse_t Mouse structure pointer.
+ * @param mouse Mouse structure pointer.
  * @param x_off X-coordinate offset.
- * @param y-off Y-coordinate offset.
+ * @param y_off Y-coordinate offset.
  *
  * @return Returns 0 if success, 1 otherwise.
  */

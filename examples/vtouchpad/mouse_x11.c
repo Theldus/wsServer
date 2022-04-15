@@ -34,6 +34,14 @@
 #include "vtouchpad.h"
 
 /**
+ * @dir examples/vtouchpad
+ * @brief Touchpad example directory
+ *
+ * @file mouse_x11.c
+ * @brief Mouse X11 implementation.
+ */
+
+/**
  * Note:
  * Although the use of libxdo/xdotool seems unnecessary (since libxdo *also*
  * uses X11's XTest extension), I believe it can still be interesting: the
@@ -108,9 +116,9 @@ out:
  * @brief Moves the mouse pointed by @p mouse to the
  * offsets @p x_off and @p y_off.
  *
- * @param mouse_t Mouse structure pointer.
+ * @param mouse Mouse structure pointer.
  * @param x_off X-coordinate offset.
- * @param y-off Y-coordinate offset.
+ * @param y_off Y-coordinate offset.
  *
  * @return Returns 0 if success, 1 otherwise.
  */

@@ -23,6 +23,14 @@
 
 #include "vtouchpad.h"
 
+/**
+ * @dir examples/vtouchpad
+ * @brief Touchpad example directory
+ *
+ * @file vtouchpad.c
+ * @brief Main file.
+ */
+
 /* Mouse global structure. */
 mouse_t *mouse;
 
@@ -50,7 +58,7 @@ mouse_t *mouse;
  * @param ev String representing the event.
  * @param error Set to 1 if an error was found, 0 otherwise.
  *
- * @param Returns a mouse_event structure.
+ * @returns Returns a mouse_event structure.
  */
 struct mouse_event parse_event(const char *ev, int *error)
 {
