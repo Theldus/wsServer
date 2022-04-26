@@ -40,7 +40,9 @@ extern "C" {
 	/**
 	 * @brief Max clients connected simultaneously.
 	 */
+#ifndef MAX_CLIENTS
 	#define MAX_CLIENTS    8
+#endif
 
 	/**
 	 * @name Key and message configurations.
