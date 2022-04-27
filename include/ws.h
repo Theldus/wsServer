@@ -266,6 +266,8 @@ extern "C" {
 	extern int ws_close_client(ws_cli_conn_t *cli);
 	extern int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop);
 
+	extern long int ws_ping(ws_cli_conn_t *cli, long int ws_ping_id);
+
 #ifdef AFL_FUZZ
 	extern int ws_file(struct ws_events *evs, const char *file);
 #endif
