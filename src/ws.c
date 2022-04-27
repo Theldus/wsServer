@@ -1227,7 +1227,7 @@ static int next_frame(struct ws_frame_data *wfd)
 
 				char *ptr;
 				global_last_pong_id = strtol((const char *)msg_ctrl, &ptr, 10);
-				wfd->client->last_pong_id = strtol((const char *)msg_ctrl, &ptr, 10);
+				wfd->client->last_pong_id = global_last_pong_id;
 
 				is_fin = 0;
 				continue;
