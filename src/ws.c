@@ -46,8 +46,10 @@ typedef int socklen_t;
 
 #include <unistd.h>
 
-#include <ws.h>
 #include <utf8.h>
+#include <ws.h>
+
+static long int global_last_pong_id = -1;
 
 /**
  * @dir src/
@@ -81,6 +83,8 @@ struct ws_connection
 
 	/* IP address. */
 	char ip[INET6_ADDRSTRLEN];
+
+	long int last_pong_id;
 };
 
 /**
@@ -536,6 +540,22 @@ int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type
 	return ((int)output);
 }
 
+long int ws_ping(ws_cli_conn_t *cli, long int ws_ping_id)
+{
+	/* long enough to hold long int */
+	char ping_token[22];
+
+	/* reset global_last_pong_id if cli is NULL and ws_ping_id is zero 
+	   client last_pong_id is reset on new connection */
+	global_last_pong_id = ws_ping_id == 0 && !cli ? -1 : global_last_pong_id;
+
+	snprintf(ping_token, sizeof(ping_token), "%ld", ws_ping_id);
+	ws_sendframe(NULL, ping_token, strlen(ping_token), WS_FR_OP_PING);
+
+	/* if cli is NULL return global_last_pong_id else return global ws_last_pong_id */
+	return cli ? cli->last_pong_id : global_last_pong_id;
+}
+
 /**
  * @brief Sends a WebSocket text frame.
  *
@@ -696,6 +716,8 @@ static int do_handshake(struct ws_frame_data *wfd)
 		DEBUG("As error has occurred while handshaking!\n");
 		return (-1);
 	}
+
+	wfd->client->last_pong_id = -1;
 
 	/* Trigger events and clean up buffers. */
 	cli_events.onopen(wfd->client);
@@ -1196,7 +1218,17 @@ static int next_frame(struct ws_frame_data *wfd)
 			 */
 			else if (opcode == WS_FR_OP_PONG)
 			{
-				skip_frame(wfd, 4 + frame_length);
+				// skip_frame(wfd, 4 + frame_length);
+				// is_fin = 0;
+
+				if (read_frame(wfd, opcode, &msg_ctrl, &frame_length, &frame_size,
+						&msg_idx_ctrl, masks_ctrl, is_fin) < 0)
+					break;
+
+				char *ptr;
+				global_last_pong_id = strtol((const char *)msg_ctrl, &ptr, 10);
+				wfd->client->last_pong_id = strtol((const char *)msg_ctrl, &ptr, 10);
+
 				is_fin = 0;
 				continue;
 			}
