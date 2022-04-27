@@ -552,7 +552,7 @@ long int ws_ping(ws_cli_conn_t *cli, long int ws_ping_id)
 	snprintf(ping_token, sizeof(ping_token), "%ld", ws_ping_id);
 	ws_sendframe(NULL, ping_token, strlen(ping_token), WS_FR_OP_PING);
 
-	/* if cli is NULL return global_last_pong_id else return global ws_last_pong_id */
+	/* if cli is NULL return global_last_pong_id else return cli ws_last_pong_id */
 	return cli ? cli->last_pong_id : global_last_pong_id;
 }
 
