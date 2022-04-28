@@ -49,8 +49,6 @@ typedef int socklen_t;
 #include <utf8.h>
 #include <ws.h>
 
-static long int global_last_pong_id = -1;
-
 /**
  * @dir src/
  * @brief wsServer source code
@@ -545,15 +543,17 @@ long int ws_ping(ws_cli_conn_t *cli, long int ws_ping_id)
 	/* long enough to hold long int */
 	char ping_token[22];
 
+	if (!cli){
+		return -1;
+	}
+
 	/* reset global_last_pong_id if cli is NULL and ws_ping_id is zero 
 	   client last_pong_id is reset on new connection */
-	global_last_pong_id = ws_ping_id == 0 && !cli ? -1 : global_last_pong_id;
-
 	snprintf(ping_token, sizeof(ping_token), "%ld", ws_ping_id);
 	ws_sendframe(NULL, ping_token, strlen(ping_token), WS_FR_OP_PING);
 
 	/* if cli is NULL return global_last_pong_id else return cli ws_last_pong_id */
-	return cli ? cli->last_pong_id : global_last_pong_id;
+	return cli->last_pong_id;
 }
 
 /**
@@ -1226,8 +1226,7 @@ static int next_frame(struct ws_frame_data *wfd)
 					break;
 
 				char *ptr;
-				global_last_pong_id = strtol((const char *)msg_ctrl, &ptr, 10);
-				wfd->client->last_pong_id = global_last_pong_id;
+				wfd->client->last_pong_id = strtol((const char *)msg_ctrl, &ptr, 10);
 
 				is_fin = 0;
 				continue;
