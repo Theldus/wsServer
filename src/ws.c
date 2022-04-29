@@ -939,7 +939,7 @@ static int read_frame(struct ws_frame_data *wfd,
 	{
 		DEBUG("Current frame from client %d, exceeds the maximum\n"
 			  "amount of bytes allowed (%" PRId64 "/%d)!",
-			wfd->sock, *frame_size + *frame_length, MAX_FRAME_LENGTH);
+			wfd->client->client_sock, *frame_size + *frame_length, MAX_FRAME_LENGTH);
 
 		wfd->error = 1;
 		return (-1);
