@@ -1,0 +1,44 @@
+.\"
+.\" Copyright (C) 2022  Davidson Francis <davidsondfgl@gmail.com>
+.\"
+.\" This program is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>
+.\"
+.TH man 3 "29 Apr 2022" "1.0" "wsServer man page"
+.SH NAME
+ws_ping \- Sends a ping to a single client or broadcast
+.SH SYNOPSIS
+.nf
+.B #include <ws.h>
+.sp
+.BI "void ws_ping(ws_cli_conn_t " *client ", int " broadcast ");"
+.fi
+.SH DESCRIPTION
+.BR ws_ping ()
+sends a ping message to the
+.I client
+(or broadcast if NULL) with a given
+.I threshold.
+Although wsServer supports sending PINGs, they are not automatic: the user
+needs to invoke
+.BR ws_ping()
+periodically, whether in a separate thread (recommended) or not.
+
+The interval between each call determines the 'timeout' between PINGs.
+
+Threshold must be positive and greater than zero, and determines how many
+PINGs can be ignored.
+.SH RETURN VALUE
+The function does not return any value.
+.SH AUTHOR
+Davidson Francis (davidsondfgl@gmail.com)
