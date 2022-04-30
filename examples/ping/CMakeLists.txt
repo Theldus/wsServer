@@ -13,6 +13,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-add_subdirectory(echo)
-add_subdirectory(ping)
-add_subdirectory(vtouchpad)
+add_executable(ping ping.c)
+target_link_libraries(ping ws)

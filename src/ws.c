@@ -82,7 +82,10 @@ struct ws_connection
 	/* IP address. */
 	char ip[INET6_ADDRSTRLEN];
 
-	long int last_pong_id;
+	/* Ping/Pong IDs and locks. */
+	int32_t last_pong_id;
+	int32_t current_ping_id;
+	pthread_mutex_t mtx_ping;
 };
 
 /**
@@ -275,8 +278,12 @@ static ssize_t send_all(
  * be done earlier), set appropriate state and destroy mutexes.
  *
  * @param client Client connection.
+ * @param lock Should lock the global mutex?.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
-static void close_client(ws_cli_conn_t *client)
+static void close_client(ws_cli_conn_t *client, int lock)
 {
 	if (!CLIENT_VALID(client))
 		return;
@@ -287,12 +294,15 @@ static void close_client(ws_cli_conn_t *client)
 
 	/* Destroy client mutexes and clear fd 'slot'. */
 	/* clang-format off */
-	pthread_mutex_lock(&mutex);
-		client->client_sock = -1;
-		pthread_cond_destroy(&client->cnd_state_close);
-		pthread_mutex_destroy(&client->mtx_state);
-		pthread_mutex_destroy(&client->mtx_snd);
-	pthread_mutex_unlock(&mutex);
+	if (lock)
+		pthread_mutex_lock(&mutex);
+			client->client_sock = -1;
+			pthread_cond_destroy(&client->cnd_state_close);
+			pthread_mutex_destroy(&client->mtx_state);
+			pthread_mutex_destroy(&client->mtx_snd);
+			pthread_mutex_destroy(&client->mtx_ping);
+	if (lock)
+		pthread_mutex_unlock(&mutex);
 	/* clang-format on */
 }
 
@@ -342,7 +352,7 @@ static void *close_timeout(void *p)
 
 	DEBUG("Timer expired, closing client %d\n", conn->client_sock);
 
-	close_client(conn);
+	close_client(conn, 1);
 quit:
 	return (NULL);
 }
@@ -538,22 +548,122 @@ int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type
 	return ((int)output);
 }
 
-long int ws_ping(ws_cli_conn_t *cli, long int ws_ping_id)
+/**
+ * @brief Given a PONG message, decodes the content
+ * as a int32_t number that corresponds to our
+ * PONG id.
+ *
+ * @param msg Content to be decoded.
+ *
+ * @return Returns the PONG id.
+ */
+static inline int32_t pong_msg_to_int32(uint8_t *msg)
 {
-	/* long enough to hold long int */
-	char ping_token[22];
+	int32_t pong_id;
+	/* Decodes as big-endian. */
+	pong_id = (msg[3] << 0) | (msg[2] << 8) | (msg[1] << 16) | (msg[0] << 24);
+	return (pong_id);
+}
 
-	if (!cli){
-		return -1;
+/**
+ * @brief Given a PING id, encodes the content to be sent
+ * as payload of a PING frame.
+ *
+ * @param ping_id PING id to be encoded.
+ * @param msg Target buffer.
+ */
+static inline void int32_to_ping_msg(int32_t ping_id, uint8_t *msg)
+{
+	/* Encodes as big-endian. */
+	msg[0] = (ping_id >> 24);
+	msg[1] = (ping_id >> 16);
+	msg[2] = (ping_id >>  8);
+	msg[3] = (ping_id >>  0);
+}
+
+/**
+ * @brief Send a ping message and close if the client surpasses
+ * the threshold imposed.
+ *
+ * @param cli Client to be sent.
+ * @param threshold How many pings can miss?.
+ * @param lock Should lock global mutex or not?.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
+ */
+static void send_ping_close(ws_cli_conn_t *cli, int threshold, int lock)
+{
+	uint8_t ping_msg[4];
+
+	if (!CLIENT_VALID(cli) || get_client_state(cli) != WS_STATE_OPEN)
+		return;
+
+	/* clang-format off */
+	pthread_mutex_lock(&cli->mtx_ping);
+
+		cli->current_ping_id++;
+		int32_to_ping_msg(cli->current_ping_id, ping_msg);
+
+		/* Send PING. */
+		ws_sendframe(cli, (const char*)ping_msg, sizeof(ping_msg), WS_FR_OP_PING);
+
+		/* Check previous PONG: if greater than threshold, abort. */
+		if ((cli->current_ping_id - cli->last_pong_id) > threshold)
+			close_client(cli, lock);
+
+	pthread_mutex_unlock(&cli->mtx_ping);
+	/* clang-format on */
+}
+
+/**
+ * @brief Sends a PING frame to the client @p cli with threshold
+ * @p threshold.
+ *
+ * This routine sends a PING to a single client pointed to by
+ * @p cli or a broadcast PING if @p cli is NULL. If the specified
+ * client does not respond up to @p threshold PINGs, the connection
+ * is aborted.
+ *
+ * ws_ping() is not automatic: the user who wants to send keep-alive
+ * PINGs *must* call this routine in a timely manner, whether on
+ * a different thread or inside an event.
+ *
+ * See examples/ping/ping.c for a minimal example usage.
+ *
+ * @param cli       Client to be sent, if NULL, broadcast.
+ * @param threshold How many ignored PINGs should tolerate? (should be
+ *                  positive and greater than 0).
+ *
+ * @note It should be noted that the time between each call to
+ * ws_ping() is the timeout itself for receiving the PONG.
+ *
+ * It is also important to note that for devices with unstable
+ * connections (such as a weak WiFi signal or 3/4/5G from a cell phone),
+ * a threshold greater than 1 is advisable.
+ */
+void ws_ping(ws_cli_conn_t *cli, int threshold)
+{
+	int i;
+
+	/* Sanity check. */
+	if (threshold <= 0)
+		return;
+
+	/* PING a single client. */
+	if (cli)
+		send_ping_close(cli, threshold, 1);
+
+	/* PING broadcast. */
+	else
+	{
+		/* clang-format off */
+		pthread_mutex_lock(&mutex);
+			for (i = 0; i < MAX_CLIENTS; i++)
+				send_ping_close(&client_socks[i], threshold, 0);
+		pthread_mutex_unlock(&mutex);
+		/* clang-format on */
 	}
-
-	/* reset global_last_pong_id if cli is NULL and ws_ping_id is zero 
-	   client last_pong_id is reset on new connection */
-	snprintf(ping_token, sizeof(ping_token), "%ld", ws_ping_id);
-	ws_sendframe(NULL, ping_token, strlen(ping_token), WS_FR_OP_PING);
-
-	/* if cli is NULL return global_last_pong_id else return cli ws_last_pong_id */
-	return cli->last_pong_id;
 }
 
 /**
@@ -716,8 +826,6 @@ static int do_handshake(struct ws_frame_data *wfd)
 		DEBUG("As error has occurred while handshaking!\n");
 		return (-1);
 	}
-
-	wfd->client->last_pong_id = -1;
 
 	/* Trigger events and clean up buffers. */
 	cli_events.onopen(wfd->client);
@@ -1048,6 +1156,7 @@ static int next_frame(struct ws_frame_data *wfd)
 	uint64_t frame_length;   /* Frame length.              */
 	uint64_t frame_size;     /* Current frame size.        */
 	uint32_t utf8_state;     /* Current UTF-8 state.       */
+	int32_t pong_id;         /* Current PONG id.           */
 	uint8_t opcode;          /* Frame opcode.              */
 	uint8_t is_fin;          /* Is FIN frame flag.         */
 	uint8_t mask;            /* Mask.                      */
@@ -1209,26 +1318,40 @@ static int next_frame(struct ws_frame_data *wfd)
 			}
 
 			/*
-			 * We _never_ send a PING frame, so it's not expected to receive a
-			 * PONG frame. However, the specs states that a client could send an
-			 * unsolicited PONG frame. The server just have to ignore the
-			 * frame.
+			 * We _may_ send a PING frame if the ws_ping() routine was invoked.
 			 *
-			 * The skip amount will always be 4 (masks vector size) + frame size
+			 * If the content is invalid and/or differs the size, ignore it.
+			 * (maybe unsolicited PONG).
 			 */
 			else if (opcode == WS_FR_OP_PONG)
 			{
-				// skip_frame(wfd, 4 + frame_length);
-				// is_fin = 0;
-
 				if (read_frame(wfd, opcode, &msg_ctrl, &frame_length, &frame_size,
 						&msg_idx_ctrl, masks_ctrl, is_fin) < 0)
 					break;
 
-				char *ptr;
-				wfd->client->last_pong_id = strtol((const char *)msg_ctrl, &ptr, 10);
-
 				is_fin = 0;
+
+				/* If there is no content and/or differs the size, ignore it. */
+				if (frame_size != sizeof(wfd->client->last_pong_id))
+					continue;
+
+				/*
+				 * Our PONG id should be positive and smaller than our
+				 * current PING id. If not, ignore.
+				 */
+				/* clang-format off */
+				pthread_mutex_lock(&wfd->client->mtx_ping);
+
+					pong_id = pong_msg_to_int32(msg_ctrl);
+					if (pong_id < 0 || pong_id > wfd->client->current_ping_id)
+					{
+						pthread_mutex_unlock(&wfd->client->mtx_ping);
+						continue;
+					}
+					wfd->client->last_pong_id = pong_id;
+
+				pthread_mutex_unlock(&wfd->client->mtx_ping);
+				/* clang-format on */
 				continue;
 			}
 
@@ -1378,7 +1501,7 @@ closed:
 
 	/* Close connectin properly. */
 	if (get_client_state(client) != WS_STATE_CLOSED)
-		close_client(client);
+		close_client(client, 1);
 
 	return (vclient);
 }
@@ -1424,6 +1547,8 @@ static void *ws_accept(void *data)
 				client_socks[i].client_sock = new_sock;
 				client_socks[i].state = WS_STATE_CONNECTING;
 				client_socks[i].close_thrd = false;
+				client_socks[i].last_pong_id = -1;
+				client_socks[i].current_ping_id = -1;
 				set_client_address(&client_socks[i]);
 
 				if (pthread_mutex_init(&client_socks[i].mtx_state, NULL))
@@ -1432,6 +1557,8 @@ static void *ws_accept(void *data)
 					panic("Error on allocating condition var\n");
 				if (pthread_mutex_init(&client_socks[i].mtx_snd, NULL))
 					panic("Error on allocating send mutex");
+				if (pthread_mutex_init(&client_socks[i].mtx_ping, NULL))
+					panic("Error on allocating ping/pong mutex");
 				break;
 			}
 		}
@@ -1472,6 +1599,9 @@ int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop)
 	pthread_t accept_thread;   /* Accept thread.         */
 	int reuse;                 /* Socket option.         */
 	int *sock;                 /* Client sock.           */
+
+	/* Ignore 'unused functions' warnings. */
+	((void)skip_frame);
 
 	/* Checks if the event list is a valid pointer. */
 	if (evs == NULL)
@@ -1589,6 +1719,8 @@ int ws_file(struct ws_events *evs, const char *file)
 		panic("Error on allocating condition var\n");
 	if (pthread_mutex_init(&client_socks[0].mtx_snd, NULL))
 		panic("Error on allocating send mutex");
+	if (pthread_mutex_init(&client_socks[0].mtx_ping, NULL))
+		panic("Error on allocating ping/pong mutex");
 
 	ws_establishconnection(&client_socks[0]);
 	return (0);
