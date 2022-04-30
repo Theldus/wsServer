@@ -16,12 +16,17 @@
 .PHONY: all clean
 
 # Examples
-all: echo/echo
+all: echo/echo ping/ping
 
 # Echo
 echo/echo:
 	$(MAKE) -C echo/ all
 
+# Ping
+ping/ping:
+	$(MAKE) -C ping/ all
+
 # Clean
 clean:
 	$(MAKE) -C echo/ clean
+	$(MAKE) -C ping/ clean
