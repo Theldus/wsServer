@@ -93,6 +93,8 @@ struct ws_connection
  */
 static struct ws_connection client_socks[MAX_CLIENTS];
 
+static uint32_t _timeout_ms;
+
 /**
  * @brief Client validity macro
  */
@@ -1526,6 +1528,7 @@ static void *ws_accept(void *data)
 	int sock;                  /* Server sock.           */
 	int len;                   /* Length of sockaddr.    */
 	int i;                     /* Loop index.            */
+	struct timeval timeout;
 
 	sock = *(int *)data;
 	len = sizeof(struct sockaddr_in);
@@ -1534,6 +1537,16 @@ static void *ws_accept(void *data)
 	{
 		/* Accept. */
 		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t *)&len);
+
+		if (_timeout_ms)
+		{
+			timeout.tv_sec = _timeout_ms / 1000;
+			timeout.tv_usec = (_timeout_ms % 1000) * 1000;
+
+			/* https://linux.die.net/man/3/setsockopt */
+			setsockopt(new_sock, SOL_SOCKET, SO_SNDTIMEO, &timeout,
+				sizeof(struct timeval));
+		}
 
 		if (new_sock < 0)
 			panic("Error on accepting connections..");
@@ -1593,12 +1606,15 @@ static void *ws_accept(void *data)
  * @return If @p thread_loop != 0, returns 0. Otherwise, never
  * returns.
  */
-int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop)
+int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop, uint32_t timeout_ms)
 {
 	struct sockaddr_in server; /* Server.                */
 	pthread_t accept_thread;   /* Accept thread.         */
 	int reuse;                 /* Socket option.         */
 	int *sock;                 /* Client sock.           */
+
+	_timeout_ms = timeout_ms;
+
 
 	/* Ignore 'unused functions' warnings. */
 	((void)skip_frame);
