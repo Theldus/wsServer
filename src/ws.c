@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 
 /* clang-format off */
 #ifndef _WIN32
@@ -92,6 +93,11 @@ struct ws_connection
  * @brief Clients list.
  */
 static struct ws_connection client_socks[MAX_CLIENTS];
+
+/**
+ * @brief Timeout to a single send().
+ */
+static uint32_t timeout;
 
 /**
  * @brief Client validity macro
@@ -1522,6 +1528,7 @@ static void *ws_accept(void *data)
 {
 	struct sockaddr_in client; /* Client.                */
 	pthread_t client_thread;   /* Client thread.         */
+	struct timeval time;       /* Client socket timeout. */
 	int new_sock;              /* New opened connection. */
 	int sock;                  /* Server sock.           */
 	int len;                   /* Length of sockaddr.    */
@@ -1534,6 +1541,23 @@ static void *ws_accept(void *data)
 	{
 		/* Accept. */
 		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t *)&len);
+
+		if (timeout)
+		{
+			time.tv_sec = timeout / 1000;
+			time.tv_usec = (timeout % 1000) * 1000;
+
+			/*
+			 * Socket timeout
+			 * This feature seems to be supported on Linux, Windows,
+			 * macOS and FreeBSD.
+			 *
+			 * See:
+			 *   https://linux.die.net/man/3/setsockopt
+			 */
+			setsockopt(new_sock, SOL_SOCKET, SO_SNDTIMEO, &time,
+				sizeof(struct timeval));
+		}
 
 		if (new_sock < 0)
 			panic("Error on accepting connections..");
@@ -1590,15 +1614,21 @@ static void *ws_accept(void *data)
  *                    and immediately returns. If 0, runs
  *                    in the same thread and blocks execution.
  *
+ * @param timeout_ms  Max timeout if the client is not responding
+ *                    (in milliseconds).
+ *
  * @return If @p thread_loop != 0, returns 0. Otherwise, never
  * returns.
  */
-int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop)
+int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop,
+	uint32_t timeout_ms)
 {
 	struct sockaddr_in server; /* Server.                */
 	pthread_t accept_thread;   /* Accept thread.         */
 	int reuse;                 /* Socket option.         */
 	int *sock;                 /* Client sock.           */
+
+	timeout = timeout_ms;
 
 	/* Ignore 'unused functions' warnings. */
 	((void)skip_frame);
