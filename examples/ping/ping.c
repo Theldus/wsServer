@@ -78,7 +78,7 @@ int main(void)
 	evs.onopen    = &onopen;
 	evs.onclose   = &onclose;
 	evs.onmessage = &onmessage;
-	ws_socket(&evs, 8080, 1);
+	ws_socket(&evs, 8080, 1, 1000);
 
 	/*
 	 * Periodically send ping frames in the main thread
