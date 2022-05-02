@@ -21,7 +21,8 @@ ws_socket \- Start the WebSocket server
 .nf
 .B #include <ws.h>
 .sp
-.BI "int ws_socket(struct ws_events " *evs ", uint16_t " port ", int " tloop ");
+.BI "int ws_socket(struct ws_events " *evs ", uint16_t " port ", int " tloop ", "
+.BI		uint32_t " timeout_ms " );
 .fi
 .SH DESCRIPTION
 .BR ws_socket ()
@@ -35,6 +36,14 @@ The parameter
 .I tloop
 specifies if the accept loop should run on the same thread (if equals 0)
 or on a different thread (if != 0).
+
+Optionally, a user can set a pre-defined
+.I timeout_ms
+time (in milliseconds) that each message should have. Think of it like a 'ping':
+if the client doesn't respond in x amount of time, the client is unresponsive
+and the server shouldn't bother sending message to it.
+
+In case of doubt, leave as 0.
 .SH RETURN VALUE
 If
 .I tloop
