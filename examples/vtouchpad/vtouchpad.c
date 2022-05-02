@@ -202,7 +202,7 @@ int main(void)
 	/* Mouse. */
 	mouse = mouse_new();
 
-	ws_socket(&evs, 8080, 0);
+	ws_socket(&evs, 8080, 0, 1000);
 
 	mouse_free(mouse);
 
