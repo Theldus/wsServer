@@ -1285,8 +1285,9 @@ static int next_frame(struct ws_frame_data *wfd)
 			if (opcode == WS_FR_OP_TXT || opcode == WS_FR_OP_BIN ||
 				opcode == WS_FR_OP_CONT)
 			{
-				read_frame(wfd, opcode, &msg_data, &frame_length, &wfd->frame_size,
-					&msg_idx_data, masks_data, is_fin);
+				if (read_frame(wfd, opcode, &msg_data, &frame_length,
+						&wfd->frame_size, &msg_idx_data, masks_data, is_fin) < 0)
+					break;
 
 #ifdef VALIDATE_UTF8
 				/* UTF-8 Validate partial (or not) frame. */
