@@ -1621,13 +1621,14 @@ static void *ws_accept(void *data)
  * @return If @p thread_loop != 0, returns 0. Otherwise, never
  * returns.
  */
-int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop,
-	uint32_t timeout_ms)
+int ws_socket(struct ws_events *evs, const char* host, uint16_t port, 
+	int thread_loop, uint32_t timeout_ms)
 {
 	struct sockaddr_in server; /* Server.                */
 	pthread_t accept_thread;   /* Accept thread.         */
 	int reuse;                 /* Socket option.         */
 	int *sock;                 /* Client sock.           */
+	in_addr_t host_addr;       /* Address to bind to.    */
 
 	timeout = timeout_ms;
 
@@ -1679,7 +1680,13 @@ int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop,
 
 	/* Prepare the sockaddr_in structure. */
 	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = INADDR_ANY;
+
+	if (host == NULL) {
+		server.sin_addr.s_addr = INADDR_ANY;
+	} else {
+		server.sin_addr.s_addr = inet_addr(host);
+	}
+
 	server.sin_port = htons(port);
 
 	/* Bind. */
