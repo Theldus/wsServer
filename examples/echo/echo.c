@@ -117,7 +117,7 @@ int main(void)
 	evs.onopen    = &onopen;
 	evs.onclose   = &onclose;
 	evs.onmessage = &onmessage;
-	ws_socket(&evs, "::1", "8080", 0, 1000); /* Never returns. */
+	ws_socket(&evs, NULL, "8080", 0, 1000); /* Never returns. */
 
 	/*
 	 * If you want to execute code past ws_socket, invoke it like:
