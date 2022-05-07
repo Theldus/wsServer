@@ -145,10 +145,10 @@ int main(void)
     /*
      * Main loop, this function never* returns.
      *
-     * *If the third argument is != 0, a new thread is created
+     * *If the fourth argument is != 0, a new thread is created
      * to handle new connections.
      */
-    ws_socket(&evs, 8080, 0, 1000);
+    ws_socket(&evs, NULL, "8080", 0, 1000);
 
     return (0);
 }
