@@ -42,10 +42,11 @@
  */
 void onopen(ws_cli_conn_t *client)
 {
-	char *cli;
+	char *cli, *port;
 	cli = ws_getaddress(client);
+	port = ws_getport(client);
 #ifndef DISABLE_VERBOSE
-	printf("Connection opened, addr: %s\n", cli);
+	printf("Connection opened, addr: %s port %s\n", cli, port);
 #endif
 }
 
@@ -58,10 +59,11 @@ void onopen(ws_cli_conn_t *client)
  */
 void onclose(ws_cli_conn_t *client)
 {
-	char *cli;
+	char *cli, *port;
 	cli = ws_getaddress(client);
+	port = ws_getport(client);
 #ifndef DISABLE_VERBOSE
-	printf("Connection closed, addr: %s\n", cli);
+	printf("Connection closed, addr: %s port %s\n", cli, port);
 #endif
 }
 
@@ -82,11 +84,12 @@ void onclose(ws_cli_conn_t *client)
 void onmessage(ws_cli_conn_t *client,
 	const unsigned char *msg, uint64_t size, int type)
 {
-	char *cli;
+	char *cli, *port;
 	cli = ws_getaddress(client);
+	port = ws_getport(client);
 #ifndef DISABLE_VERBOSE
-	printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s\n",
-		msg, size, type, cli);
+	printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s port %s\n",
+		msg, size, type, cli, port);
 #endif
 
 	/**
@@ -114,7 +117,7 @@ int main(void)
 	evs.onopen    = &onopen;
 	evs.onclose   = &onclose;
 	evs.onmessage = &onmessage;
-	ws_socket(&evs, NULL, 8080, 0, 1000); /* Never returns. */
+	ws_socket(&evs, "::1", "8080", 0, 1000); /* Never returns. */
 
 	/*
 	 * If you want to execute code past ws_socket, invoke it like:

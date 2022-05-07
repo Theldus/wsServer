@@ -40,6 +40,10 @@ typedef int socklen_t;
 #endif
 /* clang-format on */
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
 /* Windows and macOS seems to not have MSG_NOSIGNAL */
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
@@ -82,6 +86,7 @@ struct ws_connection
 
 	/* IP address. */
 	char ip[INET6_ADDRSTRLEN];
+	char port[6]; // this doesn't seem to be defined anywhere
 
 	/* Ping/Pong IDs and locks. */
 	int32_t last_pong_id;
@@ -406,19 +411,24 @@ out:
  */
 static void set_client_address(ws_cli_conn_t *client)
 {
-	struct sockaddr_in addr;
-	socklen_t addr_size;
+
+	struct sockaddr_storage addr;
+	socklen_t hlen = sizeof(addr);
 
 	if (!CLIENT_VALID(client))
 		return;
 
-	addr_size = sizeof(struct sockaddr_in);
-
-	if (getpeername(client->client_sock, (struct sockaddr *)&addr, &addr_size) < 0)
+	if (getpeername(client->client_sock, (struct sockaddr *)&addr, &hlen) < 0)
 		return;
 
 	memset(client->ip, 0, sizeof(client->ip));
-	inet_ntop(AF_INET, &addr.sin_addr, client->ip, INET_ADDRSTRLEN);
+	memset(client->ip, 0, sizeof(client->port));
+
+	getnameinfo( (struct sockaddr *) &addr, hlen,
+			client->ip, sizeof(client->ip),
+			client->port, sizeof(client->port),
+			NI_NUMERICHOST | NI_NUMERICSERV);
+
 }
 
 /**
@@ -438,6 +448,27 @@ char *ws_getaddress(ws_cli_conn_t *client)
 
 	return (client->ip);
 }
+
+/**
+ * @brief Gets the IP port relative to a client connection opened
+ * by the server.
+ *
+ * @param client Client connection.
+ *
+ * @return Pointer the port, or NULL if fails.
+ *
+ * @note The returned string is static, no need to free up memory.
+ */
+char *ws_getport(ws_cli_conn_t *client)
+{
+	if (!CLIENT_VALID(client))
+		return (NULL);
+
+	return (client->port);
+}
+
+
+
 
 /**
  * @brief Creates and send an WebSocket frame with some payload data.
@@ -1527,21 +1558,20 @@ closed:
  */
 static void *ws_accept(void *data)
 {
-	struct sockaddr_in client; /* Client.                */
-	pthread_t client_thread;   /* Client thread.         */
-	struct timeval time;       /* Client socket timeout. */
-	int new_sock;              /* New opened connection. */
-	int sock;                  /* Server sock.           */
-	int len;                   /* Length of sockaddr.    */
-	int i;                     /* Loop index.            */
+	struct sockaddr_storage client;	/* Client.                */
+	pthread_t client_thread;   		/* Client thread.         */
+	struct timeval time;       		/* Client socket timeout. */
+	int new_sock;              		/* New opened connection. */
+	int sock;                  		/* Server sock.           */
+	int i;                     		/* Loop index.            */
 
+	socklen_t len = sizeof(client);
 	sock = *(int *)data;
-	len = sizeof(struct sockaddr_in);
 
 	while (1)
 	{
 		/* Accept. */
-		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t *)&len);
+		new_sock = accept(sock, (struct sockaddr *)&client, &len);
 
 		if (timeout)
 		{
@@ -1621,14 +1651,13 @@ static void *ws_accept(void *data)
  * @return If @p thread_loop != 0, returns 0. Otherwise, never
  * returns.
  */
-int ws_socket(struct ws_events *evs, const char* host, uint16_t port, 
+int ws_socket(struct ws_events *evs, const char *host, const char *port,
 	int thread_loop, uint32_t timeout_ms)
 {
-	struct sockaddr_in server; /* Server.                */
+	struct addrinfo hints, *results, *try;
 	pthread_t accept_thread;   /* Accept thread.         */
 	int reuse;                 /* Socket option.         */
 	int *sock;                 /* Client sock.           */
-	in_addr_t host_addr;       /* Address to bind to.    */
 
 	timeout = timeout_ms;
 
@@ -1646,6 +1675,7 @@ int ws_socket(struct ws_events *evs, const char* host, uint16_t port,
 
 	/* Copy events. */
 	memcpy(&cli_events, evs, sizeof(struct ws_events));
+
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -1665,33 +1695,44 @@ int ws_socket(struct ws_events *evs, const char* host, uint16_t port,
 	setvbuf(stdout, NULL, _IONBF, 0);
 #endif
 
-	/* Create socket. */
-	*sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (*sock < 0)
-		panic("Could not create socket");
 
-	/* Reuse previous address. */
-	reuse = 1;
-	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse,
-			sizeof(reuse)) < 0)
+	/* Prepare the getaddrinfo structure. */
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_flags = AI_PASSIVE;
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+	if (getaddrinfo(host, port, &hints, &results) != 0)
+		panic("getaddrinfo() failed");
+
+	for ( try = results ; try != NULL ; try = try->ai_next)
 	{
-		panic("setsockopt(SO_REUSEADDR) failed");
+
+		/* try to make a socket with this setup */
+		if ( (*sock = socket(try->ai_family, try->ai_socktype, try->ai_protocol)) < 0 )
+			continue;
+
+
+		/* Reuse previous address. */
+		reuse = 1;
+		if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse,
+				sizeof(reuse)) < 0)
+		{
+			panic("setsockopt(SO_REUSEADDR) failed");
+		}
+
+		/* Bind. */
+		if (bind(*sock, try->ai_addr, try->ai_addrlen) < 0)
+			panic("Bind failed");
+
+		/* if it worked, we're done. */
+		break;
 	}
 
-	/* Prepare the sockaddr_in structure. */
-	server.sin_family = AF_INET;
+	freeaddrinfo(results);
 
-	if (host == NULL) {
-		server.sin_addr.s_addr = INADDR_ANY;
-	} else {
-		server.sin_addr.s_addr = inet_addr(host);
-	}
-
-	server.sin_port = htons(port);
-
-	/* Bind. */
-	if (bind(*sock, (struct sockaddr *)&server, sizeof(server)) < 0)
-		panic("Bind failed");
+	if (try == NULL)
+		panic("couldn't find a port to bind to");
 
 	/* Listen. */
 	listen(*sock, MAX_CLIENTS);
