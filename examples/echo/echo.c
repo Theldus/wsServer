@@ -40,8 +40,9 @@
  * in order to send messages and retrieve informations about the
  * client.
  */
-void onopen(ws_cli_conn_t *client)
+void onopen(ws_cli_conn_t *client, void **user_object_ptr)
 {
+	((void)user_object_ptr);
 	char *cli;
 	cli = ws_getaddress(client);
 #ifndef DISABLE_VERBOSE
@@ -56,8 +57,9 @@ void onopen(ws_cli_conn_t *client)
  * in order to send messages and retrieve informations about the
  * client.
  */
-void onclose(ws_cli_conn_t *client)
+void onclose(ws_cli_conn_t *client, void **user_object_ptr)
 {
+	((void)user_object_ptr);
 	char *cli;
 	cli = ws_getaddress(client);
 #ifndef DISABLE_VERBOSE
@@ -80,8 +82,9 @@ void onclose(ws_cli_conn_t *client)
  * @param type Message type.
  */
 void onmessage(ws_cli_conn_t *client,
-	const unsigned char *msg, uint64_t size, int type)
+	const unsigned char *msg, uint64_t size, int type, void **user_object_ptr)
 {
+	((void)user_object_ptr);
 	char *cli;
 	cli = ws_getaddress(client);
 #ifndef DISABLE_VERBOSE

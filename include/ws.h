@@ -235,19 +235,19 @@ extern "C" {
 		/**
 		 * @brief On open event, called when a new client connects.
 		 */
-		void (*onopen)(ws_cli_conn_t *client);
+		void (*onopen)(ws_cli_conn_t *client, void * * user_object_ptr);
 
 		/**
 		 * @brief On close event, called when a client disconnects.
 		 */
-		void (*onclose)(ws_cli_conn_t *client);
+		void (*onclose)(ws_cli_conn_t *client, void * * user_object_ptr);
 
 		/**
 		 * @brief On message event, called when a client sends a text
 		 * or binary message.
 		 */
 		void (*onmessage)(ws_cli_conn_t *client,
-			const unsigned char *msg, uint64_t msg_size, int type);
+			const unsigned char *msg, uint64_t msg_size, int type, void * * user_object_ptr);
 	};
 
 	/* Forward declarations. */

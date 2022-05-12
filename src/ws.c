@@ -791,7 +791,7 @@ static inline int is_control_frame(int frame)
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int do_handshake(struct ws_frame_data *wfd)
+static int do_handshake(struct ws_frame_data *wfd, void **user_object_ptr)
 {
 	char *response; /* Handshake response message. */
 	char *p;        /* Last request line pointer.  */
@@ -834,7 +834,7 @@ static int do_handshake(struct ws_frame_data *wfd)
 	}
 
 	/* Trigger events and clean up buffers. */
-	cli_events.onopen(wfd->client);
+	cli_events.onopen(wfd->client, user_object_ptr);
 	free(response);
 	return (0);
 }
@@ -1441,6 +1441,7 @@ static void *ws_establishconnection(void *vclient)
 {
 	struct ws_frame_data wfd; /* WebSocket frame data.   */
 	ws_cli_conn_t *client;    /* Client structure.       */
+	void *user_object = NULL; /* User defined object     */
 	int clse_thrd;            /* Time-out close thread.  */
 
 	client = vclient;
@@ -1450,7 +1451,7 @@ static void *ws_establishconnection(void *vclient)
 	wfd.client = client;
 
 	/* Do handshake. */
-	if (do_handshake(&wfd) < 0)
+	if (do_handshake(&wfd, &user_object) < 0)
 		goto closed;
 
 	/* Change state. */
@@ -1463,7 +1464,7 @@ static void *ws_establishconnection(void *vclient)
 		if ((wfd.frame_type == WS_FR_OP_TXT || wfd.frame_type == WS_FR_OP_BIN) &&
 			!wfd.error)
 		{
-			cli_events.onmessage(client, wfd.msg, wfd.frame_size, wfd.frame_type);
+			cli_events.onmessage(client, wfd.msg, wfd.frame_size, wfd.frame_type, &user_object);
 		}
 
 		/* Close event. */
@@ -1493,7 +1494,7 @@ static void *ws_establishconnection(void *vclient)
 	 * or server closure, as the server is expected to
 	 * always know when the client disconnects.
 	 */
-	cli_events.onclose(client);
+	cli_events.onclose(client, &user_object);
 
 closed:
 	clse_thrd = client->close_thrd;
