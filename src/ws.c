@@ -32,6 +32,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -39,10 +40,6 @@
 typedef int socklen_t;
 #endif
 /* clang-format on */
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
 
 /* Windows and macOS seems to not have MSG_NOSIGNAL */
 #ifndef MSG_NOSIGNAL
