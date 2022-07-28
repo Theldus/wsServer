@@ -23,8 +23,20 @@ language: c
 env:
   - CTEST_OUTPUT_ON_FAILURE=1
 
+addons:
+  sonarcloud:
+    organization: "theldus"
+
 jobs:
   include:
+    - os: linux
+      name: "SonarCloud (Linux - AMD64)"
+      script:
+        - >
+          cmake -S . -B build &&
+          build-wrapper-linux-x86-64 --out-dir ws_out cmake --build build/ --config Release &&
+          sonar-scanner -Dsonar.cfamily.build-wrapper-output=ws_out
+
     - os: linux
       services: docker
       name: "Linux (AMD64) Build & Test"
