@@ -616,7 +616,11 @@ static void send_ping_close(ws_cli_conn_t *cli, int threshold, int lock)
 
 		/* Check previous PONG: if greater than threshold, abort. */
 		if ((cli->current_ping_id - cli->last_pong_id) > threshold)
+		{
+			pthread_mutex_unlock(&cli->mtx_ping);
 			close_client(cli, lock);
+			return;
+		}
 
 	pthread_mutex_unlock(&cli->mtx_ping);
 	/* clang-format on */
