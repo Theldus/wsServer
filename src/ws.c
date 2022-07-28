@@ -164,7 +164,7 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 	{              \
 		perror(s); \
 		exit(-1);  \
-	} while (0);
+	} while (0)
 
 /**
  * @brief Shutdown and close a given socket.
