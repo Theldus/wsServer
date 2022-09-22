@@ -833,6 +833,9 @@ static int do_handshake(struct ws_frame_data *wfd)
 		return (-1);
 	}
 
+	/* Change state. */
+	set_client_state(wfd->client, WS_STATE_OPEN);
+
 	/* Trigger events and clean up buffers. */
 	cli_events.onopen(wfd->client);
 	free(response);
@@ -1453,9 +1456,6 @@ static void *ws_establishconnection(void *vclient)
 	/* Do handshake. */
 	if (do_handshake(&wfd) < 0)
 		goto closed;
-
-	/* Change state. */
-	set_client_state(client, WS_STATE_OPEN);
 
 	/* Read next frame until client disconnects or an error occur. */
 	while (next_frame(&wfd) >= 0)
