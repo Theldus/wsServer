@@ -1542,6 +1542,8 @@ static void *ws_accept(void *data)
 	{
 		/* Accept. */
 		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t *)&len);
+		if (new_sock < 0)
+			panic("Error on accepting connections..");
 
 		if (timeout)
 		{
@@ -1559,9 +1561,6 @@ static void *ws_accept(void *data)
 			setsockopt(new_sock, SOL_SOCKET, SO_SNDTIMEO, &time,
 				sizeof(struct timeval));
 		}
-
-		if (new_sock < 0)
-			panic("Error on accepting connections..");
 
 		/* Adds client socket to socks list. */
 		pthread_mutex_lock(&mutex);
