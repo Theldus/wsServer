@@ -104,7 +104,8 @@ static uint32_t timeout;
  */
 #define CLIENT_VALID(cli)                          \
 	((cli) != NULL && (cli) >= &client_socks[0] && \
-		(cli) <= &client_socks[MAX_CLIENTS - 1])
+		(cli) <= &client_socks[MAX_CLIENTS - 1] && \
+		(cli)->client_sock > -1)
 
 /**
  * @brief WebSocket frame data
