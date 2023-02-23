@@ -243,8 +243,8 @@ static int set_client_state(ws_cli_conn_t *client, int state)
  * @param len Message length.
  * @param flags Send flags.
  *
- * @return Returns 0 if success (i.e: all message was sent),
- * -1 otherwise.
+ * @return If success (i.e: all message was sent), returns
+ * the amount of bytes sent. Otherwise, -1.
  *
  * @note Technically this shouldn't be necessary, since send() should
  * block until all content is sent, since _we_ don't use 'O_NONBLOCK'.
@@ -256,6 +256,9 @@ static ssize_t send_all(
 {
 	const char *p;
 	ssize_t ret;
+	ssize_t r;
+
+	ret = 0;
 
 	/* Sanity check. */
 	if (!CLIENT_VALID(client))
@@ -266,18 +269,19 @@ static ssize_t send_all(
 	pthread_mutex_lock(&client->mtx_snd);
 		while (len)
 		{
-			ret = send(client->client_sock, p, len, flags);
-			if (ret == -1)
+			r = send(client->client_sock, p, len, flags);
+			if (r == -1)
 			{
 				pthread_mutex_unlock(&client->mtx_snd);
 				return (-1);
 			}
-			p += ret;
-			len -= ret;
+			p   += r;
+			len -= r;
+			ret += r;
 		}
 	pthread_mutex_unlock(&client->mtx_snd);
 	/* clang-format on */
-	return (0);
+	return (ret);
 }
 
 /**
