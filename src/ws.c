@@ -1169,7 +1169,9 @@ static int next_frame(struct ws_frame_data *wfd)
 	uint64_t msg_idx_ctrl;   /* Current msg index.         */
 	uint64_t frame_length;   /* Frame length.              */
 	uint64_t frame_size;     /* Current frame size.        */
+    #ifdef VALIDATE_UTF8
 	uint32_t utf8_state;     /* Current UTF-8 state.       */
+    #endif
 	int32_t pong_id;         /* Current PONG id.           */
 	uint8_t opcode;          /* Frame opcode.              */
 	uint8_t is_fin;          /* Is FIN frame flag.         */
@@ -1186,7 +1188,9 @@ static int next_frame(struct ws_frame_data *wfd)
 	wfd->frame_size = 0;
 	wfd->frame_type = -1;
 	wfd->msg = NULL;
+    #ifdef VALIDATE_UTF8
 	utf8_state = UTF8_ACCEPT;
+    #endif
 
 	/* Read until find a FIN or a unsupported frame. */
 	do
