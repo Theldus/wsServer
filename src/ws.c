@@ -469,9 +469,7 @@ int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type
 	uint64_t length;         /* Message length.    */
 	int idx_response;        /* Index response.    */
 	ssize_t output;          /* Bytes sent.        */
-	ssize_t send_ret;        /* Ret send function  */
 	uint64_t i;              /* Loop index.        */
-	ws_cli_conn_t *cli;      /* Client.            */
 
 	frame[0] = (WS_FIN | type);
 	length = (uint64_t)size;
@@ -536,27 +534,53 @@ int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type
 	/* If no client specified, broadcast to everyone. */
 	if (!client)
 	{
-		pthread_mutex_lock(&mutex);
-
-		for (i = 0; i < MAX_CLIENTS; i++)
-		{
-			cli = &client_socks[i];
-			if ((cli->client_sock > -1) && get_client_state(cli) == WS_STATE_OPEN)
-			{
-				if ((send_ret = SEND(cli, response, idx_response)) != -1)
-					output += send_ret;
-				else
-				{
-					output = -1;
-					break;
-				}
-			}
-		}
-		pthread_mutex_unlock(&mutex);
+		output = (ssize_t)ws_send_broacast(client, msg, strlen(msg), type);
 	}
 
 	free(response);
 	return ((int)output);
+}
+/**
+ * Send broacast exclude current client
+ */
+int ws_send_broacast(ws_cli_conn_t * client, const char * msg, uint64_t size, int type) {
+    int client_sock = -1;
+    int output;
+    int send_ret;
+    int i;
+    ws_cli_conn_t *cli;      /* Client.            */
+
+    if (client) {
+        client_sock = client->client_sock;
+    }
+
+    pthread_mutex_lock(&mutex);
+
+    for (i = 0; i < MAX_CLIENTS; i++)
+    {
+        cli = &client_socks[i];
+        if (cli->client_sock == client_sock) continue;
+        if ((cli->client_sock > -1) && get_client_state(cli) == WS_STATE_OPEN)
+        {
+            if(type == WS_FR_OP_TXT) {
+                ((void)size);
+                send_ret = ws_sendframe_txt(cli, msg);
+            } else {
+                send_ret = ws_sendframe_bin(cli, msg, size);
+            }
+            if (send_ret != -1)
+                output += send_ret;
+            else
+            {
+                output = -1;
+                break;
+            }
+        }
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    return output;
 }
 
 /**

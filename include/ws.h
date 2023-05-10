@@ -267,6 +267,8 @@ extern "C" {
 	extern int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop,
 		uint32_t timeout_ms);
 
+    extern int ws_send_broacast(
+        ws_cli_conn_t * client, const char * msg, uint64_t size, int type);
 	/* Ping routines. */
 	extern void ws_ping(ws_cli_conn_t *cli, int threshold);
 
