@@ -135,8 +135,8 @@ uninstall:
 # Generate wsserver.pc
 wsserver.pc:
 	@install -d $(DESTDIR)$(PKGDIR)
-	@echo 'prefix='$(DESTDIR)$(PREFIX)    >  $(DESTDIR)$(PKGDIR)/wsserver.pc
-	@echo 'libdir='$(DESTDIR)$(LIBDIR)    >> $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'prefix='$(PREFIX)    >  $(DESTDIR)$(PKGDIR)/wsserver.pc
+	@echo 'libdir='$(LIBDIR)    >> $(DESTDIR)$(PKGDIR)/wsserver.pc
 	@echo 'includedir=$${prefix}/include' >> $(DESTDIR)$(PKGDIR)/wsserver.pc
 	@echo 'Name: wsServer'                >> $(DESTDIR)$(PKGDIR)/wsserver.pc
 	@echo 'Description: Tiny WebSocket Server Library' >> $(DESTDIR)$(PKGDIR)/wsserver.pc
