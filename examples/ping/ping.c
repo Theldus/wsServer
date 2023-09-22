@@ -34,9 +34,10 @@
  *
  * @param client Client connection.
  */
-void onopen(ws_cli_conn_t *client)
+void onopen(ws_cli_conn_t *client, void **user_object_ptr)
 {
 	((void)client);
+	((void)user_object_ptr);
 	printf("Connected!\n");
 }
 
@@ -45,9 +46,10 @@ void onopen(ws_cli_conn_t *client)
  *
  * @param client Client connection.
  */
-void onclose(ws_cli_conn_t *client)
+void onclose(ws_cli_conn_t *client, void **user_object_ptr)
 {
 	((void)client);
+	((void)user_object_ptr);
 	printf("Disconnected!\n");
 }
 
@@ -61,12 +63,13 @@ void onclose(ws_cli_conn_t *client)
  * @param type Message type.
  */
 void onmessage(ws_cli_conn_t *client,
-	const unsigned char *msg, uint64_t size, int type)
+	const unsigned char *msg, uint64_t size, int type, void **user_object_ptr)
 {
 	((void)client);
 	((void)msg);
 	((void)size);
 	((void)type);
+	((void)user_object_ptr);
 }
 
 /**

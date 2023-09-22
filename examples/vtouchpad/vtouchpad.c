@@ -31,9 +31,6 @@
  * @brief Main file.
  */
 
-/* Mouse global structure. */
-mouse_t *mouse;
-
 /**
  * @brief Given a string @p ev containing a single event,
  * parses it as expected.
@@ -120,8 +117,10 @@ out0:
  *
  * @param client Client connection.
  */
-void onopen(ws_cli_conn_t *client) {
-	(void)client;
+void onopen(ws_cli_conn_t *client, void **user_object_ptr) {
+	((void)client);
+	mouse_t * client_mouse = mouse_new();
+	*user_object_ptr = client_mouse;
 	printf("Connected!\n");
 }
 
@@ -131,8 +130,10 @@ void onopen(ws_cli_conn_t *client) {
  *
  * @param client Client connection.
  */
-void onclose(ws_cli_conn_t *client) {
-	(void)client;
+void onclose(ws_cli_conn_t *client, void **user_object_ptr) {
+	((void)client);
+	mouse_t * client_mouse = (mouse_t *) *user_object_ptr;
+	mouse_free(client_mouse);
 	printf("Disconnected!\n");
 }
 
@@ -149,14 +150,15 @@ void onclose(ws_cli_conn_t *client) {
  * @param type Message type. (ignored)
  */
 void onmessage(ws_cli_conn_t *client,
-    const unsigned char *msg, uint64_t size, int type)
+    const unsigned char *msg, uint64_t size, int type, void **user_object_ptr)
 {
 	((void)client);
 	((void)size);
 	((void)type);
-
+	((void)user_object_ptr);
 	struct mouse_event mev;
 	int err;
+	mouse_t * mouse = (mouse_t *) *user_object_ptr;
 
 	/* Parse the event. */
 	mev = parse_event((const char *)msg, &err);
@@ -199,12 +201,7 @@ int main(void)
 	evs.onclose   = &onclose;
 	evs.onmessage = &onmessage;
 
-	/* Mouse. */
-	mouse = mouse_new();
-
 	ws_socket(&evs, 8080, 0, 1000);
-
-	mouse_free(mouse);
 
     return (0);
 }
