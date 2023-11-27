@@ -32,6 +32,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -80,8 +81,9 @@ struct ws_connection
 	/* Send lock. */
 	pthread_mutex_t mtx_snd;
 
-	/* IP address. */
-	char ip[INET6_ADDRSTRLEN];
+	/* IP address and port. */
+	char ip[1025]; /* NI_MAXHOST. */
+	char port[32]; /* NI_MAXSERV. */
 
 	/* Ping/Pong IDs and locks. */
 	int32_t last_pong_id;
@@ -411,19 +413,22 @@ out:
  */
 static void set_client_address(ws_cli_conn_t *client)
 {
-	struct sockaddr_in addr;
-	socklen_t addr_size;
+	struct sockaddr_storage addr;
+	socklen_t hlen = sizeof(addr);
 
 	if (!CLIENT_VALID(client))
 		return;
 
-	addr_size = sizeof(struct sockaddr_in);
+	memset(client->ip,   0, sizeof(client->ip));
+	memset(client->port, 0, sizeof(client->port));
 
-	if (getpeername(client->client_sock, (struct sockaddr *)&addr, &addr_size) < 0)
+	if (getpeername(client->client_sock, (struct sockaddr *)&addr, &hlen) < 0)
 		return;
 
-	memset(client->ip, 0, sizeof(client->ip));
-	inet_ntop(AF_INET, &addr.sin_addr, client->ip, INET_ADDRSTRLEN);
+	getnameinfo((struct sockaddr *)&addr, hlen,
+		client->ip,   sizeof(client->ip),
+		client->port, sizeof(client->port),
+		NI_NUMERICHOST|NI_NUMERICSERV);
 }
 
 /**
@@ -442,6 +447,24 @@ char *ws_getaddress(ws_cli_conn_t *client)
 		return (NULL);
 
 	return (client->ip);
+}
+
+/**
+ * @brief Gets the IP port relative to a client connection opened
+ * by the server.
+ *
+ * @param client Client connection.
+ *
+ * @return Pointer the port, or NULL if fails.
+ *
+ * @note The returned string is static, no need to free up memory.
+ */
+char *ws_getport(ws_cli_conn_t *client)
+{
+	if (!CLIENT_VALID(client))
+		return (NULL);
+
+	return (client->port);
 }
 
 /**
@@ -1536,21 +1559,21 @@ closed:
  */
 static void *ws_accept(void *data)
 {
-	struct sockaddr_in client; /* Client.                */
-	pthread_t client_thread;   /* Client thread.         */
-	struct timeval time;       /* Client socket timeout. */
-	int new_sock;              /* New opened connection. */
-	int sock;                  /* Server sock.           */
-	int len;                   /* Length of sockaddr.    */
-	int i;                     /* Loop index.            */
+	struct sockaddr_storage sa; /* Client.                */
+	pthread_t client_thread;    /* Client thread.         */
+	struct timeval time;        /* Client socket timeout. */
+	socklen_t salen;            /* Length of sockaddr.    */
+	int new_sock;               /* New opened connection. */
+	int sock;                   /* Server sock.           */
+	int i;                      /* Loop index.            */
 
-	sock = *(int *)data;
-	len = sizeof(struct sockaddr_in);
+	sock  = *(int *)data;
+	salen = sizeof(sa);
 
 	while (1)
 	{
 		/* Accept. */
-		new_sock = accept(sock, (struct sockaddr *)&client, (socklen_t *)&len);
+		new_sock = accept(sock, (struct sockaddr *)&sa, &salen);
 		if (new_sock < 0)
 			panic("Error on accepting connections..");
 
@@ -1614,37 +1637,86 @@ static void *ws_accept(void *data)
 }
 
 /**
+ * @brief By using the server parameters provided in @p ws_srv,
+ * create a socket and bind it accordingly with the server
+ * configurations.
+ *
+ * @param ws_srv Web Socket configurations.
+ *
+ * @return Returns the socket file descriptor.
+ */
+static int do_bind_socket(struct ws_server *ws_srv)
+{
+	struct addrinfo hints, *results, *try;
+	char port[8] = {0};
+	int reuse;
+	int sock;
+
+	reuse = 1;
+
+	/* Prepare the getaddrinfo structure. */
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_flags = AI_PASSIVE;
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+	/* Port. */
+	snprintf(port, sizeof port - 1, "%d", ws_srv->port);
+
+	if (getaddrinfo(ws_srv->host, port, &hints, &results) != 0)
+		panic("getaddrinfo() failed");
+
+	/* Try to create a socket with one of the returned addresses. */
+	for (try = results; try != NULL; try = try->ai_next)
+	{
+		/* try to make a socket with this setup */
+		if ((sock = socket(try->ai_family, try->ai_socktype,
+			try->ai_protocol)) < 0)
+		{
+			continue;
+		}
+
+		/* Reuse previous address. */
+		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse,
+			sizeof(reuse)) < 0)
+		{
+			panic("setsockopt(SO_REUSEADDR) failed");
+		}
+
+		/* Bind. */
+		if (bind(sock, try->ai_addr, try->ai_addrlen) < 0)
+			panic("Bind failed");
+
+		/* if it worked, we're done. */
+		break;
+	}
+
+	freeaddrinfo(results);
+
+	/* Check if binded with success. */
+	if (try == NULL)
+		panic("couldn't find a port to bind to");
+
+	return (sock);
+}
+
+/**
  * @brief Main loop for the server.
  *
- * @param evs  Events structure.
- * @param port Server port.
- * @param thread_loop If any value other than zero, runs
- *                    the accept loop in another thread
- *                    and immediately returns. If 0, runs
- *                    in the same thread and blocks execution.
- *
- * @param timeout_ms  Max timeout if the client is not responding
- *                    (in milliseconds).
+ * @param ws_srv Web Socket server parameters.
  *
  * @return If @p thread_loop != 0, returns 0. Otherwise, never
  * returns.
  */
-int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop,
-	uint32_t timeout_ms)
+int ws_socket(struct ws_server *ws_srv)
 {
-	struct sockaddr_in server; /* Server.                */
 	pthread_t accept_thread;   /* Accept thread.         */
-	int reuse;                 /* Socket option.         */
 	int *sock;                 /* Client sock.           */
 
-	timeout = timeout_ms;
+	timeout = ws_srv->timeout_ms;
 
 	/* Ignore 'unused functions' warnings. */
 	((void)skip_frame);
-
-	/* Checks if the event list is a valid pointer. */
-	if (evs == NULL)
-		panic("Invalid event list!");
 
 	/* Allocates our sock data. */
 	sock = malloc(sizeof(*sock));
@@ -1652,7 +1724,7 @@ int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop,
 		panic("Unable to allocate sock, out of memory!\n");
 
 	/* Copy events. */
-	memcpy(&cli_events, evs, sizeof(struct ws_events));
+	memcpy(&cli_events, &ws_srv->evs, sizeof(struct ws_events));
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -1672,27 +1744,8 @@ int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop,
 	setvbuf(stdout, NULL, _IONBF, 0);
 #endif
 
-	/* Create socket. */
-	*sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (*sock < 0)
-		panic("Could not create socket");
-
-	/* Reuse previous address. */
-	reuse = 1;
-	if (setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse,
-			sizeof(reuse)) < 0)
-	{
-		panic("setsockopt(SO_REUSEADDR) failed");
-	}
-
-	/* Prepare the sockaddr_in structure. */
-	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons(port);
-
-	/* Bind. */
-	if (bind(*sock, (struct sockaddr *)&server, sizeof(server)) < 0)
-		panic("Bind failed");
+	/* Create socket and bind. */
+	*sock = do_bind_socket(ws_srv);
 
 	/* Listen. */
 	listen(*sock, MAX_CLIENTS);
@@ -1702,7 +1755,7 @@ int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop,
 	memset(client_socks, -1, sizeof(client_socks));
 
 	/* Accept connections. */
-	if (!thread_loop)
+	if (!ws_srv->thread_loop)
 		ws_accept((void *)sock);
 	else
 	{

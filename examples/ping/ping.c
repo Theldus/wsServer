@@ -74,11 +74,15 @@ void onmessage(ws_cli_conn_t *client,
  */
 int main(void)
 {
-	struct ws_events evs;
-	evs.onopen    = &onopen;
-	evs.onclose   = &onclose;
-	evs.onmessage = &onmessage;
-	ws_socket(&evs, 8080, 1, 1000);
+	ws_socket(&(struct ws_server){
+		.host = "0.0.0.0",
+		.port = 8080,
+		.thread_loop   = 1,
+		.timeout_ms    = 1000,
+		.evs.onopen    = &onopen,
+		.evs.onclose   = &onclose,
+		.evs.onmessage = &onmessage
+	});
 
 	/*
 	 * Periodically send ping frames in the main thread

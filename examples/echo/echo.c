@@ -42,10 +42,11 @@
  */
 void onopen(ws_cli_conn_t *client)
 {
-	char *cli;
-	cli = ws_getaddress(client);
+	char *cli, *port;
+	cli  = ws_getaddress(client);
+	port = ws_getport(client);
 #ifndef DISABLE_VERBOSE
-	printf("Connection opened, addr: %s\n", cli);
+	printf("Connection opened, addr: %s, port: %s\n", cli, port);
 #endif
 }
 
@@ -110,15 +111,25 @@ void onmessage(ws_cli_conn_t *client,
  */
 int main(void)
 {
-	struct ws_events evs;
-	evs.onopen    = &onopen;
-	evs.onclose   = &onclose;
-	evs.onmessage = &onmessage;
-	ws_socket(&evs, 8080, 0, 1000); /* Never returns. */
+	ws_socket(&(struct ws_server){
+		/*
+		 * Bind host:
+		 * localhost -> localhost/127.0.0.1
+		 * 0.0.0.0   -> global IPv4
+		 * ::        -> global IPv4+IPv6 (DualStack)
+		 */
+		.host = "0.0.0.0",
+		.port = 8080,
+		.thread_loop   = 0,
+		.timeout_ms    = 1000,
+		.evs.onopen    = &onopen,
+		.evs.onclose   = &onclose,
+		.evs.onmessage = &onmessage
+	});
 
 	/*
-	 * If you want to execute code past ws_socket, invoke it like:
-	 *   ws_socket(&evs, 8080, 1, 1000)
+	 * If you want to execute code past ws_socket(), set
+	 * .thread_loop to '1'.
 	 */
 
 	return (0);

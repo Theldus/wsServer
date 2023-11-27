@@ -192,17 +192,18 @@ void onmessage(ws_cli_conn_t *client,
 /* Main routine. */
 int main(void)
 {
-	struct ws_events evs;
-
-	/* Register events. */
-	evs.onopen    = &onopen;
-	evs.onclose   = &onclose;
-	evs.onmessage = &onmessage;
-
 	/* Mouse. */
 	mouse = mouse_new();
 
-	ws_socket(&evs, 8080, 0, 1000);
+	ws_socket(&(struct ws_server){
+		.host = "0.0.0.0",
+		.port = 8080,
+		.thread_loop   = 0,
+		.timeout_ms    = 1000,
+		.evs.onopen    = &onopen,
+		.evs.onclose   = &onclose,
+		.evs.onmessage = &onmessage
+	});
 
 	mouse_free(mouse);
 
