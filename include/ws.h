@@ -236,18 +236,44 @@ extern "C" {
 		 * @brief On open event, called when a new client connects.
 		 */
 		void (*onopen)(ws_cli_conn_t *client);
-
 		/**
 		 * @brief On close event, called when a client disconnects.
 		 */
 		void (*onclose)(ws_cli_conn_t *client);
-
 		/**
 		 * @brief On message event, called when a client sends a text
 		 * or binary message.
 		 */
 		void (*onmessage)(ws_cli_conn_t *client,
 			const unsigned char *msg, uint64_t msg_size, int type);
+	};
+
+	/**
+	 * @brief server Web Socket server parameters
+	 */
+	struct ws_server
+	{
+		/**
+		 * @brief Required hostname that the wsServer will bind to
+		 */
+		const char *host;
+		/**
+		 * @brief Listening port
+		 */
+		uint16_t port;
+		/**
+		 * @brief Whether if the ws_socket() should create a new thread
+		 * and be non-blocking (1) or not (0).
+		 */
+		int thread_loop;
+		/**
+		 * @brief Ping timeout in milliseconds
+		 */
+		uint32_t timeout_ms;
+		/**
+		 * @brief Server events.
+		 */
+		struct ws_events evs;
 	};
 
 	/* Forward declarations. */
@@ -258,14 +284,14 @@ extern "C" {
 
 	/* External usage. */
 	extern char *ws_getaddress(ws_cli_conn_t *client);
+	extern char *ws_getport(ws_cli_conn_t *client);
 	extern int ws_sendframe(
 		ws_cli_conn_t *cli, const char *msg, uint64_t size, int type);
 	extern int ws_sendframe_txt(ws_cli_conn_t *cli, const char *msg);
 	extern int ws_sendframe_bin(ws_cli_conn_t *cli, const char *msg, uint64_t size);
 	extern int ws_get_state(ws_cli_conn_t *cli);
 	extern int ws_close_client(ws_cli_conn_t *cli);
-	extern int ws_socket(struct ws_events *evs, uint16_t port, int thread_loop,
-		uint32_t timeout_ms);
+	extern int ws_socket(struct ws_server *ws_srv);
 
 	/* Ping routines. */
 	extern void ws_ping(ws_cli_conn_t *cli, int threshold);
