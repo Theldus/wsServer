@@ -82,7 +82,7 @@ worry about it.
 
 ### A complete example
 
-More examples, including the respective html files, can be found in examples/
+More examples, including their respective html files, can be found in examples/
 folder, ;-).
 
 ```c
@@ -145,10 +145,25 @@ int main(void)
     /*
      * Main loop, this function never* returns.
      *
-     * *If the third argument is != 0, a new thread is created
-     * to handle new connections.
+     * *If the .thread_loop is != 0, a new thread is created
+     * to handle new connections and ws_socket() becomes
+     * non-blocking.
      */
-    ws_socket(&evs, 8080, 0, 1000);
+    ws_socket(&(struct ws_server){
+        /*
+         * Bind host, such as:
+         * localhost -> localhost/127.0.0.1
+         * 0.0.0.0   -> global IPv4
+         * ::        -> global IPv4+IPv6 (Dual stack)
+         */
+        .host = "localhost",
+        .port = 8080,
+        .thread_loop   = 0,
+        .timeout_ms    = 1000,
+        .evs.onopen    = &onopen,
+        .evs.onclose   = &onclose,
+        .evs.onmessage = &onmessage
+    });
 
     return (0);
 }
