@@ -1,4 +1,4 @@
-# Copyright (C) 2016-2022 Davidson Francis <davidsondfgl@gmail.com>
+# Copyright (C) 2016-2023 Davidson Francis <davidsondfgl@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,14 +15,14 @@
 
 CC       ?= gcc
 AR        = ar
-INCLUDE   = $(CURDIR)/include
-SRC       = $(CURDIR)/src
-CFLAGS   +=  -Wall -Wextra -O2
-CFLAGS   +=  -I $(INCLUDE) -std=c99 -pedantic
+LIB_WS    = libws.a
+INCLUDE   = include
+CFLAGS   += -Wall -Wextra -O2
+CFLAGS   += -I $(INCLUDE) -std=c99 -pedantic
+LDLIBS    = -pthread
 ARFLAGS   =  cru
-LIB       =  libws.a
 MCSS_DIR ?= /usr/bin/
-MANPAGES  = $(CURDIR)/doc/man/man3
+MANPAGES  = doc/man/man3
 AFL_FUZZ ?= no
 VERBOSE_EXAMPLES ?= yes
 VALIDATE_UTF8 ?= yes
@@ -54,16 +54,16 @@ ifeq ($(VALIDATE_UTF8), yes)
 endif
 
 # Source
-C_SRC = $(SRC)/base64.c \
-	$(SRC)/handshake.c \
-	$(SRC)/sha1.c \
-	$(SRC)/utf8.c \
-	$(SRC)/ws.c
+WS_SRC = src/base64.c \
+	src/handshake.c \
+	src/sha1.c \
+	src/utf8.c \
+	src/ws.c
 
-OBJ = $(C_SRC:.c=.o)
+WS_OBJ = $(WS_SRC:.c=.o)
 
 # Conflicts
-.PHONY: doc fuzzy
+.PHONY: all examples tests fuzzy install uninstall doc clean
 
 # Paths
 INCDIR = $(PREFIX)/include
@@ -72,26 +72,34 @@ MANDIR = $(PREFIX)/man
 PKGDIR = $(LIBDIR)/pkgconfig
 
 # Extra paths
-TOYWS  = $(CURDIR)/extra/toyws
-
-# General objects
-%.o: %.c
-	$(CC) $< $(CFLAGS) -c -o $@
+TOYWS  = extra/toyws
 
 # All
 ifeq ($(AFL_FUZZ),no)
-all: libws.a examples
+all: Makefile libws.a examples $(TOYWS)/toyws_test
 else
-all: libws.a fuzzy
+all: Makefile libws.a fuzzy
 endif
 
+#
 # Library
-libws.a: $(OBJ)
-	$(AR) $(ARFLAGS) $(LIB) $^
+#
+
+# Headers
+src/ws.o: include/ws.h include/utf8.h
+src/base.o: include/base64.h
+src/handshake.o: include/base64.h include/ws.h include/sha1.h
+src/sha1.o: include/sha1.h
+src/utf8.o: include/utf8.h
+
+# Lib
+$(LIB_WS): $(WS_OBJ)
+	$(AR) $(ARFLAGS) $(LIB_WS) $^
 
 # Examples
-examples: libws.a
-	$(MAKE) -C examples/
+examples: examples/echo/echo examples/ping/ping
+examples/echo/echo: examples/echo/echo.o $(LIB_WS)
+examples/ping/ping: examples/ping/ping.o $(LIB_WS)
 
 # Autobahn tests
 tests: examples
@@ -104,14 +112,14 @@ fuzzy: libws.a
 	$(MAKE) -C tests/fuzzy
 
 # ToyWS client
-toyws_test: $(TOYWS)/tws_test.o $(TOYWS)/toyws.o
-	$(CC) $^ $(CFLAGS) -I $(TOYWS) -o $@
+$(TOYWS)/toyws_test: $(TOYWS)/tws_test.o $(TOYWS)/toyws.o
+	$(CC) $(CFLAGS) $^ -o $@
 
 # Install rules
 install: libws.a wsserver.pc
 	@#Library
 	install -d $(DESTDIR)$(LIBDIR)
-	install -m 644 $(LIB) $(DESTDIR)$(LIBDIR)
+	install -m 644 $(LIB_WS) $(DESTDIR)$(LIBDIR)
 	@#Headers
 	install -d $(DESTDIR)$(INCDIR)/wsserver
 	install -m 644 $(INCLUDE)/*.h $(DESTDIR)$(INCDIR)/wsserver
@@ -121,7 +129,7 @@ install: libws.a wsserver.pc
 
 # Uninstall rules
 uninstall:
-	rm -f  $(DESTDIR)$(LIBDIR)/$(LIB)
+	rm -f  $(DESTDIR)$(LIBDIR)/$(LIB_WS)
 	rm -rf $(DESTDIR)$(INCDIR)/wsserver
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_getaddress.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe.3
@@ -161,9 +169,10 @@ doc:
 
 # Clean
 clean:
-	@rm -f $(OBJ)
-	@rm -f $(LIB)
-	@rm -f $(TOYWS)/toyws.o $(TOYWS)/tws_test.o toyws_test
-	@$(MAKE) clean -C examples/
+	@rm -f $(WS_OBJ)
+	@rm -f $(LIB_WS)
+	@rm -f $(TOYWS)/toyws.o $(TOYWS)/tws_test.o $(TOYWS)toyws_test
+	@rm -f examples/echo/{echo,echo.o}
+	@rm -f examples/ping/{ping,ping.o}
 	@$(MAKE) clean -C tests/
 	@$(MAKE) clean -C tests/fuzzy
