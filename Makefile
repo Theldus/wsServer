@@ -19,7 +19,7 @@ LIB_WS    = libws.a
 INCLUDE   = include
 CFLAGS   += -Wall -Wextra -O2
 CFLAGS   += -I $(INCLUDE) -std=c99 -pedantic
-LDLIBS    = -pthread
+LDLIBS    = $(LIB_WS) -pthread
 ARFLAGS   =  cru
 MCSS_DIR ?= /usr/bin/
 MANPAGES  = doc/man/man3
@@ -53,14 +53,11 @@ ifeq ($(VALIDATE_UTF8), yes)
 	CFLAGS += -DVALIDATE_UTF8
 endif
 
-# Source
-WS_SRC = src/base64.c \
-	src/handshake.c \
-	src/sha1.c \
-	src/utf8.c \
-	src/ws.c
-
-WS_OBJ = $(WS_SRC:.c=.o)
+# Pretty print
+Q := @
+ifeq ($(V), 1)
+	Q :=
+endif
 
 # Conflicts
 .PHONY: all examples tests fuzzy install uninstall doc clean
@@ -85,6 +82,17 @@ endif
 # Library
 #
 
+%.o: %.c
+	@echo "  CC      $@"
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+
+# Source
+WS_OBJ = src/base64.o \
+	src/handshake.o   \
+	src/sha1.o        \
+	src/utf8.o        \
+	src/ws.o
+
 # Headers
 src/ws.o: include/ws.h include/utf8.h
 src/base.o: include/base64.h
@@ -94,12 +102,17 @@ src/utf8.o: include/utf8.h
 
 # Lib
 $(LIB_WS): $(WS_OBJ)
-	$(AR) $(ARFLAGS) $(LIB_WS) $^
+	@echo "  AR      $@"
+	$(Q)$(AR) $(ARFLAGS) $(LIB_WS) $^
 
 # Examples
 examples: examples/echo/echo examples/ping/ping
 examples/echo/echo: examples/echo/echo.o $(LIB_WS)
+	@echo "  LINK    $@"
+	$(Q)$(CC) $(CFLAGS) $< -o $@ $(LDLIBS)
 examples/ping/ping: examples/ping/ping.o $(LIB_WS)
+	@echo "  LINK    $@"
+	$(Q)$(CC) $(CFLAGS) $< -o $@ $(LDLIBS)
 
 # Autobahn tests
 tests: examples
@@ -113,10 +126,12 @@ fuzzy: libws.a
 
 # ToyWS client
 $(TOYWS)/toyws_test: $(TOYWS)/tws_test.o $(TOYWS)/toyws.o
-	$(CC) $(CFLAGS) $^ -o $@
+	@echo "  LINK    $@"
+	$(Q)$(CC) $(CFLAGS) $^ -o $@
 
 # Install rules
 install: libws.a wsserver.pc
+	@echo "  INSTALL      $@"
 	@#Library
 	install -d $(DESTDIR)$(LIBDIR)
 	install -m 644 $(LIB_WS) $(DESTDIR)$(LIBDIR)
@@ -129,6 +144,7 @@ install: libws.a wsserver.pc
 
 # Uninstall rules
 uninstall:
+	@echo "  UNINSTALL      $@"
 	rm -f  $(DESTDIR)$(LIBDIR)/$(LIB_WS)
 	rm -rf $(DESTDIR)$(INCDIR)/wsserver
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_getaddress.3
