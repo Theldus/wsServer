@@ -57,10 +57,10 @@ make
 Windows has native support via MinGW, toolchain setup and build steps are detailed
 [here](https://github.com/Theldus/wsServer/blob/master/doc/BUILD_WINDOWS.md).
 
-## Why to complicate if things can be simple?
+## Keeping It Simple!
 
-wsServer abstracts the idea of sockets and you only need to deal with three
-types of events defined:
+wsServer simplifies socket management by allowing you to focus on only three different
+sorts of events:
 
 ```c
 /* New client. */
@@ -74,11 +74,9 @@ void onmessage(ws_cli_conn_t *client, const unsigned char *msg,
     uint64_t size, int type);
 ```
 
-this is all you need to worry about, nothing to think about return values in socket,
-accepting connections, and so on.
-
-As a gift, each client is handled in a separate thread, so you will not have to
-worry about it.
+This is the only thing you need to worry about. You don’t have to think about return
+values in socket, accepting connections, or anything else. As a bonus, each client is
+handled in a separate thread, so there is no need to worry about that either.
 
 ### A complete example
 
@@ -136,12 +134,6 @@ void onmessage(ws_cli_conn_t *client,
 
 int main(void)
 {
-    /* Register events. */
-    struct ws_events evs;
-    evs.onopen    = &onopen;
-    evs.onclose   = &onclose;
-    evs.onmessage = &onmessage;
-
     /*
      * Main loop, this function never* returns.
      *
