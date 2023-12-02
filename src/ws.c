@@ -1390,6 +1390,7 @@ static int next_complete_frame(struct ws_frame_data *wfd)
 	fsd.utf8_state = UTF8_ACCEPT;
 #endif
 
+	wfd->frame_size =  0;
 	wfd->frame_type = -1;
 	wfd->msg = NULL;
 
