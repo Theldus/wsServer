@@ -1483,11 +1483,12 @@ static int next_complete_frame(struct ws_frame_data *wfd)
 			break;
 
 		/* Handle each frame
-		 * Obs: If BIN or CONT, nothing should be done unless we got
+		 * Obs: If BIN, nothing should be done unless we got
 		 * a FIN-frame.
 		 */
 		switch (fsd.opcode) {
 			/* UTF-8 Validate partial (or not) frame. */
+			case WS_FR_OP_CONT:
 			case WS_FR_OP_TXT: {
 				validate_utf8_txt(wfd, &fsd);
 				break;
