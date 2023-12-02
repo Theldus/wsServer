@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022  Davidson Francis <davidsondfgl@gmail.com>
+ * Copyright (C) 2016-2023  Davidson Francis <davidsondfgl@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -810,6 +810,25 @@ static inline int is_control_frame(int frame)
 }
 
 /**
+ * @brief Checks is a given opcode @p opcode is valid or not.
+ *
+ * @param opcode Frame opcode to be checked.
+ *
+ * @return Returns 1 if valid, 0 otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
+ */
+static inline int is_valid_frame(int opcode)
+{
+	return (
+		opcode == WS_FR_OP_TXT  || opcode == WS_FR_OP_BIN  ||
+		opcode == WS_FR_OP_CONT || opcode == WS_FR_OP_PING ||
+		opcode == WS_FR_OP_PONG || opcode == WS_FR_OP_CLSE
+	);
+}
+
+/**
  * @brief Do the handshake process.
  *
  * @param wfd Websocket Frame Data.
@@ -1020,57 +1039,236 @@ static int skip_frame(struct ws_frame_data *wfd, uint64_t frame_size)
 }
 
 /**
+ * Frame state data
+ *
+ * This structure holds the current data for handling the
+ * received frames.
+ */
+struct frame_state_data
+{
+	unsigned char *msg_data; /* Data frame.                */
+	unsigned char *msg_ctrl; /* Control frame.             */
+	uint8_t masks_data[4];   /* Masks data frame array.    */
+	uint8_t masks_ctrl[4];   /* Masks control frame array. */
+	uint64_t msg_idx_data;   /* Current msg index.         */
+	uint64_t msg_idx_ctrl;   /* Current msg index.         */
+	uint64_t frame_length;   /* Frame length.              */
+	uint64_t frame_size;     /* Current frame size.        */
+#ifdef VALIDATE_UTF8
+	uint32_t utf8_state;     /* Current UTF-8 state.       */
+#endif
+	int32_t pong_id;         /* Current PONG id.           */
+	uint8_t opcode;          /* Frame opcode.              */
+	uint8_t is_fin;          /* Is FIN frame flag.         */
+	uint8_t mask;            /* Mask.                      */
+	int cur_byte;            /* Current frame byte.        */
+};
+
+/**
+ * @brief Validates TXT frames if UTF8 validation is enabled.
+ * If the content is not valid, the connection is aborted.
+ *
+ * @param wfd WebSocket frame data.
+ * @param fsd Frame state data.
+ *
+ * @return Always 0.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
+ */
+static int validate_utf8_txt(struct ws_frame_data *wfd,
+	struct frame_state_data *fsd)
+{
+#ifdef VALIDATE_UTF8
+	/* UTF-8 Validate partial (or not) frame. */
+	if (wfd->frame_type != WS_FR_OP_TXT)
+		return (0);
+
+	if (fsd->is_fin)
+	{
+		if (is_utf8_len_state(
+			fsd->msg_data + (fsd->msg_idx_data - fsd->frame_length),
+			fsd->frame_length, fsd->utf8_state) != UTF8_ACCEPT)
+		{
+			DEBUG("Dropping invalid complete message!\n");
+			wfd->error = 1;
+			do_close(wfd, WS_CLSE_INVUTF8);
+		}
+
+		return (0);
+	}
+
+	/* Check current state for a CONT or initial TXT frame. */
+	fsd->utf8_state =
+		is_utf8_len_state(fsd->msg_data +
+			(fsd->msg_idx_data - fsd->frame_length),
+			fsd->frame_length, fsd->utf8_state);
+
+	/* We can be in any state, except reject. */
+	if (fsd->utf8_state == UTF8_REJECT)
+	{
+		DEBUG("Dropping invalid cont/initial frame!\n");
+		wfd->error = 1;
+		do_close(wfd, WS_CLSE_INVUTF8);
+	}
+#endif
+	return (0);
+}
+
+/**
+ * @brief Handle PONG frames in response to our PING
+ * (or not, unsolicited is possible too).
+ *
+ * @param wfd WebSocket frame data.
+ * @param fsd Frame state data.
+ *
+ * @return Always 0.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
+ */
+static int handle_pong_frame(struct ws_frame_data *wfd,
+	struct frame_state_data *fsd)
+{
+	fsd->is_fin = 0;
+
+	/* If there is no content and/or differs the size, ignore it. */
+	if (fsd->frame_size != sizeof(wfd->client->last_pong_id))
+		return (0);
+
+	/*
+	 * Our PONG id should be positive and smaller than our
+	 * current PING id. If not, ignore.
+	 */
+	/* clang-format off */
+	pthread_mutex_lock(&wfd->client->mtx_ping);
+		fsd->pong_id = pong_msg_to_int32(fsd->msg_ctrl);
+		if (fsd->pong_id < 0 || fsd->pong_id > wfd->client->current_ping_id)
+		{
+			pthread_mutex_unlock(&wfd->client->mtx_ping);
+			return (0);
+		}
+		wfd->client->last_pong_id = fsd->pong_id;
+	pthread_mutex_unlock(&wfd->client->mtx_ping);
+	/* clang-format on */
+
+	return (0);
+}
+
+/**
+ * @brief Handle PING frames sending a PONG response.
+ *
+ * @param wfd WebSocket frame data.
+ * @param fsd Frame state data.
+ *
+ * @return Returns 0 if success, -1 otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
+ */
+static int handle_ping_frame(struct ws_frame_data *wfd,
+	struct frame_state_data *fsd)
+{
+	if (do_pong(wfd, fsd->frame_size) < 0)
+		return (-1);
+
+	/* Quick hack to keep our loop. */
+	fsd->is_fin = 0;
+	return (0);
+}
+
+/**
+ * @brief Handle close frames while checking for UTF8
+ * in the close reason.
+ *
+ * @param wfd WebSocket frame data.
+ * @param fsd Frame state data.
+ *
+ * @return Returns 0 if success, -1 otherwise.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
+ */
+static int handle_close_frame(struct ws_frame_data *wfd,
+	struct frame_state_data *fsd)
+{
+#ifdef VALIDATE_UTF8
+	/* If there is a close reason, check if it is UTF-8 valid. */
+	if (fsd->frame_size > 2 &&
+		!is_utf8_len(fsd->msg_ctrl + 2, fsd->frame_size - 2))
+	{
+		DEBUG("Invalid close frame payload reason! (not UTF-8)\n");
+		wfd->error = 1;
+		return (-1);
+	}
+#endif
+
+	/*
+	 * Since we're aborting, we can scratch the 'data'-related
+	 * vars here.
+	 */
+	wfd->frame_size = fsd->frame_size;
+	wfd->frame_type = WS_FR_OP_CLSE;
+	free(fsd->msg_data);
+	return (0);
+}
+
+/**
  * @brief Reads the current frame isolating data from control frames.
  * The parameters are changed in order to reflect the current state.
  *
  * @param wfd Websocket Frame Data.
- * @param opcode Frame opcode.
- * @param buf Buffer to be written.
- * @param frame_length Length of the current frame.
- * @param frame_size Total size of the frame (considering CONT frames)
- *                   read until the moment.
- * @param msg_idx Message index, reflects the current buffer pointer state.
- * @param masks Masks vector.
- * @param is_fin Is FIN frame indicator.
+ * @param fsd Frame state data.
  *
  * @return Returns 0 if success, a negative number otherwise.
  *
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int read_frame(struct ws_frame_data *wfd,
-	int opcode,
-	unsigned char **buf,
-	uint64_t *frame_length,
-	uint64_t *frame_size,
-	uint64_t *msg_idx,
-	uint8_t *masks,
-	int is_fin)
+static int read_single_frame(struct ws_frame_data *wfd,
+	struct frame_state_data *fsd)
 {
+	uint64_t *frame_size; /* Curr frame size. */
 	unsigned char *tmp; /* Tmp message.     */
 	unsigned char *msg; /* Current message. */
+	uint64_t *msg_idx;  /* Message index.   */
+	uint8_t *masks;     /* Current mask.    */
 	int cur_byte;       /* Curr byte read.  */
 	uint64_t i;         /* Loop index.      */
 
-	msg = *buf;
+	/* Decide which mask and msg to use. */
+	if (is_control_frame(fsd->opcode)) {
+		frame_size = &fsd->frame_size;
+		msg_idx = &fsd->msg_idx_ctrl;
+		masks   = fsd->masks_ctrl;
+		msg     = fsd->msg_ctrl;
+	}
+	else {
+		frame_size = &wfd->frame_size;
+		msg_idx = &fsd->msg_idx_data;
+		masks   = fsd->masks_data;
+		msg     = fsd->msg_data;
+	}
 
 	/* Decode masks and length for 16-bit messages. */
-	if (*frame_length == 126)
-		*frame_length = (((uint64_t)next_byte(wfd)) << 8) | next_byte(wfd);
+	if (fsd->frame_length == 126)
+		fsd->frame_length = (((uint64_t)next_byte(wfd)) << 8) | next_byte(wfd);
 
 	/* 64-bit messages. */
-	else if (*frame_length == 127)
+	else if (fsd->frame_length == 127)
 	{
-		*frame_length =
+		fsd->frame_length =
 			(((uint64_t)next_byte(wfd)) << 56) | /* frame[2]. */
 			(((uint64_t)next_byte(wfd)) << 48) | /* frame[3]. */
-			(((uint64_t)next_byte(wfd)) << 40) | (((uint64_t)next_byte(wfd)) << 32) |
-			(((uint64_t)next_byte(wfd)) << 24) | (((uint64_t)next_byte(wfd)) << 16) |
-			(((uint64_t)next_byte(wfd)) << 8) |
+			(((uint64_t)next_byte(wfd)) << 40) |
+			(((uint64_t)next_byte(wfd)) << 32) |
+			(((uint64_t)next_byte(wfd)) << 24) |
+			(((uint64_t)next_byte(wfd)) << 16) |
+			(((uint64_t)next_byte(wfd)) << 8)  |
 			(((uint64_t)next_byte(wfd))); /* frame[9]. */
 	}
 
-	*frame_size += *frame_length;
+	*frame_size += fsd->frame_length;
 
 	/*
 	 * Check frame size
@@ -1084,7 +1282,8 @@ static int read_frame(struct ws_frame_data *wfd,
 	{
 		DEBUG("Current frame from client %d, exceeds the maximum\n"
 			  "amount of bytes allowed (%" PRId64 "/%d)!",
-			wfd->client->client_sock, *frame_size + *frame_length, MAX_FRAME_LENGTH);
+			wfd->client->client_sock, *frame_size + fsd->frame_length,
+			MAX_FRAME_LENGTH);
 
 		wfd->error = 1;
 		return (-1);
@@ -1117,26 +1316,25 @@ static int read_frame(struct ws_frame_data *wfd,
 	 * and if the current frame is a FIN frame or not, if so,
 	 * increment the size by 1 to accommodate the line ending \0.
 	 */
-	if (*frame_length > 0)
+	if (fsd->frame_length > 0)
 	{
-		if (!is_control_frame(opcode))
+		if (!is_control_frame(fsd->opcode))
 		{
-			tmp = realloc(
-				msg, sizeof(unsigned char) * (*msg_idx + *frame_length + is_fin));
+			tmp = realloc(msg, *msg_idx + fsd->frame_length + fsd->is_fin);
 			if (!tmp)
 			{
 				DEBUG("Cannot allocate memory, requested: % " PRId64 "\n",
-					(*msg_idx + *frame_length + is_fin));
+					(*msg_idx + *frame_length + fsd->is_fin));
 
 				wfd->error = 1;
 				return (-1);
 			}
 			msg = tmp;
-			*buf = msg;
+			fsd->msg_data = msg;
 		}
 
 		/* Copy to the proper location. */
-		for (i = 0; i < *frame_length; i++, (*msg_idx)++)
+		for (i = 0; i < fsd->frame_length; i++, (*msg_idx)++)
 		{
 			/* We were able to read? .*/
 			cur_byte = next_byte(wfd);
@@ -1148,12 +1346,12 @@ static int read_frame(struct ws_frame_data *wfd,
 	}
 
 	/* If we're inside a FIN frame, lets... */
-	if (is_fin && *frame_size > 0)
+	if (fsd->is_fin && *frame_size > 0)
 	{
 		/* Increase memory if our FIN frame is of length 0. */
-		if (!*frame_length && !is_control_frame(opcode))
+		if (!fsd->frame_length && !is_control_frame(fsd->opcode))
 		{
-			tmp = realloc(msg, sizeof(unsigned char) * (*msg_idx + 1));
+			tmp = realloc(msg, *msg_idx + 1);
 			if (!tmp)
 			{
 				DEBUG("Cannot allocate memory, requested: %" PRId64 "\n",
@@ -1163,7 +1361,7 @@ static int read_frame(struct ws_frame_data *wfd,
 				return (-1);
 			}
 			msg = tmp;
-			*buf = msg;
+			fsd->msg_data = msg;
 		}
 		msg[*msg_idx] = '\0';
 	}
@@ -1182,66 +1380,31 @@ static int read_frame(struct ws_frame_data *wfd,
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int next_frame(struct ws_frame_data *wfd)
+static int next_complete_frame(struct ws_frame_data *wfd)
 {
-	unsigned char *msg_data; /* Data frame.                */
-	unsigned char *msg_ctrl; /* Control frame.             */
-	uint8_t masks_data[4];   /* Masks data frame array.    */
-	uint8_t masks_ctrl[4];   /* Masks control frame array. */
-	uint64_t msg_idx_data;   /* Current msg index.         */
-	uint64_t msg_idx_ctrl;   /* Current msg index.         */
-	uint64_t frame_length;   /* Frame length.              */
-	uint64_t frame_size;     /* Current frame size.        */
-    #ifdef VALIDATE_UTF8
-	uint32_t utf8_state;     /* Current UTF-8 state.       */
-    #endif
-	int32_t pong_id;         /* Current PONG id.           */
-	uint8_t opcode;          /* Frame opcode.              */
-	uint8_t is_fin;          /* Is FIN frame flag.         */
-	uint8_t mask;            /* Mask.                      */
-	int cur_byte;            /* Current frame byte.        */
+	struct frame_state_data fsd = {0};
+	fsd.msg_data = NULL;
+	fsd.msg_ctrl = wfd->msg_ctrl;
 
-	msg_data = NULL;
-	msg_ctrl = wfd->msg_ctrl;
-	is_fin = 0;
-	frame_length = 0;
-	frame_size = 0;
-	msg_idx_data = 0;
-	msg_idx_ctrl = 0;
-	wfd->frame_size = 0;
+#ifdef VALIDATE_UTF8
+	fsd.utf8_state = UTF8_ACCEPT;
+#endif
+
 	wfd->frame_type = -1;
 	wfd->msg = NULL;
-    #ifdef VALIDATE_UTF8
-	utf8_state = UTF8_ACCEPT;
-    #endif
 
 	/* Read until find a FIN or a unsupported frame. */
 	do
 	{
-		/*
-		 * Obs: next_byte() can return error if not possible to read the
-		 * next frame byte, in this case, we return an error.
-		 *
-		 * However, please note that this check is only made here and in
-		 * the subsequent next_bytes() calls this also may occur too.
-		 * wsServer is assuming that the client only create right
-		 * frames and we will do not have disconnections while reading
-		 * the frame but just when waiting for a frame.
-		 */
-		cur_byte = next_byte(wfd);
-		if (cur_byte == -1)
+		fsd.cur_byte = next_byte(wfd);
+		if (fsd.cur_byte == -1)
 			return (-1);
 
-		is_fin = (cur_byte & 0xFF) >> WS_FIN_SHIFT;
-		opcode = (cur_byte & 0xF);
+		fsd.is_fin = (fsd.cur_byte & 0xFF) >> WS_FIN_SHIFT;
+		fsd.opcode = (fsd.cur_byte & 0xF);
 
-		/*
-		 * Check for RSV field.
-		 *
-		 * Since wsServer do not negotiate extensions if we receive
-		 * a RSV field, we must drop the connection.
-		 */
-		if (cur_byte & 0x70)
+		/* Check for RSV field. */
+		if (fsd.cur_byte & 0x70)
 		{
 			DEBUG("RSV is set while wsServer do not negotiate extensions!\n");
 			wfd->error = 1;
@@ -1262,201 +1425,113 @@ static int next_frame(struct ws_frame_data *wfd)
 		 * so the only possibility here is a previous non-FIN data
 		 * frame, ;-).
 		 */
-		if ((wfd->frame_type == -1 && opcode == WS_FR_OP_CONT) ||
-			(wfd->frame_type != -1 && !is_control_frame(opcode) &&
-				opcode != WS_FR_OP_CONT))
+		if ((wfd->frame_type == -1 && fsd.opcode == WS_FR_OP_CONT) ||
+			(wfd->frame_type != -1 && !is_control_frame(fsd.opcode) &&
+				fsd.opcode != WS_FR_OP_CONT))
 		{
 			DEBUG("Unexpected frame was received!, opcode: %d, previous: %d\n",
-				opcode, wfd->frame_type);
+				fsd.opcode, wfd->frame_type);
 			wfd->error = 1;
 			break;
 		}
 
 		/* Check if one of the valid opcodes. */
-		if (opcode == WS_FR_OP_TXT || opcode == WS_FR_OP_BIN ||
-			opcode == WS_FR_OP_CONT || opcode == WS_FR_OP_PING ||
-			opcode == WS_FR_OP_PONG || opcode == WS_FR_OP_CLSE)
+		if (!is_valid_frame(fsd.opcode))
 		{
-			/*
-			 * Check our current state: if CLOSING, we only accept close
-			 * frames.
-			 *
-			 * Since the server may, at any time, asynchronously, asks
-			 * to close the client connection, we should terminate
-			 * immediately.
-			 */
-			if (get_client_state(wfd->client) == WS_STATE_CLOSING &&
-				opcode != WS_FR_OP_CLSE)
-			{
-				DEBUG("Unexpected frame received, expected CLOSE (%d), "
-					  "received: (%d)",
-					WS_FR_OP_CLSE, opcode);
-				wfd->error = 1;
+			DEBUG("Unsupported frame opcode: %d\n", fsd.opcode);
+			/* We should consider as error receive an unknown frame. */
+			wfd->frame_type = fsd.opcode;
+			wfd->error = 1;
+			break;
+		}
+
+		/* Check our current state: if CLOSING, we only accept close frames. */
+		if (get_client_state(wfd->client) == WS_STATE_CLOSING &&
+			fsd.opcode != WS_FR_OP_CLSE)
+		{
+			DEBUG("Unexpected frame received, expected CLOSE (%d), "
+				  "received: (%d)",
+				WS_FR_OP_CLSE, fsd.opcode);
+			wfd->error = 1;
+			break;
+		}
+
+		/* Only change frame type if not a CONT frame. */
+		if (fsd.opcode != WS_FR_OP_CONT && !is_control_frame(fsd.opcode))
+			wfd->frame_type = fsd.opcode;
+
+		fsd.mask         = next_byte(wfd);
+		fsd.frame_length = fsd.mask & 0x7F;
+		fsd.frame_size   = 0;
+		fsd.msg_idx_ctrl = 0;
+
+		/*
+		 * We should deny non-FIN control frames or that have
+		 * more than 125 octets.
+		 */
+		if (is_control_frame(fsd.opcode) &&
+			(!fsd.is_fin || fsd.frame_length > 125))
+		{
+			DEBUG("Control frame bigger than 125 octets or not a FIN "
+				  "frame!\n");
+			wfd->error = 1;
+			break;
+		}
+
+		/* Read a single frame, and then handle accordingly. */
+		if (read_single_frame(wfd, &fsd) < 0)
+			break;
+
+		/* Handle each frame
+		 * Obs: If BIN or CONT, nothing should be done unless we got
+		 * a FIN-frame.
+		 */
+		switch (fsd.opcode) {
+			/* UTF-8 Validate partial (or not) frame. */
+			case WS_FR_OP_TXT: {
+				validate_utf8_txt(wfd, &fsd);
 				break;
 			}
-
-			/* Only change frame type if not a CONT frame. */
-			if (opcode != WS_FR_OP_CONT && !is_control_frame(opcode))
-				wfd->frame_type = opcode;
-
-			mask = next_byte(wfd);
-			frame_length = mask & 0x7F;
-			frame_size = 0;
-			msg_idx_ctrl = 0;
-
-			/*
-			 * We should deny non-FIN control frames or that have
-			 * more than 125 octets.
-			 */
-			if (is_control_frame(opcode) && (!is_fin || frame_length > 125))
-			{
-				DEBUG("Control frame bigger than 125 octets or not a FIN "
-					  "frame!\n");
-				wfd->error = 1;
-				break;
-			}
-
-			/* Normal data frames. */
-			if (opcode == WS_FR_OP_TXT || opcode == WS_FR_OP_BIN ||
-				opcode == WS_FR_OP_CONT)
-			{
-				if (read_frame(wfd, opcode, &msg_data, &frame_length,
-						&wfd->frame_size, &msg_idx_data, masks_data, is_fin) < 0)
-					break;
-
-#ifdef VALIDATE_UTF8
-				/* UTF-8 Validate partial (or not) frame. */
-				if (wfd->frame_type == WS_FR_OP_TXT)
-				{
-					if (is_fin)
-					{
-						if (is_utf8_len_state(
-								msg_data + (msg_idx_data - frame_length),
-								frame_length, utf8_state) != UTF8_ACCEPT)
-						{
-							DEBUG("Dropping invalid complete message!\n");
-							wfd->error = 1;
-							do_close(wfd, WS_CLSE_INVUTF8);
-						}
-					}
-
-					/* Check current state for a CONT or initial TXT frame. */
-					else
-					{
-						utf8_state = is_utf8_len_state(
-							msg_data + (msg_idx_data - frame_length), frame_length,
-							utf8_state);
-
-						/* We can be in any state, except reject. */
-						if (utf8_state == UTF8_REJECT)
-						{
-							DEBUG("Dropping invalid cont/initial frame!\n");
-							wfd->error = 1;
-							do_close(wfd, WS_CLSE_INVUTF8);
-						}
-					}
-				}
-#endif
-			}
-
 			/*
 			 * We _may_ send a PING frame if the ws_ping() routine was invoked.
 			 *
 			 * If the content is invalid and/or differs the size, ignore it.
 			 * (maybe unsolicited PONG).
 			 */
-			else if (opcode == WS_FR_OP_PONG)
-			{
-				if (read_frame(wfd, opcode, &msg_ctrl, &frame_length, &frame_size,
-						&msg_idx_ctrl, masks_ctrl, is_fin) < 0)
-					break;
-
-				is_fin = 0;
-
-				/* If there is no content and/or differs the size, ignore it. */
-				if (frame_size != sizeof(wfd->client->last_pong_id))
-					continue;
-
-				/*
-				 * Our PONG id should be positive and smaller than our
-				 * current PING id. If not, ignore.
-				 */
-				/* clang-format off */
-				pthread_mutex_lock(&wfd->client->mtx_ping);
-
-					pong_id = pong_msg_to_int32(msg_ctrl);
-					if (pong_id < 0 || pong_id > wfd->client->current_ping_id)
-					{
-						pthread_mutex_unlock(&wfd->client->mtx_ping);
-						continue;
-					}
-					wfd->client->last_pong_id = pong_id;
-
-				pthread_mutex_unlock(&wfd->client->mtx_ping);
-				/* clang-format on */
-				continue;
+			case WS_FR_OP_PONG: {
+				handle_pong_frame(wfd, &fsd);
+				goto next_it;
+				break;
 			}
-
 			/* We should answer to a PING frame as soon as possible. */
-			else if (opcode == WS_FR_OP_PING)
-			{
-				if (read_frame(wfd, opcode, &msg_ctrl, &frame_length, &frame_size,
-						&msg_idx_ctrl, masks_ctrl, is_fin) < 0)
-					break;
-
-				if (do_pong(wfd, frame_size) < 0)
-					break;
-
-				/* Quick hack to keep our loop. */
-				is_fin = 0;
+			case WS_FR_OP_PING: {
+				if (handle_ping_frame(wfd, &fsd) < 0)
+					goto done;
+				break;
 			}
-
 			/* We interrupt the loop as soon as we find a CLOSE frame. */
-			else
-			{
-				if (read_frame(wfd, opcode, &msg_ctrl, &frame_length, &frame_size,
-						&msg_idx_ctrl, masks_ctrl, is_fin) < 0)
-					break;
-
-#ifdef VALIDATE_UTF8
-				/* If there is a close reason, check if it is UTF-8 valid. */
-				if (frame_size > 2 && !is_utf8_len(msg_ctrl + 2, frame_size - 2))
-				{
-					DEBUG("Invalid close frame payload reason! (not UTF-8)\n");
-					wfd->error = 1;
-					break;
-				}
-#endif
-
-				/* Since we're aborting, we can scratch the 'data'-related
-				 * vars here. */
-				wfd->frame_size = frame_size;
-				wfd->frame_type = WS_FR_OP_CLSE;
-				free(msg_data);
+			case WS_FR_OP_CLSE: {
+				if (handle_close_frame(wfd, &fsd) < 0)
+					goto done;
 				return (0);
+				break;
 			}
 		}
 
-		/* Anything else (unsupported frames). */
-		else
-		{
-			DEBUG("Unsupported frame opcode: %d\n", opcode);
-			/* We should consider as error receive an unknown frame. */
-			wfd->frame_type = opcode;
-			wfd->error = 1;
-		}
+next_it:;
 
-	} while (!is_fin && !wfd->error);
+	} while (!fsd.is_fin && !wfd->error);
 
+done:
 	/* Check for error. */
 	if (wfd->error)
 	{
-		free(msg_data);
+		free(fsd.msg_data);
 		wfd->msg = NULL;
 		return (-1);
 	}
 
-	wfd->msg = msg_data;
+	wfd->msg = fsd.msg_data;
 	return (0);
 }
 
@@ -1490,13 +1565,14 @@ static void *ws_establishconnection(void *vclient)
 		goto closed;
 
 	/* Read next frame until client disconnects or an error occur. */
-	while (next_frame(&wfd) >= 0)
+	while (next_complete_frame(&wfd) >= 0)
 	{
 		/* Text/binary event. */
-		if ((wfd.frame_type == WS_FR_OP_TXT || wfd.frame_type == WS_FR_OP_BIN) &&
-			!wfd.error)
+		if ((wfd.frame_type == WS_FR_OP_TXT ||
+			wfd.frame_type == WS_FR_OP_BIN) && !wfd.error)
 		{
-			cli_events.onmessage(client, wfd.msg, wfd.frame_size, wfd.frame_type);
+			cli_events.onmessage(client, wfd.msg, wfd.frame_size,
+				wfd.frame_type);
 		}
 
 		/* Close event. */
