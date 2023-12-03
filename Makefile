@@ -148,6 +148,7 @@ uninstall:
 	rm -f  $(DESTDIR)$(LIBDIR)/$(LIB_WS)
 	rm -rf $(DESTDIR)$(INCDIR)/wsserver
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_getaddress.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_getport.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe_bin.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe_txt.3
