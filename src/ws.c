@@ -60,17 +60,15 @@ typedef int socklen_t;
  */
 
 /**
- * @brief Websocket events.
- */
-static struct ws_events cli_events;
-
-/**
  * @brief Client socks.
  */
 struct ws_connection
 {
 	int client_sock; /**< Client socket FD.        */
 	int state;       /**< WebSocket current state. */
+
+	/* wsServer structure copy. */
+	struct ws_server ws_srv;
 
 	/* Timeout thread and locks. */
 	pthread_mutex_t mtx_state;
@@ -884,7 +882,7 @@ static int do_handshake(struct ws_frame_data *wfd)
 	set_client_state(wfd->client, WS_STATE_OPEN);
 
 	/* Trigger events and clean up buffers. */
-	cli_events.onopen(wfd->client);
+	wfd->client->ws_srv.evs.onopen(wfd->client);
 	free(response);
 	return (0);
 }
@@ -1573,7 +1571,7 @@ static void *ws_establishconnection(void *vclient)
 		if ((wfd.frame_type == WS_FR_OP_TXT ||
 			wfd.frame_type == WS_FR_OP_BIN) && !wfd.error)
 		{
-			cli_events.onmessage(client, wfd.msg, wfd.frame_size,
+			client->ws_srv.evs.onmessage(client, wfd.msg, wfd.frame_size,
 				wfd.frame_type);
 		}
 
@@ -1604,7 +1602,7 @@ static void *ws_establishconnection(void *vclient)
 	 * or server closure, as the server is expected to
 	 * always know when the client disconnects.
 	 */
-	cli_events.onclose(client);
+	client->ws_srv.evs.onclose(client);
 
 closed:
 	clse_thrd = client->close_thrd;
@@ -1624,6 +1622,15 @@ closed:
 }
 
 /**
+ * Accept parameters.
+ */
+struct ws_accept_params
+{
+	int sock;
+	struct ws_server *ws_srv;
+};
+
+/**
  * @brief Main loop that keeps accepting new connections.
  *
  * @param data Server socket.
@@ -1637,6 +1644,7 @@ closed:
  */
 static void *ws_accept(void *data)
 {
+	struct ws_accept_params *ws_prm; /* wsServer parameters. */
 	struct sockaddr_storage sa; /* Client.                */
 	pthread_t client_thread;    /* Client thread.         */
 	struct timeval time;        /* Client socket timeout. */
@@ -1645,8 +1653,9 @@ static void *ws_accept(void *data)
 	int sock;                   /* Server sock.           */
 	int i;                      /* Loop index.            */
 
-	sock  = *(int *)data;
-	salen = sizeof(sa);
+	ws_prm = data;
+	sock   = ws_prm->sock;
+	salen  = sizeof(sa);
 
 	while (1)
 	{
@@ -1678,9 +1687,12 @@ static void *ws_accept(void *data)
 		{
 			if (client_socks[i].client_sock == -1)
 			{
-				client_socks[i].client_sock = new_sock;
-				client_socks[i].state = WS_STATE_CONNECTING;
-				client_socks[i].close_thrd = false;
+				memcpy(&client_socks[i].ws_srv, ws_prm->ws_srv,
+					sizeof(struct ws_server));
+
+				client_socks[i].client_sock  = new_sock;
+				client_socks[i].state        = WS_STATE_CONNECTING;
+				client_socks[i].close_thrd   = false;
 				client_socks[i].last_pong_id = -1;
 				client_socks[i].current_ping_id = -1;
 				set_client_address(&client_socks[i]);
@@ -1710,6 +1722,7 @@ static void *ws_accept(void *data)
 		else
 			close_socket(new_sock);
 	}
+
 	free(data);
 	return (data);
 }
@@ -1788,21 +1801,19 @@ static int do_bind_socket(struct ws_server *ws_srv)
  */
 int ws_socket(struct ws_server *ws_srv)
 {
+	struct ws_accept_params *ws_prm; /* Accept parameters. */
 	pthread_t accept_thread;   /* Accept thread.         */
-	int *sock;                 /* Client sock.           */
+	int sock;                 /* Client sock.           */
 
 	timeout = ws_srv->timeout_ms;
 
 	/* Ignore 'unused functions' warnings. */
 	((void)skip_frame);
 
-	/* Allocates our sock data. */
-	sock = malloc(sizeof(*sock));
-	if (!sock)
-		panic("Unable to allocate sock, out of memory!\n");
-
-	/* Copy events. */
-	memcpy(&cli_events, &ws_srv->evs, sizeof(struct ws_events));
+	/* Allocates our parameters data. */
+	ws_prm = malloc(sizeof(*ws_prm));
+	if (!ws_prm)
+		panic("Unable to allocate ws parameters, out of memory!\n");
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -1823,21 +1834,24 @@ int ws_socket(struct ws_server *ws_srv)
 #endif
 
 	/* Create socket and bind. */
-	*sock = do_bind_socket(ws_srv);
+	sock = do_bind_socket(ws_srv);
 
 	/* Listen. */
-	listen(*sock, MAX_CLIENTS);
+	listen(sock, MAX_CLIENTS);
 
 	/* Wait for incoming connections. */
 	printf("Waiting for incoming connections...\n");
 	memset(client_socks, -1, sizeof(client_socks));
 
 	/* Accept connections. */
+	ws_prm->sock   = sock;
+	ws_prm->ws_srv = ws_srv;
+
 	if (!ws_srv->thread_loop)
-		ws_accept((void *)sock);
+		ws_accept(ws_prm);
 	else
 	{
-		if (pthread_create(&accept_thread, NULL, ws_accept, (void *)sock))
+		if (pthread_create(&accept_thread, NULL, ws_accept, (void *)ws_prm))
 			panic("Could not create the client thread!");
 		pthread_detach(accept_thread);
 	}
