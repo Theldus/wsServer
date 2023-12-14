@@ -1627,7 +1627,7 @@ closed:
 struct ws_accept_params
 {
 	int sock;
-	struct ws_server *ws_srv;
+	struct ws_server ws_srv;
 };
 
 /**
@@ -1687,7 +1687,7 @@ static void *ws_accept(void *data)
 		{
 			if (client_socks[i].client_sock == -1)
 			{
-				memcpy(&client_socks[i].ws_srv, ws_prm->ws_srv,
+				memcpy(&client_socks[i].ws_srv, &ws_prm->ws_srv,
 					sizeof(struct ws_server));
 
 				client_socks[i].client_sock  = new_sock;
@@ -1810,10 +1810,12 @@ int ws_socket(struct ws_server *ws_srv)
 	/* Ignore 'unused functions' warnings. */
 	((void)skip_frame);
 
-	/* Allocates our parameters data. */
+	/* Allocates our parameters data and copy the ws_server structure. */
 	ws_prm = malloc(sizeof(*ws_prm));
 	if (!ws_prm)
 		panic("Unable to allocate ws parameters, out of memory!\n");
+
+	memcpy(&ws_prm->ws_srv, ws_srv, sizeof(*ws_srv));
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -1844,8 +1846,7 @@ int ws_socket(struct ws_server *ws_srv)
 	memset(client_socks, -1, sizeof(client_socks));
 
 	/* Accept connections. */
-	ws_prm->sock   = sock;
-	ws_prm->ws_srv = ws_srv;
+	ws_prm->sock = sock;
 
 	if (!ws_srv->thread_loop)
 		ws_accept(ws_prm);
