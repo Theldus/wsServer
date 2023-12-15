@@ -476,23 +476,52 @@ char *ws_getport(ws_cli_conn_t *client)
  * @param msg    Message to be send.
  * @param size   Binary message size.
  * @param type   Frame type.
+ * @param port   Server listen port to broadcast message (if any).
  *
  * @return Returns the number of bytes written, -1 if error.
  *
  * @note If @p size is -1, it is assumed that a text frame is being sent,
  * otherwise, a binary frame. In the later case, the @p size is used.
+ *
+ * @attention This is part of the internal API and is documented just
+ * for completeness.
  */
-int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type)
+static int ws_sendframe_internal(ws_cli_conn_t *client, const char *msg,
+	uint64_t size, int type, uint16_t port)
 {
 	unsigned char *response; /* Response data.     */
 	unsigned char frame[10]; /* Frame.             */
 	uint8_t idx_first_rData; /* Index data.        */
-	uint64_t length;         /* Message length.    */
-	int idx_response;        /* Index response.    */
-	ssize_t output;          /* Bytes sent.        */
-	ssize_t send_ret;        /* Ret send function  */
-	uint64_t i;              /* Loop index.        */
 	ws_cli_conn_t *cli;      /* Client.            */
+	int idx_response;        /* Index response.    */
+	ssize_t send_ret;        /* Ret send function  */
+	uint64_t length;         /* Message length.    */
+	ssize_t output;          /* Bytes sent.        */
+	uint64_t i;              /* Loop index.        */
+
+	/*
+	 * Check if there is a valid condition before proceeding.
+	 *
+	 * Valid ones:
+	 * client == true  && port == 0
+	 *     -> send to single client
+	 *
+	 * client == false && port != 0
+	 *      -> send to all clients within single port
+	 *
+	 * Other options are invalid!
+	 */
+
+	if (client)
+	{
+		if (port != 0)
+			return (-1);
+	}
+	else
+	{
+		if (port == 0)
+			return (-1);
+	}
 
 	frame[0] = (WS_FIN | type);
 	length = (uint64_t)size;
@@ -551,18 +580,22 @@ int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type
 
 	/* Send to the client if there is one. */
 	output = 0;
-	if (client)
-		output = SEND(client, response, idx_response);
-
-	/* If no client specified, broadcast to everyone. */
-	if (!client)
+	if (client && port == 0)
 	{
-		pthread_mutex_lock(&mutex);
+		output = SEND(client, response, idx_response);
+		goto skip_broadcast;
+	}
 
+	/* clang-format off */
+	pthread_mutex_lock(&mutex);
+		/* Do broadcast. */
 		for (i = 0; i < MAX_CLIENTS; i++)
 		{
 			cli = &client_socks[i];
-			if ((cli->client_sock > -1) && get_client_state(cli) == WS_STATE_OPEN)
+
+			if ((cli->client_sock > -1) &&
+				get_client_state(cli) == WS_STATE_OPEN &&
+				(cli->ws_srv.port == port))
 			{
 				if ((send_ret = SEND(cli, response, idx_response)) != -1)
 					output += send_ret;
@@ -573,11 +606,49 @@ int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type
 				}
 			}
 		}
-		pthread_mutex_unlock(&mutex);
-	}
+	pthread_mutex_unlock(&mutex);
+	/* clang-format on */
 
+skip_broadcast:
 	free(response);
 	return ((int)output);
+}
+
+/**
+ * @brief Send an WebSocket frame with some payload data.
+ *
+ * @param client Target to be send. If NULL, broadcast the message.
+ * @param msg    Message to be send.
+ * @param size   Binary message size.
+ * @param type   Frame type.
+ *
+ * @return Returns the number of bytes written, -1 if error.
+ *
+ * @note If @p size is -1, it is assumed that a text frame is being sent,
+ * otherwise, a binary frame. In the later case, the @p size is used.
+ */
+int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type)
+{
+	return ws_sendframe_internal(client, msg, size, type, 0);
+}
+
+/**
+ * @brief Send an WebSocket frame with some payload data to all clients
+ * connected into the same port.
+ *
+ * @param port   Server listen port to broadcast message.
+ * @param msg    Message to be send.
+ * @param size   Binary message size.
+ * @param type   Frame type.
+ *
+ * @return Returns the number of bytes written, -1 if error.
+ *
+ * @note If @p size is -1, it is assumed that a text frame is being sent,
+ * otherwise, a binary frame. In the later case, the @p size is used.
+ */
+int ws_sendframe_bcast(uint16_t port, const char *msg, uint64_t size, int type)
+{
+	return ws_sendframe_internal(NULL, msg, size, type, port);
 }
 
 /**
@@ -701,7 +772,7 @@ void ws_ping(ws_cli_conn_t *cli, int threshold)
 /**
  * @brief Sends a WebSocket text frame.
  *
- * @param client Target to be send. If NULL, broadcast the message.
+ * @param client Target to be send.
  * @param msg    Message to be send, null terminated.
  *
  * @return Returns the number of bytes written, -1 if error.
@@ -712,9 +783,22 @@ int ws_sendframe_txt(ws_cli_conn_t *client, const char *msg)
 }
 
 /**
+ * @brief Sends a broadcast WebSocket text frame.
+ *
+ * @param port Server listen port to broadcast message.
+ * @param msg  Message to be send, null terminated.
+ *
+ * @return Returns the number of bytes written, -1 if error.
+ */
+int ws_sendframe_txt_bcast(uint16_t port, const char *msg)
+{
+	return ws_sendframe_bcast(port, msg, (uint64_t)strlen(msg), WS_FR_OP_TXT);
+}
+
+/**
  * @brief Sends a WebSocket binary frame.
  *
- * @param client Target to be send. If NULL, broadcast the message.
+ * @param client Target to be send.
  * @param msg    Message to be send.
  * @param size   Binary message size.
  *
@@ -723,6 +807,20 @@ int ws_sendframe_txt(ws_cli_conn_t *client, const char *msg)
 int ws_sendframe_bin(ws_cli_conn_t *client, const char *msg, uint64_t size)
 {
 	return ws_sendframe(client, msg, size, WS_FR_OP_BIN);
+}
+
+/**
+ * @brief Sends a broadcast WebSocket binary frame.
+ *
+ * @param port Server listen port to broadcast message.
+ * @param msg  Message to be send.
+ * @param size Binary message size.
+ *
+ * @return Returns the number of bytes written, -1 if error.
+ */
+int ws_sendframe_bin_bcast(uint16_t port, const char *msg, uint64_t size)
+{
+	return ws_sendframe_bcast(port, msg, size, WS_FR_OP_BIN);
 }
 
 /**

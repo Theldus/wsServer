@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 Davidson Francis <davidsondfgl@gmail.com>
+ * Copyright (C) 2016-2023 Davidson Francis <davidsondfgl@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,9 +98,14 @@ void onmessage(ws_cli_conn_t *client,
 	 * and re-sending the very same frame type and content
 	 * again.
 	 *
-	 * Client equals to NULL: broadcast
+	 * Alternative functions:
+	 *   ws_sendframe()
+	 *   ws_sendframe_txt()
+	 *   ws_sendframe_txt_bcast()
+	 *   ws_sendframe_bin()
+	 *   ws_sendframe_bin_bcast()
 	 */
-	ws_sendframe(NULL, (char *)msg, size, type);
+	ws_sendframe_bcast(8080, (char *)msg, size, type);
 }
 
 /**

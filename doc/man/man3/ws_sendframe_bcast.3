@@ -16,28 +16,50 @@
 .\"
 .TH man 3 "15 Dec 2023" "1.0" "wsServer man page"
 .SH NAME
-ws_sendframe_bin \- Sends a WebSocket binary frame.
+ws_sendframe \- Creates and send a masked WebSocket frame with some payload data.
 .SH SYNOPSIS
 .nf
 .B #include <ws.h>
 .sp
-.BI "int ws_sendframe_bin(ws_cli_conn_t " *client ", const char " *msg ", size " size ");
+.BI "int ws_sendframe_bcast(uint16_t " port ", const char " *msg ", ssize_t " size ", int " type ");
 .fi
 .SH DESCRIPTION
-.BR ws_sendframe_bin ()
-sends a given text message
+.BR ws_sendframe_bcast ()
+broadcasts a given message
 .I msg
-to the client
-.I client
-with size
+to all clients connected to the
+.I port
+with the size
 .I size
+for a given frame
+.I type.
+This routine is intended to be used to create a websocket frame for
+a given type and broadcasting them. For higher level routines,
+please check
+.I ws_sendframe_txt()
+and
+.I ws_sendframe_bin()
 .SH RETURN VALUE
 Returns the number of bytes written.
+.SH NOTES
+.PP
+The parameter
+.I size
+can be any value or -1, if the later, the size will be automatically calculated
+from the message. Please note that null terminated strings are expected.
+.PP
+The acceptable values for
+.I type
+are:
+.BR WS_FR_OP_TXT,
+.BR WS_FR_OP_BIN
+and
+.BR WS_FR_OP_PONG.
 .SH SEE ALSO
-.BR ws_sendframe (3),
 .BR ws_sendframe_bcast (3),
-.BR ws_sendframe_bin_bcast (3),
 .BR ws_sendframe_txt (3),
-.BR ws_sendframe_txt_bcast (3)
+.BR ws_sendframe_txt_bcast (3),
+.BR ws_sendframe_bin (3),
+.BR ws_sendframe_bin_bcast (3)
 .SH AUTHOR
 Davidson Francis (davidsondfgl@gmail.com)

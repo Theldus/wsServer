@@ -150,8 +150,11 @@ uninstall:
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_getaddress.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_getport.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe_bcast.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe_bin.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe_bin_bcast.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe_txt.3
+	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_sendframe_txt_bcast.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_socket.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_close_client.3
 	rm -f  $(DESTDIR)$(MANDIR)/man3/ws_get_state.3

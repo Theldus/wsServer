@@ -287,8 +287,14 @@ extern "C" {
 	extern char *ws_getport(ws_cli_conn_t *client);
 	extern int ws_sendframe(
 		ws_cli_conn_t *cli, const char *msg, uint64_t size, int type);
+	extern int ws_sendframe_bcast(
+		uint16_t port, const char *msg, uint64_t size, int type);
 	extern int ws_sendframe_txt(ws_cli_conn_t *cli, const char *msg);
-	extern int ws_sendframe_bin(ws_cli_conn_t *cli, const char *msg, uint64_t size);
+	extern int ws_sendframe_txt_bcast(uint16_t port, const char *msg);
+	extern int ws_sendframe_bin(ws_cli_conn_t *cli, const char *msg,
+		uint64_t size);
+	extern int ws_sendframe_bin_bcast(uint16_t port, const char *msg,
+		uint64_t size);
 	extern int ws_get_state(ws_cli_conn_t *cli);
 	extern int ws_close_client(ws_cli_conn_t *cli);
 	extern int ws_socket(struct ws_server *ws_srv);
