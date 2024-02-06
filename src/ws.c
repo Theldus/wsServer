@@ -712,8 +712,10 @@ static void send_ping_close(ws_cli_conn_t *cli, int threshold, int lock)
 		ws_sendframe(cli, (const char*)ping_msg, sizeof(ping_msg), WS_FR_OP_PING);
 
 		/* Check previous PONG: if greater than threshold, abort. */
-		if ((cli->current_ping_id - cli->last_pong_id) > threshold)
+		if ((cli->current_ping_id - cli->last_pong_id) > threshold) {
+			DEBUG("Closing, reason: many unanswered PINGs\n");
 			close_client(cli, lock);
+		}
 
 	pthread_mutex_unlock(&cli->mtx_ping);
 	/* clang-format on */
@@ -1420,7 +1422,7 @@ static int read_single_frame(struct ws_frame_data *wfd,
 			if (!tmp)
 			{
 				DEBUG("Cannot allocate memory, requested: % " PRId64 "\n",
-					(*msg_idx + *frame_length + fsd->is_fin));
+					(*msg_idx + fsd->frame_length + fsd->is_fin));
 
 				wfd->error = 1;
 				return (-1);
@@ -1713,8 +1715,10 @@ closed:
 	}
 
 	/* Close connectin properly. */
-	if (get_client_state(client) != WS_STATE_CLOSED)
+	if (get_client_state(client) != WS_STATE_CLOSED) {
+		DEBUG("Closing: normal close\n");
 		close_client(client, 1);
+	}
 
 	return (vclient);
 }
