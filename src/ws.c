@@ -1941,7 +1941,8 @@ int ws_socket(struct ws_server *ws_srv)
 	sock = do_bind_socket(ws_srv);
 
 	/* Listen. */
-	listen(sock, MAX_CLIENTS);
+	if (listen(sock, MAX_CLIENTS) < 0)
+		panic("Unable to listen!\n");
 
 	/* Wait for incoming connections. */
 	printf("Waiting for incoming connections...\n");
