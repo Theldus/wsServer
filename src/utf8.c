@@ -81,6 +81,7 @@ uint32_t is_utf8_len_state(uint8_t *s, size_t len, uint32_t state) {
 	uint32_t codepoint;
 	size_t i;
 
+	codepoint = 0;
 	for (i = 0; i < len; i++)
 		decode(&state, &codepoint, *s++);
 
