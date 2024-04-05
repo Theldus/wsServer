@@ -87,7 +87,7 @@ then
 	cd -
 else
 	# Run docker image
-	docker run -it --rm -v \
+	docker run -t --rm -v \
 		"${CURDIR}/wsserver_autobahn:/wsserver_autobahn" \
 		theldus/autobahn-testsuite:1.0
 fi
