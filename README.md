@@ -1,7 +1,7 @@
 
 # wsServer
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue)](https://opensource.org/licenses/GPL-3.0)
-[![Build Status for Windows, Linux, macOS and FreeBSD](https://app.travis-ci.com/Theldus/wsServer.svg?branch=master)](https://app.travis-ci.com/Theldus/wsServer)
+[![Build Status for Windows, Linux, and macOS](https://github.com/Theldus/wsServer/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/Theldus/wsServer/actions/workflows/c-cpp.yml)
 
 wsServer - a very tiny WebSocket server library written in C
 
