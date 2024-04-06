@@ -60,3 +60,17 @@ jobs:
         cmake .. -DCMAKE_TOOLCHAIN_FILE=../mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_WSSERVER_TEST=On &&
         make -j$(nproc) &&
         CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
+
+  macOS:
+    name: macOS (AMD64) Build
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Build
+      run: >
+        mkdir build &&
+        cd build &&
+        cmake .. -DCMAKE_BUILD_TYPE=Release &&
+        cmake --build .
