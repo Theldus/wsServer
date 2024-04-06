@@ -34,11 +34,29 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Build & Tests
       run: >
         mkdir build &&
         cd build &&
         cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_WSSERVER_TEST=On &&
+        make -j$(nproc) &&
+        CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
+
+  windows:
+    name: Windows (via Wine) (AMD64) Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install toolchain
+      run: sudo apt-get install mingw-w64 wine64 -y
+    - name: Build & Tests
+      run: >
+        wget https://raw.githubusercontent.com/Theldus/wsServer/master/.github/workflows/mingw-w64-x86_64.cmake &&
+        mkdir build &&
+        cd build &&
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=../mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_WSSERVER_TEST=On &&
         make -j$(nproc) &&
         CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
