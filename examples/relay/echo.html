@@ -1,0 +1,137 @@
+<!--
+Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
+-->
+<html>
+<head>
+	<script>
+
+	/* WebSocket. */
+	var ws;
+	var connected = false;
+
+	function scoll_to_bottom()
+	{
+		var logTa = document.getElementById("taLog")
+		logTa.scrollTop = logTa.scrollHeight;
+    }
+
+	/* Establish connection. */
+	function doConnect(addr)
+	{
+		/* Message to be sent. */
+		var msg;
+
+		/* Do connection. */
+		ws = new WebSocket(addr);
+
+		/* Register events. */
+		ws.onopen = function()
+		{
+			connected = true;
+			document.getElementById("btConn").value = "Disconnect!";
+			document.getElementById("taLog").value += ("Connection opened\n");
+			scoll_to_bottom();
+		};
+
+		/* Deals with messages. */
+		ws.onmessage = function (evt)
+		{
+			document.getElementById("taLog").value += ("Recv: " + evt.data + "\n");
+			scoll_to_bottom();
+		};
+
+		/* Close events. */
+		ws.onclose = function(event)
+		{
+			document.getElementById("btConn").value = "Connect!";
+			document.getElementById("taLog").value +=
+				("Connection closed: wasClean: " + event.wasClean + ", evCode: "
+					+ event.code + "\n");
+			scoll_to_bottom();
+			connected = false;
+		};
+	}
+
+	document.addEventListener("DOMContentLoaded", function(event)
+	{
+		/* Connect buttom. */
+		document.getElementById("btConn").onclick = function()
+		{
+			if (connected == false)
+			{
+				var txt = document.getElementById("txtServer").value;
+				doConnect(txt);
+			}
+
+			else
+			{
+				ws.close();
+				connected = false;
+				document.getElementById("btConn").value = "Connect!";
+			}
+		};
+
+		/* Input text message. */
+		document.getElementById("txtMsg").addEventListener('keyup', function(e)
+		{
+			var key = e.which || e.keyCode;
+			if (key == 13)
+				document.getElementById("btMsg").click();
+		});
+
+		/* Send message. */
+		document.getElementById("btMsg").onclick = function()
+		{
+			if (connected == true)
+			{
+				var txt = document.getElementById("txtMsg");
+				var log = document.getElementById("taLog");
+
+				ws.send(txt.value);
+				log.value += ("Send: " + txt.value + "\n");
+				txt.value = "";
+				scoll_to_bottom();
+			}
+		};
+	});
+	</script>
+</head>
+<body>
+
+	<div id="header">
+		<h1 align="left">wsServer</h1>
+		Server: <input type="text" id="txtServer" value="ws://localhost:8080">
+		<input type="button" id="btConn" name="btConn" value="Connect!"><br /><br />
+
+		Connection type:
+		<input type="radio" name="port" id="port1" checked="true" value="ws:// (8080)"
+			onclick="document.getElementById('txtServer').value='ws://localhost:8080'">
+		<label for="port1">ws:// (8080)</label>
+
+		<input type="radio" name="port" id="port2" value="wss:// (443)"
+			onclick="document.getElementById('txtServer').value='wss://localhost:443'">
+		<label for="port2">wss:// (443)</label>
+
+		<br /> <br />
+
+		Message: <input type="text" id="txtMsg" value=""
+			placeholder="Type your message (ENTER to send)">
+		<input type="button" id="btMsg" name="btMsg" value="Send"><br /><br />
+
+		<textarea rows="10" cols="50" id="taLog" name="taLog"></textarea>
+	</div>
+</body>
+</html>
