@@ -113,9 +113,9 @@ examples/echo/echo: examples/echo/echo.o $(LIB_WS)
 examples/ping/ping: examples/ping/ping.o $(LIB_WS)
 	@echo "  LINK    $@"
 	$(Q)$(CC) $(CFLAGS) $< -o $@ $(LDLIBS)
-examples/relay/relay: examples/relay/relay.o $(LIB_WS)
+examples/relay/relay: examples/relay/relay.o examples/relay/waitlist.o examples/relay/peers_lut.o examples/relay/json_pars.o $(LIB_WS) 
 	@echo "  LINK    $@"
-	$(Q)$(CC) $(CFLAGS) $< -o $@ $(LDLIBS)
+	$(Q)$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
 	
 
 # Autobahn tests
