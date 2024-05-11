@@ -6,18 +6,20 @@
 #include "peers_lut.h"
 
 /* 
- * This is a bastardised version of the hashtable used to store crosslinks 
- * between clients connected through the relay, with client pointers playing 
- * the role of hashes. The crosslink is an object which references two 
- * connected clients by their authentication uuids, passed to the relay as 
+ * This is a bastardised version of the hashtable used to store crosslinks
+ * between clients connected through the relay, with client pointers playing
+ * the role of hashes. The crosslink is an object which references two
+ * connected clients by their authentication uuids, passed to the relay as
  * the very first message after the client connects. The table uses binary
  * search to find a hash (a pointer in this case).
  */
 
-#define ADD_UUID_PAIR   1
-#define ADD_CLIENT      2
-#define GET_PEER        3
-#define REMOVE_CLIENT   4
+#define ADD_UUID_PAIR     1
+#define ADD_CLIENT        2
+#define GET_PEER          3
+#define REMOVE_CLIENT     4
+#define GET_CLIENT_UUID   5
+#define FIND_UUID         6
 #define DUMP            666
 
 
@@ -105,21 +107,28 @@ static int hashtable(struct crosslink* clnk, int todo)
     case ADD_CLIENT:
 
         tmp = 0;
+        int i = 0;
 
-        for(int i=0;i<MAX_CLIENTS;i++)
+        for(;i<MAX_CLIENTS;i++)
         {
             if(0!=ht[i].uuid_own && 0==strcmp(clnk->uuid_own,ht[i].uuid_own))
             {
+				if(ht[i].clnt)
+				  break; // There is already a client connected with this uiid.
+				  
                 ht[i].clnt = clnk->clnt;
                 tmp++;
             }
             else
                 if(0!=ht[i].uuid_peer && 0==strcmp(clnk->uuid_own ,ht[i].uuid_peer))
                 {
+					if(ht[i].peer)
+					    break; // There is already a client connected with this uiid.
+					    
                     ht[i].peer = clnk->clnt;
                     tmp++;
                 }
-
+                
             if(2==tmp)
             {   /* Since the binary search is used for looking-up, the array must be sorted */
                 qsort(ht,MAX_CLIENTS,sizeof(struct crosslink),compare);
@@ -127,7 +136,7 @@ static int hashtable(struct crosslink* clnk, int todo)
                 break;
             }
         }
-
+            
         break;
 
     case GET_PEER:
@@ -137,6 +146,52 @@ static int hashtable(struct crosslink* clnk, int todo)
         if(0<=tmp)
             clnk->peer = ht[tmp].peer;
 
+        break;
+        
+    case GET_CLIENT_UUID:
+
+        tmp = binary_search(ht,MAX_CLIENTS,clnk->clnt);
+
+        if(0<=tmp)
+            clnk->uuid_own = ht[tmp].uuid_own;
+
+        break;
+        
+    case FIND_UUID:
+
+        for(int i=0;i<MAX_CLIENTS;i++)
+        {
+            if(strstr(ht[i].uuid_own,clnk->uuid_own))
+            {
+                clnk->clnt = ht[i].clnt;
+                break;
+            }
+        }
+
+        break;
+        
+   case REMOVE_CLIENT:
+   
+		tmp = 0;
+		
+		for(int i=0;i<MAX_CLIENTS;i++)
+        {
+            if(clnk->clnt == ht[i].clnt)
+            {
+                ht[i].clnt=0;
+                tmp++;
+            }
+            
+            if(clnk->clnt == ht[i].peer)
+            {
+                ht[i].peer=0;
+                tmp++;
+            }
+            
+            if(2==tmp)
+              break;            
+        }
+		
         break;
 
     case DUMP:
@@ -159,31 +214,60 @@ int add_pair(const char* provider, const char* user)
     
     clnk.uuid_own = provider;
     clnk.uuid_peer = user;
- 
+
     return hashtable(&clnk,ADD_UUID_PAIR);
 }
 
-int add_client(ws_cli_conn_t* cl, const char* uuid)
+int add_client(ws_cli_conn_t* cl, const unsigned char * uuid)
 {
-  struct crosslink clnk;
+    struct crosslink clnk;
     
-    clnk.uuid_own = uuid;
+    clnk.uuid_own = (const char *)uuid;
     clnk.clnt = cl;
-  
-    return hashtable(&clnk,ADD_CLIENT);
+    
+    if(uuid)
+        return hashtable(&clnk,ADD_CLIENT);
+        
+    return -1;
 }
 
 ws_cli_conn_t*  get_peer(ws_cli_conn_t* cl)
 {
-   struct crosslink clnk={0,0};
+    struct crosslink clnk={0,0,0,0};
     
     clnk.clnt = cl;
     hashtable(&clnk, GET_PEER);
     return clnk.peer;
 }
 
+int  get_client_auth_status(ws_cli_conn_t* cl)
+{
+    struct crosslink clnk={0,0,0,0};
+    
+    clnk.clnt = cl;
+    hashtable(&clnk, GET_CLIENT_UUID);
+    return 0!=clnk.uuid_own;
+}
+
+int  known_uuid(char* id)
+{
+    struct crosslink clnk={0,0,0,0};
+    
+    clnk.uuid_own = id;
+    hashtable(&clnk, FIND_UUID);
+    return 0!=clnk.clnt;
+}
+
+void remove_client(ws_cli_conn_t* cl)
+{
+    struct crosslink clnk={cl,0,0,0};
+    
+    hashtable(&clnk, FIND_UUID);
+}
+
+
 int lut_dump()
 {
-   struct crosslink clnk;
-   return hashtable(&clnk,DUMP);
+    struct crosslink clnk;
+    return hashtable(&clnk,DUMP);
 }

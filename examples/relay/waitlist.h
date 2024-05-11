@@ -7,4 +7,6 @@ ws_cli_conn_t* remove_belated();
 
 int confirm_applier(ws_cli_conn_t* cl);
 
+int delete_applier(ws_cli_conn_t* cl);
+
 #endif

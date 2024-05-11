@@ -9,13 +9,22 @@
 
 #define ADD_APPLIER         1
 #define REMOVE_BELATED      2
-#define CONFIRM_APPLIER     3
+#define DELETE_APPLIER      3
 #define MAX_APPLIERS        MAX_CLIENTS 
 
 struct applier
 {
     ws_cli_conn_t    *clnt;
     uint32_t         deadline;
+};
+
+struct buff_state
+{
+    int* belated;
+    int* empty;
+    struct applier* bfr;
+    size_t bf_sz;
+    ws_cli_conn_t  *clnt;
 };
 
 uint32_t get_ticks()
@@ -26,63 +35,95 @@ uint32_t get_ticks()
     return tv.tv_sec*1000 + tv.tv_usec/1000;
 }
 
+static int get_buffer_state(struct buff_state* bst)
+{
+    int ret = -1;
+    *bst->belated = -1;
+    *bst->empty = -1;
+    
+    uint32_t tmp = get_ticks();
+
+    for(size_t i=0;i<bst->bf_sz;i++)
+    {
+        if(bst->clnt && bst->clnt==bst->bfr[i].clnt)
+        {
+            ret = i;
+        }
+
+        if(bst->bfr[i].deadline<=tmp)
+        {
+            *bst->belated = i;
+        }
+
+        if(!bst->bfr[i].clnt)
+        {
+            *bst->empty = i;
+        }
+    }
+
+    return ret;
+}
+
+
 static int waitlist(struct applier* app, int todo)
 {
     static struct applier ht[MAX_APPLIERS];
+    static int belated = -1;
+    static int empty = -1;
     int ret = -1;
-    uint32_t tmp = get_ticks();
     
+    struct buff_state bs={&belated,&empty,ht,MAX_APPLIERS,app->clnt};
+
     switch(todo)
     {
     case ADD_APPLIER:
 
-        for(int i=0;i<MAX_APPLIERS;i++)
-        {			
-            if(0==ht[i].clnt)
-            {
-                ht[i] = *app;
-                ret = i;
-                break;
-            }
+        if(empty<0)
+            get_buffer_state(&bs);
+
+        if(empty>=0)
+        {
+            ret = empty;
+            ht[empty] = *app;
         }
+        empty = -1;
 
         break;
 
     case REMOVE_BELATED:
-    
-        for(int i=0;i<MAX_APPLIERS;i++)
-        {			
-            if(ht[i].deadline<=tmp)
-            {
-                *app = ht[i];
-                ht[i].clnt = 0;
-                ht[i].deadline = 0;
-                ret = i;
-                break;
-            }
+
+        if(belated<0)
+            get_buffer_state(&bs);
+
+        if(belated>=0)
+        {
+            ret = belated;
+            *app = ht[belated];
+            ht[belated].clnt = 0;
+            ht[belated].deadline = 0;
         }
+
+        belated = -1;
 
         break;
         
-    case CONFIRM_APPLIER:
-    
-        for(int i=0;i<MAX_APPLIERS;i++)
-        {			
-            if(app->clnt==ht[i].clnt)
-            {
-                ht[i].clnt = 0;
-                ht[i].deadline = 0;
-                ret = i;
-                break;
-            }
+    case DELETE_APPLIER:
+        
+        ret = get_buffer_state(&bs);
+        
+        if(ret>=0)
+        {
+            ht[ret].clnt = 0;
+            ht[ret].deadline = 0;
+            break;
         }
-
-        break;
+       
+        break;    
+    
     default:break;
-     }
+    }
 
     return ret;
-    
 }
 
 int add_applier(ws_cli_conn_t* cl, uint32_t tmout_ms)
@@ -97,19 +138,19 @@ int add_applier(ws_cli_conn_t* cl, uint32_t tmout_ms)
 
 ws_cli_conn_t* remove_belated()
 {
-    struct applier appl;
+    struct applier appl={0,0};
     
-    if(0<waitlist(&appl,REMOVE_BELATED))
+    if(waitlist(&appl,REMOVE_BELATED)>=0)
         return appl.clnt;
 
     return 0;
 }
 
-int confirm_applier(ws_cli_conn_t* cl)
+int delete_applier(ws_cli_conn_t* cl)
 {
     struct applier appl;
     
     appl.clnt = cl;
 
-    return waitlist(&appl,CONFIRM_APPLIER);
+    return waitlist(&appl,DELETE_APPLIER);
 }

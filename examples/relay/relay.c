@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2016-2023 Davidson Francis <davidsondfgl@gmail.com>
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-
+#define _GNU_SOURCE
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +22,14 @@
 #include "peers_lut.h"
 #include "waitlist.h"
 #include "json_pars.h"
+
+#include <pthread.h>
+
+
+pthread_mutex_t auth_sync;
+
+
+ws_cli_conn_t* check_auth(ws_cli_conn_t*, const unsigned char* , int* );
 
 /**
  * @dir examples/
@@ -46,13 +52,16 @@
  */
 void onopen(ws_cli_conn_t *client)
 {
-	char *cli, *port;
-	cli  = ws_getaddress(client);
-	port = ws_getport(client);
+    char *cli, *port;
+    cli  = ws_getaddress(client);
+    port = ws_getport(client);
 #ifndef DISABLE_VERBOSE
-	printf("Connection opened, addr: %s, port: %s\n", cli, port);
+    printf("Connection opened, addr: %s, port: %s\n", cli, port);
 #endif
+
+    pthread_mutex_lock(&auth_sync);
     add_applier(client,2000);
+    pthread_mutex_unlock(&auth_sync);
 }
 
 /**
@@ -64,11 +73,18 @@ void onopen(ws_cli_conn_t *client)
  */
 void onclose(ws_cli_conn_t *client)
 {
-	char *cli;
-	cli = ws_getaddress(client);
+    char *cli;
+    cli = ws_getaddress(client);
 #ifndef DISABLE_VERBOSE
-	printf("Connection closed, addr: %s\n", cli);
+    printf("Connection closed, addr: %s\n", cli);
 #endif
+
+    pthread_mutex_lock(&auth_sync);
+    
+    remove_client(client);
+    delete_applier(client);
+    
+    pthread_mutex_unlock(&auth_sync);
 }
 
 /**
@@ -86,33 +102,56 @@ void onclose(ws_cli_conn_t *client)
  * @param type Message type.
  */
 void onmessage(ws_cli_conn_t *client,
-	const unsigned char *msg, uint64_t size, int type)
+               const unsigned char *msg, uint64_t size, int type)
 {
+    ws_cli_conn_t * peer = 0;
+    int bad=0;
+
 #ifndef DISABLE_VERBOSE	
     char *cli;
-	cli = ws_getaddress(client);
-	printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s\n",
-		msg, size, type, cli);
+    cli = ws_getaddress(client);
+    printf("I receive a message: %s (size: %" PRId64 ", type: %d), from: %s\n",
+           msg, size, type, cli);
 #endif
 
-	/**
-	 * Mimicks the same frame type received and re-send it again
-	 *
-	 * Please note that we could just use a ws_sendframe_txt()
-	 * or ws_sendframe_bin() here, but we're just being safe
-	 * and re-sending the very same frame type and content
-	 * again.
-	 *
-	 * Alternative functions:
-	 *   ws_sendframe()
-	 *   ws_sendframe_txt()
-	 *   ws_sendframe_txt_bcast()
-	 *   ws_sendframe_bin()
-	 *   ws_sendframe_bin_bcast()
-     */
-	
-	 ws_sendframe_bcast(8080, (char *)msg, size, type);	
+    peer = check_auth(client,msg,&bad);
+    
+    if(peer)
+        ws_sendframe(peer, (char *)msg, size, type);
+    
+    if(bad)
+        ws_close_client(client);
+    
 }
+
+ws_cli_conn_t* check_auth(ws_cli_conn_t *client, const unsigned char *msg, int* err)
+{
+    ws_cli_conn_t * peer = 0;
+    int bad=0;
+    
+    pthread_mutex_lock(&auth_sync);
+
+    peer = get_peer(client);
+
+    if(!peer) /* The client isn't paired */
+    {
+        if(!get_client_auth_status(client))/* There is no such authenticated client */
+        {
+            if(add_client(client,msg) < 0) /* The first message should be the client UUID */
+            {
+				 bad = 1; /* We could not add the client: wrong UUID */
+            }
+        }
+
+        delete_applier(client); /* Remove the client from the authenthication waitlist */
+    }
+    
+    pthread_mutex_unlock(&auth_sync);
+    *err = bad;
+    
+    return peer;
+}
+
 
 /**
  * @brief Main routine.
@@ -123,34 +162,54 @@ void onmessage(ws_cli_conn_t *client,
 int main(void)
 {
     char* jsn = alloc_peer_buff("./peers.json");
+    pthread_mutex_init(&auth_sync,0);
+    ws_cli_conn_t* clnt=0;
 
-    if(jsn)
+    if(0==jsn || 0>=get_pairs(jsn,add_pair))
     {
-        get_pairs(jsn,add_pair);
+        printf("The peer file is absent or corrupt\n");
+        goto end;
+    }
+
+    ws_socket(&(struct ws_server){
+                  /*
+                       * Bind host:
+                       * localhost -> localhost/127.0.0.1
+                       * 0.0.0.0   -> global IPv4
+                       * ::        -> global IPv4+IPv6 (DualStack)
+                       */
+                  .host = "0.0.0.0",
+                  .port = 8080,
+                  .thread_loop   = 1,
+                  .timeout_ms    = 1000,
+                  .evs.onopen    = &onopen,
+                  .evs.onclose   = &onclose,
+                  .evs.onmessage = &onmessage
+              });
+
+	while (1)
+	{
+		pthread_mutex_lock(&auth_sync);
+		
+		clnt = remove_belated();
+		
+		if(clnt)
+		  remove_client(clnt);
+		
+		pthread_mutex_unlock(&auth_sync);
+		
+		if(clnt)
+		    ws_close_client(clnt);
+		
+		clnt = 0;
+		
+		usleep(5000);
 	}
 
-	ws_socket(&(struct ws_server){
-		/*
-		 * Bind host:
-		 * localhost -> localhost/127.0.0.1
-		 * 0.0.0.0   -> global IPv4
-		 * ::        -> global IPv4+IPv6 (DualStack)
-		 */
-		.host = "0.0.0.0",
-		.port = 8080,
-		.thread_loop   = 0,
-		.timeout_ms    = 1000,
-		.evs.onopen    = &onopen,
-		.evs.onclose   = &onclose,
-		.evs.onmessage = &onmessage
-	});
+end:
+    if(jsn)
+        free(jsn);
 
-	/*
-	 * If you want to execute code past ws_socket(), set
-	 * .thread_loop to '1'.
-	 */
-	 
-	free(jsn);
-
-	return (0);
+    pthread_mutex_destroy(&auth_sync);
+    return (0);
 }

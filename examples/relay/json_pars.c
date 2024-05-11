@@ -24,7 +24,7 @@ static int check_symb(char s)
 static int is_uuid(const char* uu)
 {
     int len=0;
-    while(0!=uu[len])
+    while(uu && 0!=uu[len])
     {
         if( (len>=0 && len<8) || (len>=9 && len<13) || (len>=14 && len<18) || (len>=19 && len<23) || (len>=24 && len<36))
         {
@@ -61,10 +61,13 @@ char* alloc_peer_buff(const char* peer_file)
         fseek(fp,0,SEEK_END);
         tmp = ftell(fp);
         fseek(fp,0,SEEK_SET);
-
+        
+		if(tmp>0)
+		{
         txt = malloc(tmp+1);
         txt[tmp]=0;
         tmp = fread(txt,1,tmp,fp);
+	    }
         fclose(fp);
     }
 
@@ -86,6 +89,8 @@ int  get_pairs(char* peer_bfr, pairs fncptr)
 
     if(0>ret)
         return ret;
+        
+    ret = 0;
 
     for(int i=0;i<MAX_CLIENTS*3;i++)
     {
@@ -114,13 +119,14 @@ int  get_pairs(char* peer_bfr, pairs fncptr)
 
             if(provider && user)
             {
-                fncptr(provider,user);
+                if(fncptr(provider,user))
+                   ret++;
                 provider=0;
                 user=0;
             }
         }
     }
 
-    return 0;
+    return ret;
 }
 
