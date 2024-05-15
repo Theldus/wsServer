@@ -117,9 +117,9 @@ static int waitlist(struct applier* app, int todo)
             ht[ret].deadline = 0;
             break;
         }
-       
-        break;    
-    
+
+        break;
+
     default:break;
     }
 

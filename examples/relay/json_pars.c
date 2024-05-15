@@ -62,12 +62,12 @@ char* alloc_peer_buff(const char* peer_file)
         tmp = ftell(fp);
         fseek(fp,0,SEEK_SET);
         
-		if(tmp>0)
-		{
-        txt = malloc(tmp+1);
-        txt[tmp]=0;
-        tmp = fread(txt,1,tmp,fp);
-	    }
+        if(tmp>0)
+        {
+            txt = malloc(tmp+1);
+            txt[tmp]=0;
+            tmp = fread(txt,1,tmp,fp);
+        }
         fclose(fp);
     }
 
@@ -89,7 +89,7 @@ int  get_pairs(char* peer_bfr, pairs fncptr)
 
     if(0>ret)
         return ret;
-        
+
     ret = 0;
 
     for(int i=0;i<MAX_CLIENTS*3;i++)
@@ -120,7 +120,7 @@ int  get_pairs(char* peer_bfr, pairs fncptr)
             if(provider && user)
             {
                 if(fncptr(provider,user))
-                   ret++;
+                    ret++;
                 provider=0;
                 user=0;
             }

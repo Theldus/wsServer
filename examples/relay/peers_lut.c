@@ -11,7 +11,8 @@
  * the role of hashes. The crosslink is an object which references two
  * connected clients by their authentication uuids, passed to the relay as
  * the very first message after the client connects. The table uses binary
- * search to find a hash (a pointer in this case).
+ * search to find a hash (a pointer in this case). There is no multithreading
+ * support, guarding the hashtable's functions calls is up to the calling code.
  */
 
 #define ADD_UUID_PAIR     1
@@ -20,8 +21,11 @@
 #define REMOVE_CLIENT     4
 #define GET_CLIENT_UUID   5
 #define FIND_UUID         6
+#define FOREACH           7
 #define DUMP            666
 
+
+static clnthndl client_handler = ws_close_client;
 
 struct crosslink
 {
@@ -105,22 +109,22 @@ static int hashtable(struct crosslink* clnk, int todo)
         {
             if(0!=ht[i].uuid_own && 0==strcmp(clnk->uuid_own,ht[i].uuid_own))
             {
-				if(ht[i].clnt)
-				  break; // There is already a client connected with this uiid.
-				  
+                if(ht[i].clnt)
+                    break; // There is already a client connected with this uiid.
+
                 ht[i].clnt = clnk->clnt;
                 tmp++;
             }
             else
                 if(0!=ht[i].uuid_peer && 0==strcmp(clnk->uuid_own ,ht[i].uuid_peer))
                 {
-					if(ht[i].peer)
-					    break; // There is already a client connected with this uiid.
-					    
+                    if(ht[i].peer)
+                        break; // There is already a client connected with this uiid.
+
                     ht[i].peer = clnk->clnt;
                     tmp++;
                 }
-                
+
             if(2==tmp)
             {   /* Since the binary search is used for looking-up, the array must be sorted */
                 qsort(ht,MAX_CLIENTS,sizeof(struct crosslink),compare);
@@ -128,7 +132,7 @@ static int hashtable(struct crosslink* clnk, int todo)
                 break;
             }
         }
-            
+
         break;
 
     case GET_PEER:
@@ -162,11 +166,11 @@ static int hashtable(struct crosslink* clnk, int todo)
 
         break;
         
-   case REMOVE_CLIENT:
-   
-		tmp = 0;
-		
-		for(int i=0;i<MAX_CLIENTS;i++)
+    case REMOVE_CLIENT:
+
+        tmp = 0;
+
+        for(int i=0;i<MAX_CLIENTS;i++)
         {
             if(clnk->clnt == ht[i].clnt)
             {
@@ -181,10 +185,21 @@ static int hashtable(struct crosslink* clnk, int todo)
             }
             
             if(2==tmp)
-              break;            
+                break;
         }
-		
+
         break;
+        
+    case FOREACH:
+
+        for(int i=0;i<MAX_CLIENTS;i++)
+        {
+            if(ht[i].clnt)
+                client_handler(ht[i].clnt);
+        }
+
+        break;
+
 
     case DUMP:
         printf("\n");
@@ -218,7 +233,7 @@ int add_client(ws_cli_conn_t* cl, const unsigned char * uuid)
     
     if(uuid)
         return hashtable(&clnk,ADD_CLIENT);
-        
+
     return -1;
 }
 
@@ -261,4 +276,11 @@ int lut_dump()
 {
     struct crosslink clnk;
     return hashtable(&clnk,DUMP);
+}
+
+int foreach(clnthndl todo)
+{
+    struct crosslink clnk;
+    client_handler = todo;
+    return hashtable(&clnk,FOREACH);
 }
