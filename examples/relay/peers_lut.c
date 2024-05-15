@@ -31,12 +31,6 @@ struct crosslink
     ws_cli_conn_t    *peer;
 };
 
-static void loc_lock()
-{}
-
-static void loc_unlock()
-{}
-
 static int compare(const void * s1, const void * s2)
 {
     const struct crosslink* v1=(const struct crosslink*)s1;
@@ -49,7 +43,7 @@ static int compare(const void * s1, const void * s2)
     return 0;
 }
 
-int binary_search(const struct crosslink* A, size_t n, const ws_cli_conn_t* T)
+static int binary_search(const struct crosslink* A, size_t n, const ws_cli_conn_t* T)
 {
     int L = 0;
     int R = n - 1;
@@ -73,8 +67,6 @@ static int hashtable(struct crosslink* clnk, int todo)
     static struct crosslink ht[MAX_CLIENTS];
     int ret = -1;
     int tmp = 0;
-
-    loc_lock();
 
     switch(todo)
     {
@@ -204,7 +196,6 @@ static int hashtable(struct crosslink* clnk, int todo)
         break;
     }
 
-    loc_unlock();
     return ret;
 }
 
@@ -262,7 +253,7 @@ void remove_client(ws_cli_conn_t* cl)
 {
     struct crosslink clnk={cl,0,0,0};
     
-    hashtable(&clnk, FIND_UUID);
+    hashtable(&clnk, REMOVE_CLIENT);
 }
 
 
