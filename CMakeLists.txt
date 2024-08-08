@@ -29,6 +29,8 @@ add_library(ws
     src/utf8.c
 )
 
+target_include_directories(ws INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
+
 if(WIN32)
 	target_link_libraries(ws pthread ws2_32 -static)
 else()
