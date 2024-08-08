@@ -90,6 +90,24 @@ struct ws_connection
 };
 
 /**
+ * @brief Set client context.
+ * Note that the same `ws_cli_conn_t` instance can be reused across connections.
+ */
+void ws_set_client_context(ws_cli_conn_t *cli, void *ptr)
+{
+	cli->ws_srv.client_context = ptr;
+}
+
+/**
+ * @brief Get client context.
+ * Note that the same `ws_cli_conn_t` instance can be reused across connections.
+ */
+void *ws_get_client_context(struct ws_connection* cli)
+{
+	return cli->ws_srv.client_context;
+}
+
+/**
  * @brief Clients list.
  */
 static struct ws_connection client_socks[MAX_CLIENTS];

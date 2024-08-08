@@ -228,6 +228,18 @@ extern "C" {
 	typedef struct ws_connection ws_cli_conn_t;
 
 	/**
+	 * @brief Set client context.
+	 * Note that the same `ws_cli_conn_t` instance can be reused across connections.
+	 */
+	void ws_set_client_context(ws_cli_conn_t *cli, void *ptr);
+
+	/**
+	 * @brief Get client context.
+	 * Note that the same `ws_cli_conn_t` instance can be reused across connections.
+	 */
+	void *ws_get_client_context(ws_cli_conn_t *cli);
+
+	/**
 	 * @brief events Web Socket events types.
 	 */
 	struct ws_events
@@ -274,6 +286,11 @@ extern "C" {
 		 * @brief Server events.
 		 */
 		struct ws_events evs;
+		/**
+		 * @brief Client context.
+		 * Note that the same `ws_cli_conn_t` instance can be reused across connections.
+		 */
+		void* client_context;
 	};
 
 	/* Forward declarations. */
