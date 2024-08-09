@@ -102,9 +102,27 @@ void ws_set_client_context(ws_cli_conn_t *cli, void *ptr)
  * @brief Get client context.
  * Note that the same `ws_cli_conn_t` instance can be reused across connections.
  */
-void *ws_get_client_context(struct ws_connection* cli)
+void *ws_get_client_context(ws_cli_conn_t *cli)
 {
 	return cli->ws_srv.client_context;
+}
+
+/**
+ * @brief Set client context for the server.
+ * Note that it can outlive a single connection.
+ */
+void ws_server_set_client_context(ws_server_t *ws_srv, void *ptr)
+{
+	ws_srv->client_context = ptr;
+}
+
+/**
+ * @brief Get client context for the server.
+ * Note that it can outlive a single connection.
+ */
+void *ws_server_get_client_context(ws_server_t* ws_srv)
+{
+	return ws_srv->client_context;
 }
 
 /**

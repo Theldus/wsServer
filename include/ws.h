@@ -227,6 +227,9 @@ extern "C" {
 	/* Opaque client connection type. */
 	typedef struct ws_connection ws_cli_conn_t;
 
+	/* Opaque server instance type. */
+	typedef struct ws_server ws_server_t;
+
 	/**
 	 * @brief Set client context.
 	 * Note that the same `ws_cli_conn_t` instance can be reused across connections.
@@ -238,6 +241,18 @@ extern "C" {
 	 * Note that the same `ws_cli_conn_t` instance can be reused across connections.
 	 */
 	void *ws_get_client_context(ws_cli_conn_t *cli);
+
+	/**
+	 * @brief Set client context for the server.
+	 * Note that it can outlive a single connection.
+	 */
+	void ws_server_set_client_context(ws_server_t *ws_srv, void *ptr);
+
+	/**
+	 * @brief Get client context for the server.
+	 * Note that it can outlive a single connection.
+	 */
+	void *ws_server_get_client_context(ws_server_t *ws_srv);
 
 	/**
 	 * @brief events Web Socket events types.
