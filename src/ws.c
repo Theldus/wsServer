@@ -87,42 +87,34 @@ struct ws_connection
 	int32_t last_pong_id;
 	int32_t current_ping_id;
 	pthread_mutex_t mtx_ping;
+
+	/* Connection context */
+	void *connection_context;
 };
 
 /**
- * @brief Set client context.
- * Note that the same `ws_cli_conn_t` instance can be reused across connections.
+ * @brief Get server context.
+ * Assumed to be set once, when initializing `.context` in `struct ws_server`.
  */
-void ws_set_client_context(ws_cli_conn_t *cli, void *ptr)
+void *ws_get_server_context(ws_cli_conn_t *cli)
 {
-	cli->ws_srv.client_context = ptr;
+	return cli->ws_srv.context;
 }
 
 /**
- * @brief Get client context.
- * Note that the same `ws_cli_conn_t` instance can be reused across connections.
+ * @brief Set connection context.
  */
-void *ws_get_client_context(ws_cli_conn_t *cli)
+void ws_set_connection_context(ws_cli_conn_t *cli, void *ptr)
 {
-	return cli->ws_srv.client_context;
+	cli->connection_context = ptr;
 }
 
 /**
- * @brief Set client context for the server.
- * Note that it can outlive a single connection.
+ * @brief Get connection context.
  */
-void ws_server_set_client_context(ws_server_t *ws_srv, void *ptr)
+void *ws_get_connection_context(ws_cli_conn_t *cli)
 {
-	ws_srv->client_context = ptr;
-}
-
-/**
- * @brief Get client context for the server.
- * Note that it can outlive a single connection.
- */
-void *ws_server_get_client_context(ws_server_t* ws_srv)
-{
-	return ws_srv->client_context;
+	return cli->connection_context;
 }
 
 /**
