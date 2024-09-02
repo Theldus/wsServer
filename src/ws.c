@@ -1807,7 +1807,7 @@ static void *ws_accept(void *data)
 			 * See:
 			 *   https://linux.die.net/man/3/setsockopt
 			 */
-			setsockopt(new_sock, SOL_SOCKET, SO_SNDTIMEO, &time,
+			setsockopt(new_sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&time,
 				sizeof(struct timeval));
 		}
 
