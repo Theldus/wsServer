@@ -64,13 +64,13 @@ sorts of events:
 
 ```c
 /* New client. */
-void onopen(ws_cli_conn_t *client);
+void onopen(ws_cli_conn_t client);
 
 /* Client disconnected. */
-void onclose(ws_cli_conn_t *client);
+void onclose(ws_cli_conn_t client);
 
 /* Client sent a text message. */
-void onmessage(ws_cli_conn_t *client, const unsigned char *msg,
+void onmessage(ws_cli_conn_t client, const unsigned char *msg,
     uint64_t size, int type);
 ```
 
@@ -93,7 +93,7 @@ folder, ;-).
  * @brief This function is called whenever a new connection is opened.
  * @param client Client connection.
  */
-void onopen(ws_cli_conn_t *client)
+void onopen(ws_cli_conn_t client)
 {
     char *cli;
     cli = ws_getaddress(client);
@@ -104,7 +104,7 @@ void onopen(ws_cli_conn_t *client)
  * @brief This function is called whenever a connection is closed.
  * @param client Client connection.
  */
-void onclose(ws_cli_conn_t *client)
+void onclose(ws_cli_conn_t client)
 {
     char *cli;
     cli = ws_getaddress(client);
@@ -118,7 +118,7 @@ void onclose(ws_cli_conn_t *client)
  * @param size   Message size.
  * @param type   Message type.
  */
-void onmessage(ws_cli_conn_t *client,
+void onmessage(ws_cli_conn_t client,
     const unsigned char *msg, uint64_t size, int type)
 {
     char *cli;

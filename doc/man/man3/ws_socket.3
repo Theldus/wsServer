@@ -75,9 +75,9 @@ is defined as follows:
 .nf
 	struct ws_events
 	{
-		void (*onopen)(ws_cli_conn_t *client);
-		void (*onclose)(ws_cli_conn_t *client);
-		void (*onmessage)(ws_cli_conn_t *client,
+		void (*onopen)(ws_cli_conn_t client);
+		void (*onclose)(ws_cli_conn_t client);
+		void (*onmessage)(ws_cli_conn_t client,
 			const unsigned char * msg,
 			uint64_t size, int type);
 	};
@@ -107,9 +107,9 @@ creating a new thread.
 .nf
 #include <ws.h>
 
-void onopen(ws_cli_conn_t *client) {}
-void onclose(ws_cli_conn_t *client) {}
-void onmessage(ws_cli_conn_t *client) {}
+void onopen(ws_cli_conn_t client) {}
+void onclose(ws_cli_conn_t client) {}
+void onmessage(ws_cli_conn_t client) {}
 
 int main(void) {
 	ws_socket(&(struct ws_server){

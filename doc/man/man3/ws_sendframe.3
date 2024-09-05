@@ -21,7 +21,7 @@ ws_sendframe \- Creates and send a masked WebSocket frame with some payload data
 .nf
 .B #include <ws.h>
 .sp
-.BI "int ws_sendframe(ws_cli_conn_t " *client ", const char " *msg ", ssize_t " size ", int " type ");
+.BI "int ws_sendframe(ws_cli_conn_t " client ", const char " *msg ", ssize_t " size ", int " type ");
 .fi
 .SH DESCRIPTION
 .BR ws_sendframe ()
