@@ -90,32 +90,11 @@ struct ws_connection
 
 	/* Connection context */
 	void *connection_context;
+
+	ws_cli_conn_t client_id;
 };
 
-/**
- * @brief Get server context.
- * Assumed to be set once, when initializing `.context` in `struct ws_server`.
- */
-void *ws_get_server_context(ws_cli_conn_t *cli)
-{
-	return cli->ws_srv.context;
-}
-
-/**
- * @brief Set connection context.
- */
-void ws_set_connection_context(ws_cli_conn_t *cli, void *ptr)
-{
-	cli->connection_context = ptr;
-}
-
-/**
- * @brief Get connection context.
- */
-void *ws_get_connection_context(ws_cli_conn_t *cli)
-{
-	return cli->connection_context;
-}
+static struct ws_connection *get_client_by_cid(ws_cli_conn_t cid);
 
 /**
  * @brief Clients list.
@@ -134,6 +113,41 @@ static uint32_t timeout;
 	((cli) != NULL && (cli) >= &client_socks[0] && \
 		(cli) <= &client_socks[MAX_CLIENTS - 1] && \
 		(cli)->client_sock > -1)
+
+
+/**
+ * @brief Get server context.
+ * Assumed to be set once, when initializing `.context` in `struct ws_server`.
+ */
+void *ws_get_server_context(ws_cli_conn_t cli)
+{
+	struct ws_connection *client = get_client_by_cid(cli);
+	if (!CLIENT_VALID(client))
+		return NULL;
+	return client->ws_srv.context;
+}
+
+/**
+ * @brief Set connection context.
+ */
+void ws_set_connection_context(ws_cli_conn_t client, void *ptr)
+{
+	struct ws_connection *cli = get_client_by_cid(client);
+	if (!CLIENT_VALID(cli))
+		return;
+	cli->connection_context = ptr;
+}
+
+/**
+ * @brief Get connection context.
+ */
+void *ws_get_connection_context(ws_cli_conn_t client)
+{
+	struct ws_connection *cli = get_client_by_cid(client);
+	if (!CLIENT_VALID(cli))
+		return NULL;
+	return cli->connection_context;
+}
 
 /**
  * @brief WebSocket frame data
@@ -175,7 +189,7 @@ struct ws_frame_data
 	/**
 	 * @brief Client connection structure.
 	 */
-	ws_cli_conn_t *client;
+	struct ws_connection *client;
 };
 
 /**
@@ -195,6 +209,20 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 		exit(-1);  \
 	} while (0);
 
+static struct ws_connection *get_client_by_cid(ws_cli_conn_t cid)
+{
+	pthread_mutex_lock(&mutex);
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (client_socks[i].client_id == cid)
+		{
+			pthread_mutex_unlock(&mutex);
+			return &client_socks[i];
+		}
+	}
+	pthread_mutex_unlock(&mutex);
+	return NULL;
+}
 /**
  * @brief Shutdown and close a given socket.
  *
@@ -213,6 +241,22 @@ static void close_socket(int fd)
 #endif
 }
 
+
+static uint64_t cid_generator = 1;
+
+static pthread_mutex_t cid_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static uint64_t get_next_cid()
+{
+	uint64_t next_cid;
+
+	pthread_mutex_lock(&cid_mutex);
+	next_cid = cid_generator++;
+	pthread_mutex_unlock(&cid_mutex);
+
+	return next_cid;
+}
+
 /**
  * @brief Returns the current client state for a given
  * client @p client.
@@ -224,7 +268,7 @@ static void close_socket(int fd)
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int get_client_state(ws_cli_conn_t *client)
+static int get_client_state(struct ws_connection *client)
 {
 	int state;
 
@@ -249,7 +293,7 @@ static int get_client_state(ws_cli_conn_t *client)
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int set_client_state(ws_cli_conn_t *client, int state)
+static int set_client_state(struct ws_connection *client, int state)
 {
 	if (!CLIENT_VALID(client))
 		return (-1);
@@ -280,7 +324,7 @@ static int set_client_state(ws_cli_conn_t *client, int state)
  * happening, so just to be cautious, I will keep using this routine.
  */
 static ssize_t send_all(
-	ws_cli_conn_t *client, const void *buf, size_t len, int flags)
+	struct ws_connection *client, const void *buf, size_t len, int flags)
 {
 	const char *p;
 	ssize_t ret;
@@ -322,7 +366,7 @@ static ssize_t send_all(
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static void close_client(ws_cli_conn_t *client, int lock)
+static void close_client(struct ws_connection *client, int lock)
 {
 	if (!CLIENT_VALID(client))
 		return;
@@ -361,7 +405,7 @@ static void close_client(ws_cli_conn_t *client, int lock)
  */
 static void *close_timeout(void *p)
 {
-	ws_cli_conn_t *conn = p;
+	struct ws_connection *conn = p;
 	struct timespec ts;
 	int state;
 
@@ -408,7 +452,7 @@ quit:
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int start_close_timeout(ws_cli_conn_t *client)
+static int start_close_timeout(struct ws_connection *client)
 {
 	if (!CLIENT_VALID(client))
 		return (-1);
@@ -437,7 +481,7 @@ out:
  *
  * @param client Client connection.
  */
-static void set_client_address(ws_cli_conn_t *client)
+static void set_client_address(struct ws_connection *client)
 {
 	struct sockaddr_storage addr;
 	socklen_t hlen = sizeof(addr);
@@ -467,12 +511,13 @@ static void set_client_address(ws_cli_conn_t *client)
  *
  * @note The returned string is static, no need to free up memory.
  */
-char *ws_getaddress(ws_cli_conn_t *client)
+char *ws_getaddress(ws_cli_conn_t client)
 {
-	if (!CLIENT_VALID(client))
+	struct ws_connection *cli = get_client_by_cid(client);
+	if (!CLIENT_VALID(cli))
 		return (NULL);
 
-	return (client->ip);
+	return (cli->ip);
 }
 
 /**
@@ -485,12 +530,13 @@ char *ws_getaddress(ws_cli_conn_t *client)
  *
  * @note The returned string is static, no need to free up memory.
  */
-char *ws_getport(ws_cli_conn_t *client)
+char *ws_getport(ws_cli_conn_t client)
 {
-	if (!CLIENT_VALID(client))
+	struct ws_connection *cli = get_client_by_cid(client);
+	if (!CLIENT_VALID(cli))
 		return (NULL);
 
-	return (client->port);
+	return (cli->port);
 }
 
 /**
@@ -514,18 +560,18 @@ char *ws_getport(ws_cli_conn_t *client)
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int ws_sendframe_internal(ws_cli_conn_t *client, const char *msg,
+static int ws_sendframe_internal(struct ws_connection *client, const char *msg,
 	uint64_t size, int type, uint16_t port)
 {
-	unsigned char *response; /* Response data.     */
-	unsigned char frame[10]; /* Frame.             */
-	uint8_t idx_first_rData; /* Index data.        */
-	ws_cli_conn_t *cli;      /* Client.            */
-	int idx_response;        /* Index response.    */
-	ssize_t send_ret;        /* Ret send function  */
-	uint64_t length;         /* Message length.    */
-	ssize_t output;          /* Bytes sent.        */
-	uint64_t i;              /* Loop index.        */
+	unsigned char *response;   /* Response data.     */
+	unsigned char frame[10];   /* Frame.             */
+	uint8_t idx_first_rData;   /* Index data.        */
+	struct ws_connection *cli; /* Client.            */
+	int idx_response;          /* Index response.    */
+	ssize_t send_ret;          /* Ret send function  */
+	uint64_t length;           /* Message length.    */
+	ssize_t output;            /* Bytes sent.        */
+	uint64_t i;                /* Loop index.        */
 
 	/*
 	 * Check if there is a valid condition before proceeding.
@@ -655,9 +701,12 @@ skip_broadcast:
  * @note If @p size is -1, it is assumed that a text frame is being sent,
  * otherwise, a binary frame. In the later case, the @p size is used.
  */
-int ws_sendframe(ws_cli_conn_t *client, const char *msg, uint64_t size, int type)
+int ws_sendframe(ws_cli_conn_t client, const char *msg, uint64_t size, int type)
 {
-	return ws_sendframe_internal(client, msg, size, type, 0);
+	struct ws_connection *cli = get_client_by_cid(client);
+	if (!CLIENT_VALID(cli))
+		return (-1);
+	return ws_sendframe_internal(cli, msg, size, type, 0);
 }
 
 /**
@@ -723,7 +772,7 @@ static inline void int32_to_ping_msg(int32_t ping_id, uint8_t *msg)
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static void send_ping_close(ws_cli_conn_t *cli, int threshold, int lock)
+static void send_ping_close(struct ws_connection *cli, int threshold, int lock)
 {
 	uint8_t ping_msg[4];
 
@@ -737,7 +786,7 @@ static void send_ping_close(ws_cli_conn_t *cli, int threshold, int lock)
 		int32_to_ping_msg(cli->current_ping_id, ping_msg);
 
 		/* Send PING. */
-		ws_sendframe(cli, (const char*)ping_msg, sizeof(ping_msg), WS_FR_OP_PING);
+		ws_sendframe(cli->client_id, (const char*)ping_msg, sizeof(ping_msg), WS_FR_OP_PING);
 
 		/* Check previous PONG: if greater than threshold, abort. */
 		if ((cli->current_ping_id - cli->last_pong_id) > threshold) {
@@ -775,8 +824,9 @@ static void send_ping_close(ws_cli_conn_t *cli, int threshold, int lock)
  * connections (such as a weak WiFi signal or 3/4/5G from a cell phone),
  * a threshold greater than 1 is advisable.
  */
-void ws_ping(ws_cli_conn_t *cli, int threshold)
+void ws_ping(ws_cli_conn_t client, int threshold)
 {
+	struct ws_connection *cli = get_client_by_cid(client);
 	int i;
 
 	/* Sanity check. */
@@ -807,7 +857,7 @@ void ws_ping(ws_cli_conn_t *cli, int threshold)
  *
  * @return Returns the number of bytes written, -1 if error.
  */
-int ws_sendframe_txt(ws_cli_conn_t *client, const char *msg)
+int ws_sendframe_txt(ws_cli_conn_t client, const char *msg)
 {
 	return ws_sendframe(client, msg, (uint64_t)strlen(msg), WS_FR_OP_TXT);
 }
@@ -834,7 +884,7 @@ int ws_sendframe_txt_bcast(uint16_t port, const char *msg)
  *
  * @return Returns the number of bytes written, -1 if error.
  */
-int ws_sendframe_bin(ws_cli_conn_t *client, const char *msg, uint64_t size)
+int ws_sendframe_bin(ws_cli_conn_t client, const char *msg, uint64_t size)
 {
 	return ws_sendframe(client, msg, size, WS_FR_OP_BIN);
 }
@@ -867,9 +917,12 @@ int ws_sendframe_bin_bcast(uint16_t port, const char *msg, uint64_t size)
  * @see WS_STATE_CLOSING
  * @see WS_STATE_CLOSED
  */
-int ws_get_state(ws_cli_conn_t *client)
+int ws_get_state(ws_cli_conn_t client)
 {
-	return (get_client_state(client));
+	struct ws_connection *cli = get_client_by_cid(client);
+	if (!CLIENT_VALID(cli))
+		return -1;
+	return (get_client_state(cli));
 }
 
 /**
@@ -885,13 +938,15 @@ int ws_get_state(ws_cli_conn_t *client)
  * TIMEOUT_MS milliseconds, the server will close the
  * connection with error code (1002).
  */
-int ws_close_client(ws_cli_conn_t *client)
+int ws_close_client(ws_cli_conn_t client)
 {
+	struct ws_connection *cli = get_client_by_cid(client);
+
 	unsigned char clse_code[2];
 	int cc;
 
 	/* Check if client is a valid and connected client. */
-	if (!CLIENT_VALID(client) || client->client_sock == -1)
+	if (!CLIENT_VALID(cli) || cli->client_sock == -1)
 		return (-1);
 
 	/*
@@ -914,7 +969,7 @@ int ws_close_client(ws_cli_conn_t *client)
 	 * a close frame in TIMEOUT_MS milliseconds, the server
 	 * will close the connection with error code (1002).
 	 */
-	start_close_timeout(client);
+	start_close_timeout(cli);
 	return (0);
 }
 
@@ -1010,7 +1065,7 @@ static int do_handshake(struct ws_frame_data *wfd)
 	set_client_state(wfd->client, WS_STATE_OPEN);
 
 	/* Trigger events and clean up buffers. */
-	wfd->client->ws_srv.evs.onopen(wfd->client);
+	wfd->client->ws_srv.evs.onopen(wfd->client->client_id);
 	free(response);
 	return (0);
 }
@@ -1059,7 +1114,7 @@ static int do_close(struct ws_frame_data *wfd, int close_code)
 		wfd->msg_ctrl[0] = (cc >> 8);
 		wfd->msg_ctrl[1] = (cc & 0xFF);
 
-		if (ws_sendframe(wfd->client, (const char *)wfd->msg_ctrl, sizeof(char) * 2,
+		if (ws_sendframe(wfd->client->client_id, (const char *)wfd->msg_ctrl, sizeof(char) * 2,
 				WS_FR_OP_CLSE) < 0)
 		{
 			DEBUG("An error has occurred while sending closing frame!\n");
@@ -1070,7 +1125,7 @@ static int do_close(struct ws_frame_data *wfd, int close_code)
 
 	/* Send the data inside wfd->msg_ctrl. */
 send:
-	if (ws_sendframe(wfd->client, (const char *)wfd->msg_ctrl, wfd->frame_size,
+	if (ws_sendframe(wfd->client->client_id, (const char *)wfd->msg_ctrl, wfd->frame_size,
 			WS_FR_OP_CLSE) < 0)
 	{
 		DEBUG("An error has occurred while sending closing frame!\n");
@@ -1099,7 +1154,7 @@ send:
 static int do_pong(struct ws_frame_data *wfd, uint64_t frame_size)
 {
 	if (ws_sendframe(
-			wfd->client, (const char *)wfd->msg_ctrl, frame_size, WS_FR_OP_PONG) < 0)
+			wfd->client->client_id, (const char *)wfd->msg_ctrl, frame_size, WS_FR_OP_PONG) < 0)
 	{
 		wfd->error = 1;
 		DEBUG("An error has occurred while ponging!\n");
@@ -1678,9 +1733,9 @@ done:
  */
 static void *ws_establishconnection(void *vclient)
 {
-	struct ws_frame_data wfd; /* WebSocket frame data.   */
-	ws_cli_conn_t *client;    /* Client structure.       */
-	int clse_thrd;            /* Time-out close thread.  */
+	struct ws_frame_data wfd;      /* WebSocket frame data.   */
+	struct ws_connection *client;  /* Client structure.       */
+	int clse_thrd;                 /* Time-out close thread.  */
 
 	client = vclient;
 
@@ -1699,7 +1754,7 @@ static void *ws_establishconnection(void *vclient)
 		if ((wfd.frame_type == WS_FR_OP_TXT ||
 			wfd.frame_type == WS_FR_OP_BIN) && !wfd.error)
 		{
-			client->ws_srv.evs.onmessage(client, wfd.msg, wfd.frame_size,
+			client->ws_srv.evs.onmessage(client->client_id, wfd.msg, wfd.frame_size,
 				wfd.frame_type);
 		}
 
@@ -1730,7 +1785,7 @@ static void *ws_establishconnection(void *vclient)
 	 * or server closure, as the server is expected to
 	 * always know when the client disconnects.
 	 */
-	client->ws_srv.evs.onclose(client);
+	client->ws_srv.evs.onclose(client->client_id);
 
 closed:
 	clse_thrd = client->close_thrd;
@@ -1825,6 +1880,7 @@ static void *ws_accept(void *data)
 				client_socks[i].close_thrd   = false;
 				client_socks[i].last_pong_id = -1;
 				client_socks[i].current_ping_id = -1;
+				client_socks[i].client_id = get_next_cid();
 				set_client_address(&client_socks[i]);
 
 				if (pthread_mutex_init(&client_socks[i].mtx_state, NULL))
