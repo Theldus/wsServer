@@ -34,7 +34,7 @@
  *
  * @param client Client connection.
  */
-void onopen(ws_cli_conn_t *client)
+void onopen(ws_cli_conn_t client)
 {
 	((void)client);
 	printf("Connected!\n");
@@ -45,7 +45,7 @@ void onopen(ws_cli_conn_t *client)
  *
  * @param client Client connection.
  */
-void onclose(ws_cli_conn_t *client)
+void onclose(ws_cli_conn_t  client)
 {
 	((void)client);
 	printf("Disconnected!\n");
@@ -60,7 +60,7 @@ void onclose(ws_cli_conn_t *client)
  * @param size Message size (in bytes).
  * @param type Message type.
  */
-void onmessage(ws_cli_conn_t *client,
+void onmessage(ws_cli_conn_t client,
 	const unsigned char *msg, uint64_t size, int type)
 {
 	((void)client);
@@ -98,7 +98,7 @@ int main(void)
 		 * calls. In this example, 10 seconds.
 		 */
 		printf("Sending ping...\n");
-		ws_ping(NULL, 2);
+		ws_ping(0, 2);
 
 		/* Sleep 10 seconds. */
 		sleep(10);

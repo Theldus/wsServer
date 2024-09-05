@@ -225,7 +225,7 @@ extern "C" {
 	#endif
 
 	/* Opaque client connection type. */
-	typedef struct ws_connection ws_cli_conn_t;
+	typedef uint64_t ws_cli_conn_t;
 
 	/* Opaque server instance type. */
 	typedef struct ws_server ws_server_t;
@@ -234,17 +234,17 @@ extern "C" {
 	 * @brief Get server context.
 	 * Set when initializing `.context` in `struct ws_server`.
 	 */
-	void *ws_get_server_context(ws_cli_conn_t *cli);
+	void *ws_get_server_context(ws_cli_conn_t client);
 
 	/**
 	 * @brief Set connection context.
 	 */
-	void ws_set_connection_context(ws_cli_conn_t *cli, void *ptr);
+	void ws_set_connection_context(ws_cli_conn_t client, void *ptr);
 
 	/**
 	 * @brief Get connection context.
 	 */
-	void *ws_get_connection_context(ws_cli_conn_t *cli);
+	void *ws_get_connection_context(ws_cli_conn_t client);
 
 	/**
 	 * @brief events Web Socket events types.
@@ -254,16 +254,16 @@ extern "C" {
 		/**
 		 * @brief On open event, called when a new client connects.
 		 */
-		void (*onopen)(ws_cli_conn_t *client);
+		void (*onopen)(ws_cli_conn_t client);
 		/**
 		 * @brief On close event, called when a client disconnects.
 		 */
-		void (*onclose)(ws_cli_conn_t *client);
+		void (*onclose)(ws_cli_conn_t client);
 		/**
 		 * @brief On message event, called when a client sends a text
 		 * or binary message.
 		 */
-		void (*onmessage)(ws_cli_conn_t *client,
+		void (*onmessage)(ws_cli_conn_t client,
 			const unsigned char *msg, uint64_t msg_size, int type);
 	};
 
@@ -307,24 +307,24 @@ extern "C" {
 	extern int get_handshake_response(char *hsrequest, char **hsresponse);
 
 	/* External usage. */
-	extern char *ws_getaddress(ws_cli_conn_t *client);
-	extern char *ws_getport(ws_cli_conn_t *client);
+	extern char *ws_getaddress(ws_cli_conn_t client);
+	extern char *ws_getport(ws_cli_conn_t client);
 	extern int ws_sendframe(
-		ws_cli_conn_t *cli, const char *msg, uint64_t size, int type);
+		ws_cli_conn_t client, const char *msg, uint64_t size, int type);
 	extern int ws_sendframe_bcast(
 		uint16_t port, const char *msg, uint64_t size, int type);
-	extern int ws_sendframe_txt(ws_cli_conn_t *cli, const char *msg);
+	extern int ws_sendframe_txt(ws_cli_conn_t client, const char *msg);
 	extern int ws_sendframe_txt_bcast(uint16_t port, const char *msg);
-	extern int ws_sendframe_bin(ws_cli_conn_t *cli, const char *msg,
+	extern int ws_sendframe_bin(ws_cli_conn_t client, const char *msg,
 		uint64_t size);
 	extern int ws_sendframe_bin_bcast(uint16_t port, const char *msg,
 		uint64_t size);
-	extern int ws_get_state(ws_cli_conn_t *cli);
-	extern int ws_close_client(ws_cli_conn_t *cli);
+	extern int ws_get_state(ws_cli_conn_t client);
+	extern int ws_close_client(ws_cli_conn_t client);
 	extern int ws_socket(struct ws_server *ws_srv);
 
 	/* Ping routines. */
-	extern void ws_ping(ws_cli_conn_t *cli, int threshold);
+	extern void ws_ping(ws_cli_conn_t cid, int threshold);
 
 #ifdef AFL_FUZZ
 	extern int ws_file(struct ws_events *evs, const char *file);

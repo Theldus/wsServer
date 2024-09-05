@@ -41,7 +41,7 @@
  * in order to send messages and retrieve informations about the
  * client.
  */
-void onopen(ws_cli_conn_t *client)
+void onopen(ws_cli_conn_t client)
 {
 	char *cli;
 	cli = ws_getaddress(client);
@@ -55,7 +55,7 @@ void onopen(ws_cli_conn_t *client)
  * in order to send messages and retrieve informations about the
  * client.
  */
-void onclose(ws_cli_conn_t *client)
+void onclose(ws_cli_conn_t client)
 {
 	char *cli;
 	cli = ws_getaddress(client);
@@ -76,12 +76,12 @@ void onclose(ws_cli_conn_t *client)
  *
  * @param type Message type.
  */
-void onmessage(ws_cli_conn_t *client,
+void onmessage(ws_cli_conn_t client,
 	const unsigned char *msg, uint64_t size, int type)
 {
 	printf("I receive a message: (%.*s) (size: %" PRId64 ", type: %d)\n",
 		(int)size, msg, size, type);
-	ws_sendframe(NULL, (char *)msg, size, type);
+	ws_sendframe(0, (char *)msg, size, type);
 }
 
 /**
