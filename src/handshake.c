@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020  Davidson Francis <davidsondfgl@gmail.com>
+ * Copyright (C) 2016-2024  Davidson Francis <davidsondfgl@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 /**
  * @dir src/
@@ -72,6 +73,25 @@ int get_handshake_accept(char *wsKey, unsigned char **dest)
 }
 
 /**
+ * @brief Finds the ocorrence of @p needle in @p haystack, case
+ * insensitive.
+ *
+ * @param haystack Target string to be searched.
+ * @param needle   Substring to search for.
+ *
+ * @returns If found, returns a pointer at the beginning of the
+ * found substring. Otherwise, returns NULL.
+ */
+static char *strstricase(const char *haystack, const char *needle)
+{
+	size_t length;
+	for (length = strlen(needle); *haystack; haystack++)
+		if (!strncasecmp(haystack, needle, length))
+			return (char*)haystack;
+	return (NULL);
+}
+
+/**
  * @brief Gets the complete response to accomplish a succesfully
  * handshake.
  *
@@ -95,7 +115,7 @@ int get_handshake_response(char *hsrequest, char **hsresponse)
 	for (s = strtok_r(hsrequest, "\r\n", &saveptr); s != NULL;
 		 s = strtok_r(NULL, "\r\n", &saveptr))
 	{
-		if (strstr(s, WS_HS_REQ) != NULL)
+		if (strstricase(s, WS_HS_REQ) != NULL)
 			break;
 	}
 
