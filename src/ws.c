@@ -786,7 +786,8 @@ static void send_ping_close(struct ws_connection *cli, int threshold, int lock)
 		int32_to_ping_msg(cli->current_ping_id, ping_msg);
 
 		/* Send PING. */
-		ws_sendframe(cli->client_id, (const char*)ping_msg, sizeof(ping_msg), WS_FR_OP_PING);
+		ws_sendframe_internal(cli, (const char*)ping_msg, sizeof(ping_msg),
+			WS_FR_OP_PING, 0);
 
 		/* Check previous PONG: if greater than threshold, abort. */
 		if ((cli->current_ping_id - cli->last_pong_id) > threshold) {
