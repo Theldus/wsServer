@@ -43,6 +43,10 @@
 		int fd;
 	};
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 	/* External functions. */
 	extern int tws_connect(struct tws_ctx *ctx, const char *ip,
 		uint16_t port);
@@ -51,5 +55,9 @@
 		uint64_t size, int type);
 	extern int tws_receiveframe(struct tws_ctx *ctx, char **buff,
 		size_t *buff_size, int *frm_type);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* TOYWS_H */
