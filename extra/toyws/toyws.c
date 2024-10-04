@@ -318,7 +318,7 @@ static int skip_frame(struct tws_ctx *ctx, uint64_t frame_size)
  * @param buff_size Buffer size.
  * @param frm_type Frame type received.
  *
- * @return Returns 0 if success, a negative number
+ * @return Returns frame length if success, a negative number
  * otherwise.
  */
 int tws_receiveframe(struct tws_ctx *ctx, char **buff,
@@ -397,7 +397,7 @@ int tws_receiveframe(struct tws_ctx *ctx, char **buff,
 	{
 		cur_byte = next_byte(ctx, &ret);
 		if (cur_byte < 0)
-			return (ret);
+			return (ret == 0 ? frame_length : ret);
 
 		*buf = cur_byte;
 	}
@@ -406,5 +406,5 @@ int tws_receiveframe(struct tws_ctx *ctx, char **buff,
 	/* Fill other infos. */
 	*frm_type = opcode;
 
-	return (ret);
+	return (ret == 0 ? frame_length : ret);
 }
