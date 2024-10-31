@@ -105,7 +105,8 @@ void onmessage(ws_cli_conn_t client,
 	 *   ws_sendframe_bin()
 	 *   ws_sendframe_bin_bcast()
 	 */
-	ws_sendframe_bcast(8080, (char *)msg, size, type);
+	ws_sendframe_txt(client, (char*)msg);
+	//ws_sendframe_bcast(8443, (char *)msg, size, type);
 }
 
 /**
@@ -116,7 +117,22 @@ void onmessage(ws_cli_conn_t client,
  */
 int main(void)
 {
-	ws_socket(&(struct ws_server){
+	// ws_socket(&(struct ws_server){
+	// 	/*
+	// 	 * Bind host:
+	// 	 * localhost -> localhost/127.0.0.1
+	// 	 * 0.0.0.0   -> global IPv4
+	// 	 * ::        -> global IPv4+IPv6 (DualStack)
+	// 	 */
+	// 	.host = "0.0.0.0",
+	// 	.port = 8080,
+	// 	.thread_loop   = 0,
+	// 	.timeout_ms    = 1000,
+	// 	.evs.onopen    = &onopen,
+	// 	.evs.onclose   = &onclose,
+	// 	.evs.onmessage = &onmessage
+	// });
+		ws_socket(&(struct ws_server){
 		/*
 		 * Bind host:
 		 * localhost -> localhost/127.0.0.1
@@ -124,13 +140,14 @@ int main(void)
 		 * ::        -> global IPv4+IPv6 (DualStack)
 		 */
 		.host = "0.0.0.0",
-		.port = 8080,
+		.port = 8443,
 		.thread_loop   = 0,
 		.timeout_ms    = 1000,
 		.evs.onopen    = &onopen,
 		.evs.onclose   = &onclose,
 		.evs.onmessage = &onmessage
 	});
+
 
 	/*
 	 * If you want to execute code past ws_socket(), set
