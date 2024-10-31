@@ -25,8 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include <time.h>
-
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
@@ -95,7 +93,9 @@ struct ws_connection
 
 	/* Connection context */
 	void *connection_context;
+#ifdef ENABLE_OPENSSL
 	SSL *ssl;
+#endif
 
 	ws_cli_conn_t client_id;
 };
@@ -344,8 +344,11 @@ static ssize_t send_all(
 	pthread_mutex_lock(&client->mtx_snd);
 		while (len)
 		{
-			// r = send(client->client_sock, p, len, flags);
-			r = SSL_write(client->ssl, p, len);
+#ifdef ENABLE_OPENSSL
+		r = SSL_write(client->ssl, p, len);	
+#else
+		r = send(client->client_sock, p, len, flags);
+#endif
 			if (r == -1)
 			{
 				pthread_mutex_unlock(&client->mtx_snd);
@@ -499,8 +502,10 @@ static void set_client_address(struct ws_connection *client)
 	if (getpeername(client->client_sock, (struct sockaddr *)&addr, &hlen) < 0)
 		return;
 
-	getnameinfo((struct sockaddr *)&addr, hlen, client->ip, sizeof(client->ip),
-		client->port, sizeof(client->port), NI_NUMERICHOST | NI_NUMERICSERV);
+	getnameinfo((struct sockaddr *)&addr, hlen,
+	 client->ip,   sizeof(client->ip),
+		client->port, sizeof(client->port),
+		 NI_NUMERICHOST|NI_NUMERICSERV);
 }
 
 /**
@@ -562,11 +567,8 @@ char *ws_getport(ws_cli_conn_t client)
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int ws_sendframe_internal(struct ws_connection *client,
-	const char *msg,
-	uint64_t size,
-	int type,
-	uint16_t port)
+static int ws_sendframe_internal(struct ws_connection *client, const char *msg,
+    uint64_t size, int type, uint16_t port)
 {
 	unsigned char *response;   /* Response data.     */
 	unsigned char frame[10];   /* Frame.             */
@@ -1118,8 +1120,8 @@ static int do_close(struct ws_frame_data *wfd, int close_code)
 		wfd->msg_ctrl[0] = (cc >> 8);
 		wfd->msg_ctrl[1] = (cc & 0xFF);
 
-		if (ws_sendframe(wfd->client->client_id, (const char *)wfd->msg_ctrl,
-				sizeof(char) * 2, WS_FR_OP_CLSE) < 0)
+		if (ws_sendframe(wfd->client->client_id, (const char *)wfd->msg_ctrl, sizeof(char) * 2,
+				 WS_FR_OP_CLSE) < 0)
 		{
 			DEBUG("An error has occurred while sending closing frame!\n");
 			return (-1);
@@ -1157,8 +1159,8 @@ send:
  */
 static int do_pong(struct ws_frame_data *wfd, uint64_t frame_size)
 {
-	if (ws_sendframe(wfd->client->client_id, (const char *)wfd->msg_ctrl, frame_size,
-			WS_FR_OP_PONG) < 0)
+	if (ws_sendframe(
+		wfd->client->client_id, (const char *)wfd->msg_ctrl, frame_size, WS_FR_OP_PONG) < 0)
 	{
 		wfd->error = 1;
 		DEBUG("An error has occurred while ponging!\n");
@@ -1261,7 +1263,8 @@ struct frame_state_data
  * @attention This is part of the internal API and is documented just
  * for completeness.
  */
-static int validate_utf8_txt(struct ws_frame_data *wfd, struct frame_state_data *fsd)
+static int validate_utf8_txt(struct ws_frame_data *wfd, 
+	struct frame_state_data *fsd)
 {
 #ifdef VALIDATE_UTF8
 	/* UTF-8 Validate partial (or not) frame. */
@@ -1814,6 +1817,7 @@ struct ws_accept_params
 	struct ws_server ws_srv;
 };
 
+#ifdef ENABLE_OPENSSL
 SSL_CTX *create_context()
 {
 	const SSL_METHOD *method;
@@ -1847,6 +1851,7 @@ void configure_context(SSL_CTX *ctx)
 		exit(EXIT_FAILURE);
 	}
 }
+#endif
 
 /**
  * @brief Main loop that keeps accepting new connections.
@@ -1916,6 +1921,7 @@ static void *ws_accept(void *data)
 				client_socks[i].client_id = get_next_cid();
 				set_client_address(&client_socks[i]);
 
+#ifdef ENABLE_OPENSSL
 				client_socks[i].ssl = SSL_new(ctx);
 				SSL_set_fd(client_socks[i].ssl, new_sock);
 				int rc = SSL_accept(client_socks[i].ssl);
@@ -1923,6 +1929,7 @@ static void *ws_accept(void *data)
 				{
 					printf("[e] SSL\n");
 				}
+#endif
 
 				if (pthread_mutex_init(&client_socks[i].mtx_state, NULL))
 					panic("Error on allocating close mutex");
@@ -2064,8 +2071,10 @@ int ws_socket(struct ws_server *ws_srv)
 	/* Create socket and bind. */
 	sock = do_bind_socket(ws_srv);
 
+#ifdef ENABLE_OPENSSL
 	ctx = create_context();
 	configure_context(ctx);
+#endif
 
 	/* Listen. */
 	if (listen(sock, MAX_CLIENTS) < 0)
@@ -2087,7 +2096,9 @@ int ws_socket(struct ws_server *ws_srv)
 		pthread_detach(accept_thread);
 	}
 
+#ifdef ENABLE_OPENSSL
 	SSL_CTX_free(ctx);
+#endif
 
 	return (0);
 }

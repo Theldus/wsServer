@@ -19,7 +19,7 @@ LIB_WS    = libws.a
 INCLUDE   = include
 CFLAGS   += -Wall -Wextra -O2
 CFLAGS   += -I $(INCLUDE) -std=c99 -pedantic
-LDLIBS    = $(LIB_WS) -pthread
+LDLIBS    = $(LIB_WS) -pthread -lssl -lcrypto
 ARFLAGS   =  cru
 MCSS_DIR ?= /usr/bin/
 MANPAGES  = doc/man/man3

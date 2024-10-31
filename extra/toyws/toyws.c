@@ -397,7 +397,7 @@ int tws_receiveframe(struct tws_ctx *ctx, char **buff,
 	{
 		cur_byte = next_byte(ctx, &ret);
 		if (cur_byte < 0)
-			return (ret == 0 ? frame_length : ret);
+			return (ret == 0 ? frame_length : (uint64_t)ret);
 
 		*buf = cur_byte;
 	}
@@ -406,5 +406,5 @@ int tws_receiveframe(struct tws_ctx *ctx, char **buff,
 	/* Fill other infos. */
 	*frm_type = opcode;
 
-	return (ret == 0 ? frame_length : ret);
+	return (ret == 0 ? frame_length : (uint64_t)ret);
 }
