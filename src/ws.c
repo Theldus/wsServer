@@ -386,7 +386,6 @@ static void close_client(struct ws_connection *client, int lock)
 	/* Close the client SSL instance */
 	if (client->ssl)
 	{
-		printf("cerrando cliente\n");
 		SSL_shutdown(client->ssl);
 		SSL_free(client->ssl);
 	}

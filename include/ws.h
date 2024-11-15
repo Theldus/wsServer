@@ -209,7 +209,6 @@ extern "C" {
 	/**
 	 * @brief Debug
 	 */
-	#ifdef VERBOSE_MODE
 	#define DEBUG(...) fprintf(stderr, __VA_ARGS__)
 	#else
 	#define DEBUG(...)
