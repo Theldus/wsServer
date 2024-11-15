@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+//#define ENABLE_SSL
 #define _POSIX_C_SOURCE 200809L
 #include <errno.h>
 #include <fcntl.h>
@@ -26,8 +27,11 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
+
+#ifdef ENABLE_SSL
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#endif
 
 /* clang-format off */
 #ifndef _WIN32
@@ -61,10 +65,12 @@ typedef int socklen_t;
  * @brief wsServer main routines.
  */
 
+#ifdef ENABLE_SSL
 /**
  * @brief SSL context
  */
 	SSL_CTX *ssl_ctx;
+#endif
 
 /**
  * @brief Client socks.
@@ -95,8 +101,10 @@ struct ws_connection
 	int32_t current_ping_id;
 	pthread_mutex_t mtx_ping;
 
+#ifdef ENABLE_SSL
 	/* SSL */
 	SSL *ssl;
+#endif
 
 	/* Connection context */
 	void *connection_context;
@@ -351,7 +359,11 @@ static ssize_t send_all(
 	pthread_mutex_lock(&client->mtx_snd);
 		while (len)
 		{
+#ifdef ENABLE_SSL			
 			r = client->ssl ? SSL_write(client->ssl, p, len) : send(client->client_sock, p, len, flags);
+#else
+			r = send(client->client_sock, p, len, flags);
+#endif
 			if (r == -1)
 			{
 				pthread_mutex_unlock(&client->mtx_snd);
@@ -383,12 +395,14 @@ static void close_client(struct ws_connection *client, int lock)
 
 	set_client_state(client, WS_STATE_CLOSED);
 
+#ifdef ENABLE_SSL
 	/* Close the client SSL instance */
 	if (client->ssl)
 	{
 		SSL_shutdown(client->ssl);
 		SSL_free(client->ssl);
 	}
+#endif
 
 	close_socket(client->client_sock);
 
@@ -673,7 +687,11 @@ static int ws_sendframe_internal(struct ws_connection *client, const char *msg,
 	output = 0;
 	if (client && port == 0)
 	{
+#ifdef ENABLE_SSL
 		output = client->ssl ? SSL_write(client->ssl, response, idx_response) : SEND(client, response, idx_response);
+#else
+		output = SEND(client, response, idx_response);
+#endif
 		goto skip_broadcast;
 	}
 
@@ -688,7 +706,11 @@ static int ws_sendframe_internal(struct ws_connection *client, const char *msg,
 				get_client_state(cli) == WS_STATE_OPEN &&
 				(cli->ws_srv.port == port))
 			{
+#ifdef ENABLE_SSL
 				if ((send_ret = cli->ssl ? SSL_write(cli->ssl, response, idx_response) : SEND(cli, response, idx_response)) != -1)
+#else
+				if ((send_ret = SEND(cli, response, idx_response)) != -1)
+#endif
 					output += send_ret;
 				else
 				{
@@ -1044,7 +1066,11 @@ static int do_handshake(struct ws_frame_data *wfd)
 	ssize_t n;      /* Read/Write bytes.           */
 
 	/* Read the very first client message. */
+#ifdef ENABLE_SSL
 	if ((n = (wfd->client)->ssl ? SSL_read((wfd->client)->ssl, wfd->frm, sizeof(wfd->frm) - 1) : RECV(wfd->client, wfd->frm, sizeof(wfd->frm) - 1)) < 0)
+#else
+	if ((n = RECV(wfd->client, wfd->frm, sizeof(wfd->frm) - 1)) < 0)
+#endif
 		return (-1);
 
 	/* Advance our pointers before the first next_byte(). */
@@ -1072,7 +1098,11 @@ static int do_handshake(struct ws_frame_data *wfd)
 		response);
 
 	/* Send handshake. */
+#ifdef ENABLE_SSL
 	if (((wfd->client)->ssl ? SSL_write((wfd->client)->ssl, response, strlen(response)) : SEND(wfd->client, response, strlen(response))) < 0)
+#else
+	if ((SEND(wfd->client, response, strlen(response))) < 0)
+#endif
 	{
 		free(response);
 		DEBUG("As error has occurred while handshaking!\n");
@@ -1199,7 +1229,11 @@ static inline int next_byte(struct ws_frame_data *wfd)
 	/* If empty or full. */
 	if (wfd->cur_pos == 0 || wfd->cur_pos == wfd->amt_read)
 	{
+#ifdef ENABLE_SSL
 		if ((n = (wfd->client)->ssl ? SSL_read((wfd->client)->ssl, wfd->frm, sizeof(wfd->frm)) : RECV(wfd->client, wfd->frm, sizeof(wfd->frm))) <= 0)
+#else
+		if ((n = RECV(wfd->client, wfd->frm, sizeof(wfd->frm))) <= 0)
+#endif
 		{
 			wfd->error = 1;
 			DEBUG("An error has occurred while trying to read next byte\n");
@@ -1901,6 +1935,7 @@ static void *ws_accept(void *data)
 				client_socks[i].client_id = get_next_cid();
 				set_client_address(&client_socks[i]);
 
+#ifdef ENABLE_SSL
 				/* Accept the SSL instance */
 				client_socks[i].ssl = 0;
 				if (ssl_ctx)
@@ -1914,6 +1949,7 @@ static void *ws_accept(void *data)
 						}
 					}
 				}
+#endif
 
 				if (pthread_mutex_init(&client_socks[i].mtx_state, NULL))
 					panic("Error on allocating close mutex");
@@ -1941,10 +1977,12 @@ static void *ws_accept(void *data)
 			close_socket(new_sock);
 	}
 
+#ifdef ENABLE_SSL
 	if (ssl_ctx)
 	{
 		SSL_CTX_free(ssl_ctx);
 	}
+#endif
 
 	free(data);
 	return (data);
@@ -2058,11 +2096,13 @@ int ws_socket(struct ws_server *ws_srv)
 	setvbuf(stdout, NULL, _IONBF, 0);
 #endif
 
+#ifdef ENABLE_SSL
 	/* Initialize SSL context */
 	if (ssl_init(ws_srv->cert, ws_srv->cert_key))
 	{
 		panic("Unable to initialize SSL context!");
 	}
+#endif
 
 	/* Create socket and bind. */
 	sock = do_bind_socket(ws_srv);
@@ -2142,6 +2182,7 @@ int ws_file(struct ws_events *evs, const char *file)
 }
 #endif
 
+#ifdef ENABLE_SSL
 /**
  * @brief Initialization of the SSL functions
  *
@@ -2201,3 +2242,4 @@ void ssl_end(void)
 {
 	SSL_CTX_free(ssl_ctx);
 }
+#endif

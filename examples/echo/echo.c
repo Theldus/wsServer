@@ -125,8 +125,8 @@ int main(void)
 		 */
 		.host = "0.0.0.0",
 		.port = 8080,
-		.cert = "certs/localhost.crt",
-		.cert_key = "certs/localhost.key",
+		//.cert = "certs/localhost.crt",
+		//.cert_key = "certs/localhost.key",
 		.thread_loop   = 0,
 		.timeout_ms    = 1000,
 		.evs.onopen    = &onopen,
