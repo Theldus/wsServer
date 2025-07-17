@@ -180,6 +180,13 @@ in conjunction with [Stunnel](https://www.stunnel.org/), a proxy that adds TLS
 support to existing projects. Just follow [these](doc/TLS.md) four easy steps
 to get TLS support on wsServer.
 
+## 3rd party projects
+Below is a list of projects that use wsServer in some way or other:
+
+- [odin-wsserver]: Odin-bindings for wsServer
+
+[odin-wsserver]: https://github.com/saenai255/odin-wsserver
+
 ## Contributing
 wsServer is always open to the community and willing to accept contributions,
 whether with issues, documentation, testing, new features, bugfixes, typos...
