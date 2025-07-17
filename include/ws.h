@@ -280,6 +280,16 @@ extern "C" {
 		 * @brief Listening port
 		 */
 		uint16_t port;
+#ifdef ENABLE_SSL
+		/**
+		 *  @brief SSL certificate path (if any) (MUST to enable "wss")
+		 */
+		const char *cert;
+		/**
+		 *  @brief SSL private key path (if any) (MUST to enable "wss")
+		 */
+		const char *cert_key;
+#endif
 		/**
 		 * @brief Whether if the ws_socket() should create a new thread
 		 * and be non-blocking (1) or not (0).
@@ -305,6 +315,10 @@ extern "C" {
 	/* Internal usage. */
 	extern int get_handshake_accept(char *wsKey, unsigned char **dest);
 	extern int get_handshake_response(char *hsrequest, char **hsresponse);
+#ifdef ENABLE_SSL
+	extern int ssl_init(const char *cert, const char *cert_key);
+	extern void ssl_end(void);
+#endif
 
 	/* External usage. */
 	extern char *ws_getaddress(ws_cli_conn_t client);
