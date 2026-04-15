@@ -160,6 +160,10 @@ extern "C" {
 	 * @brief Protocol error
 	 */
 	#define WS_CLSE_PROTERR 1002
+    /**
+	 * @brief Message too large
+	 */
+	#define WS_CLSE_BIGMSG  1009
 	/**@}*/
 	/**
 	 * @brief Inconsistent message (invalid utf-8)

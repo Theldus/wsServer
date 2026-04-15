@@ -1221,6 +1221,23 @@ static int skip_frame(struct ws_frame_data *wfd, uint64_t frame_size)
 }
 
 /**
+ * @brief Adds two uint64_t numbers detecting overflow.
+ *
+ * @param a Left operand.
+ * @param b Right operand.
+ * @param out Result pointer.
+ *
+ * @return Returns true if there is no overflow, false otherwise.
+ */
+static bool checked_add_u64(uint64_t a, uint64_t b, uint64_t *out)
+{
+	if (a > UINT64_MAX - b)
+		return (false);
+	*out = a + b;
+	return (true);
+}
+
+/**
  * Frame state data
  *
  * This structure holds the current data for handling the
@@ -1410,13 +1427,15 @@ static int handle_close_frame(struct ws_frame_data *wfd,
 static int read_single_frame(struct ws_frame_data *wfd,
 	struct frame_state_data *fsd)
 {
-	uint64_t *frame_size; /* Curr frame size. */
-	unsigned char *tmp; /* Tmp message.     */
-	unsigned char *msg; /* Current message. */
-	uint64_t *msg_idx;  /* Message index.   */
-	uint8_t *masks;     /* Current mask.    */
-	int cur_byte;       /* Curr byte read.  */
-	uint64_t i;         /* Loop index.      */
+	uint64_t *frame_size;    /* Curr frame size. */
+	uint64_t next_size = 0;  /* Checked next sz. */
+	uint64_t alloc_size = 0; /* Checked alloc sz.*/
+	unsigned char *tmp;      /* Tmp message.     */
+	unsigned char *msg;      /* Current message. */
+	uint64_t *msg_idx;       /* Message index.   */
+	uint8_t *masks;          /* Current mask.    */
+	int cur_byte;            /* Curr byte read.  */
+	uint64_t i;              /* Loop index.      */
 
 	/* Decide which mask and msg to use. */
 	if (is_control_frame(fsd->opcode)) {
@@ -1450,8 +1469,6 @@ static int read_single_frame(struct ws_frame_data *wfd,
 			(((uint64_t)next_byte(wfd))); /* frame[9]. */
 	}
 
-	*frame_size += fsd->frame_length;
-
 	/*
 	 * Check frame size
 	 *
@@ -1460,16 +1477,24 @@ static int read_single_frame(struct ws_frame_data *wfd,
 	 * bytes. Also keep in mind that this is still true
 	 * for continuation frames.
 	 */
-	if (*frame_size > MAX_FRAME_LENGTH)
+	if (!checked_add_u64(*frame_size, fsd->frame_length, &next_size) ||
+		next_size > MAX_FRAME_LENGTH)
 	{
 		DEBUG("Current frame from client %d, exceeds the maximum\n"
 			  "amount of bytes allowed (%" PRId64 "/%d)!",
-			wfd->client->client_sock, *frame_size + fsd->frame_length,
+			wfd->client->client_sock, next_size,
 			MAX_FRAME_LENGTH);
 
+		/*
+		 * We are rejecting a too-large message (or a wrapped size).
+		 * RFC 6455 suggests code 1009 for this situation.
+		 */
+		do_close(wfd, WS_CLSE_BIGMSG);
 		wfd->error = 1;
 		return (-1);
 	}
+
+	*frame_size = next_size;
 
 	/* Read masks. */
 	masks[0] = next_byte(wfd);
@@ -1502,12 +1527,25 @@ static int read_single_frame(struct ws_frame_data *wfd,
 	{
 		if (!is_control_frame(fsd->opcode))
 		{
-			tmp = realloc(msg, *msg_idx + fsd->frame_length + fsd->is_fin);
+			if (!checked_add_u64(*msg_idx, fsd->frame_length, &alloc_size) ||
+				!checked_add_u64(alloc_size, fsd->is_fin, &alloc_size) ||
+				alloc_size > MAX_FRAME_LENGTH + 1)
+			{
+				DEBUG("Cannot allocate frame data: invalid message size "
+					  "(idx=%" PRId64 ", len=%" PRId64 ", fin=%u)\n",
+					*msg_idx, fsd->frame_length, fsd->is_fin);
+				do_close(wfd, WS_CLSE_BIGMSG);
+				wfd->error = 1;
+				return (-1);
+			}
+
+			tmp = realloc(msg, alloc_size);
 			if (!tmp)
 			{
 				DEBUG("Cannot allocate memory, requested: % " PRId64 "\n",
-					(*msg_idx + fsd->frame_length + fsd->is_fin));
+					alloc_size);
 
+				do_close(wfd, WS_CLSE_BIGMSG);
 				wfd->error = 1;
 				return (-1);
 			}
