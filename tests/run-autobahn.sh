@@ -72,7 +72,14 @@ then
 	SR=$!
 elif [ -f "$ECHO_BIN.exe" ]
 then
-	wine64-stable "$ECHO_BIN" &
+	file "$ECHO_BIN.exe"
+	if [ -n "${TRAVIS:-}" ]; then
+		export WINEARCH=win64
+		export WINEPREFIX=$HOME/.wine64
+		rm -rf "$WINEPREFIX"
+		/usr/lib/wine/wine64 wineboot
+	fi
+	/usr/lib/wine/wine64 "$ECHO_BIN.exe" &
 	SR=$!
 else
 	echo "Error, echo[.exe] not found!"
