@@ -47,13 +47,26 @@
  */
 int get_handshake_accept(char *wsKey, unsigned char **dest)
 {
+	unsigned char *decoded;            /* Decoded WebSocket key.       */
 	unsigned char hash[SHA1HashSize]; /* SHA-1 Hash.                   */
 	SHA1Context ctx;                  /* SHA-1 Context.                */
 	char *str;                        /* WebSocket key + magic string. */
+	size_t decoded_len;               /* Decoded key length.           */
 
 	/* Invalid key. */
-	if (!wsKey)
+	if (!wsKey || strlen(wsKey) != WS_KEY_LEN ||
+		wsKey[WS_KEY_LEN - 2] != '=' ||
+		wsKey[WS_KEY_LEN - 1] != '=')
 		return (-1);
+
+	decoded = base64_decode((const unsigned char *)wsKey, WS_KEY_LEN,
+		&decoded_len);
+	if (!decoded || decoded_len != 16)
+	{
+		free(decoded);
+		return (-1);
+	}
+	free(decoded);
 
 	str = calloc(1, sizeof(char) * (WS_KEY_LEN + WS_MS_LEN + 1));
 	if (!str)
