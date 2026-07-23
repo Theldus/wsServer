@@ -10,6 +10,10 @@ to all connected clients.
 - [vtouchpad](vtouchpad): A 'virtual touchpad' that remotely controls
 a computer's mouse.
 
+- [relay](relay): A simple relay server that connects peers on a one-to-one 
+basis and relays messages between them. UUIDs are used to authenticate peers.
+
+
 If you have other examples and/or small demos that might be useful for
 illustrating wsServer's functionality, feel free to submit a PR.
 

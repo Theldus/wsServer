@@ -106,13 +106,17 @@ $(LIB_WS): $(WS_OBJ)
 	$(Q)$(AR) $(ARFLAGS) $(LIB_WS) $^
 
 # Examples
-examples: examples/echo/echo examples/ping/ping
+examples: examples/echo/echo examples/ping/ping examples/relay/relay
 examples/echo/echo: examples/echo/echo.o $(LIB_WS)
 	@echo "  LINK    $@"
 	$(Q)$(CC) $(CFLAGS) $< -o $@ $(LDLIBS)
 examples/ping/ping: examples/ping/ping.o $(LIB_WS)
 	@echo "  LINK    $@"
 	$(Q)$(CC) $(CFLAGS) $< -o $@ $(LDLIBS)
+examples/relay/relay: examples/relay/relay.o examples/relay/waitlist.o examples/relay/peers_lut.o examples/relay/json_pars.o $(LIB_WS)
+	@echo "  LINK    $@"
+	$(Q)$(CC) $(CFLAGS) -pthread $^ -o $@ $(LDLIBS) 
+	
 
 # Autobahn tests
 tests: examples
@@ -194,5 +198,7 @@ clean:
 	@rm -f $(TOYWS)/toyws.o $(TOYWS)/tws_test.o $(TOYWS)toyws_test
 	@rm -f examples/echo/{echo,echo.o}
 	@rm -f examples/ping/{ping,ping.o}
+	@rm -f examples/relay/relay
+	@rm -f examples/relay/*.o
 	@$(MAKE) clean -C tests/
 	@$(MAKE) clean -C tests/fuzzy
